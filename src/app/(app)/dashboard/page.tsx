@@ -107,6 +107,20 @@ export default function DashboardPage() {
     };
   }, []);
 
+  // Load Razorpay script on mount
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
+
   // 1. Fetch User and Active Requests on Mount
   useEffect(() => {
     async function loadDashboard() {
@@ -486,6 +500,83 @@ export default function DashboardPage() {
       setSubmitting(false);
     }
   };
+
+  const handleRazorpayPay = async () => {
+    if (!requestId) return;
+    setActionError("");
+    setSubmitting(true);
+
+    try {
+      // 1. Create order on backend
+      const res = await fetch("/api/payment/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setActionError(data.message || "Failed to create payment order.");
+        setSubmitting(false);
+        return;
+      }
+
+      // 2. Open Razorpay checkout modal
+      const options = {
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        name: "BlindSide",
+        description: "Campus Match Search Fee",
+        order_id: data.orderId,
+        handler: async (response: any) => {
+          setSubmitting(true);
+          try {
+            // 3. Verify signature on backend
+            const verifyRes = await fetch("/api/payment/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                requestId,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyRes.ok) {
+              setWalletBalance(verifyData.newBalance);
+              setDashboardState(2);
+              await refreshMatchStatus(userId!);
+            } else {
+              setActionError(verifyData.message || "Payment verification failed.");
+            }
+          } catch {
+            setActionError("Payment verification network error.");
+          } finally {
+            setSubmitting(false);
+          }
+        },
+        prefill: {
+          name: userName,
+        },
+        theme: {
+          color: "#e83a72",
+        },
+        modal: {
+          ondismiss: () => {
+            setSubmitting(false);
+          }
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch {
+      setActionError("Failed to initiate Razorpay payment.");
+      setSubmitting(false);
+    }
+  };
+
 
   // Chat Actions
   const handleSendMessage = async (e: FormEvent) => {
@@ -941,15 +1032,33 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="btn btn-primary btn-pill"
-                  style={{ width: "100%", marginTop: "1.5rem" }}
-                  onClick={handlePay}
-                  disabled={submitting}
-                >
-                  {submitting ? "Processing..." : `Deduct ₹${isFirstMatch ? 49 : 69} & Start Search ✓`}
-                </button>
+                {walletBalance >= (isFirstMatch ? 49 : 69) ? (
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-pill"
+                    style={{ width: "100%", marginTop: "1.5rem" }}
+                    onClick={handlePay}
+                    disabled={submitting}
+                  >
+                    {submitting ? "Processing..." : `Pay ₹${isFirstMatch ? 49 : 69} from Wallet (Bal: ₹${walletBalance}) ✓`}
+                  </button>
+                ) : (
+                  <div>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-pill"
+                      style={{ width: "100%", marginTop: "1.5rem" }}
+                      onClick={handleRazorpayPay}
+                      disabled={submitting}
+                    >
+                      {submitting ? "Processing..." : `Pay ₹${isFirstMatch ? 49 : 69} via UPI / Card (Razorpay) ✓`}
+                    </button>
+                    <div style={{ textAlign: "center", marginTop: "0.5rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                      Wallet Balance: ₹{walletBalance} (Insufficient)
+                    </div>
+                  </div>
+                )}
+
 
                 <div className={s.slideFooter} style={{ marginTop: "1rem" }}>
                   <button className="btn btn-ghost" onClick={() => setPrefSlide(4)}>
