@@ -473,35 +473,36 @@ function OnboardingContent() {
     try {
       const emailVal = isPrimaryEmail ? primaryId.trim().toLowerCase() : secondaryId.trim().toLowerCase();
       const phoneVal = isPrimaryEmail ? secondaryId.trim() : primaryId.trim();
-      
-      const { data, error: signUpError } = await supabase.auth.signUp({
+
+      // Create the account pre-confirmed via the server (admin) so a session can
+      // be established right away, independent of the "Confirm email" setting.
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailVal, password, phone: phoneVal }),
+      });
+      const signUpResult = await res.json();
+      if (!res.ok) {
+        throw new Error(signUpResult.message || "Failed to register.");
+      }
+
+      // Sign in to establish the client session (sets auth.uid() for RLS).
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: emailVal,
         password,
       });
+      if (signInError) throw signInError;
 
-      if (signUpError) throw signUpError;
-      if (data?.user) {
-        setUserId(data.user.id);
-        
-        // Save the phone number to public.users table immediately after registration succeeds
-        const { error: phoneUpdateError } = await supabase
-          .from("users")
-          .update({ phone: phoneVal })
-          .eq("id", data.user.id);
+      setUserId(signUpResult.userId);
 
-        if (phoneUpdateError) {
-          console.error("Failed to update user phone number in Step 3:", phoneUpdateError);
-        }
+      // Clear local storage since registration is complete
+      localStorage.removeItem("blindside_onboarding_primaryId");
+      localStorage.removeItem("blindside_onboarding_primaryVerified");
+      localStorage.removeItem("blindside_onboarding_secondaryId");
+      localStorage.removeItem("blindside_onboarding_secondaryVerified");
 
-        // Clear local storage since registration is complete
-        localStorage.removeItem("blindside_onboarding_primaryId");
-        localStorage.removeItem("blindside_onboarding_primaryVerified");
-        localStorage.removeItem("blindside_onboarding_secondaryId");
-        localStorage.removeItem("blindside_onboarding_secondaryVerified");
-
-        setActionSuccess("Account created successfully!");
-        setStep(4);
-      }
+      setActionSuccess("Account created successfully!");
+      setStep(4);
     } catch (err: any) {
       setActionError(err.message || "Failed to register. Please try again.");
     } finally {

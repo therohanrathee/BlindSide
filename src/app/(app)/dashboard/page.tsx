@@ -912,18 +912,20 @@ export default function DashboardPage() {
                   <div className={s.heightSelects}>
                     <div className={s.formGroup}>
                       <label className={s.label}>Min Height</label>
-                      <select className={s.select} value={prefHeightMinCm} onChange={(e) => setPrefHeightMinCm(parseInt(e.target.value))}>
-                        {Array.from({ length: 71 }, (_, i) => i + 130).map(cm => (
-                          <option key={cm} value={cm}>{Math.round(cm / 2.54 / 12)}&apos;{Math.round((cm / 2.54) % 12)}&quot; ({cm} cm)</option>
-                        ))}
+                      <select className={s.select} value={Math.round(Math.round(prefHeightMinCm / 2.54) * 2.54)} onChange={(e) => setPrefHeightMinCm(parseInt(e.target.value))}>
+                        {Array.from({ length: 29 }, (_, i) => i + 51).map(totalIn => {
+                          const cm = Math.round(totalIn * 2.54);
+                          return <option key={totalIn} value={cm}>{Math.floor(totalIn / 12)}&apos;{totalIn % 12}&quot; ({cm} cm)</option>;
+                        })}
                       </select>
                     </div>
                     <div className={s.formGroup}>
                       <label className={s.label}>Max Height</label>
-                      <select className={s.select} value={prefHeightMaxCm} onChange={(e) => setPrefHeightMaxCm(parseInt(e.target.value))}>
-                        {Array.from({ length: 71 }, (_, i) => i + 130).map(cm => (
-                          <option key={cm} value={cm} disabled={cm < prefHeightMinCm}>{Math.round(cm / 2.54 / 12)}&apos;{Math.round((cm / 2.54) % 12)}&quot; ({cm} cm)</option>
-                        ))}
+                      <select className={s.select} value={Math.round(Math.round(prefHeightMaxCm / 2.54) * 2.54)} onChange={(e) => setPrefHeightMaxCm(parseInt(e.target.value))}>
+                        {Array.from({ length: 29 }, (_, i) => i + 51).map(totalIn => {
+                          const cm = Math.round(totalIn * 2.54);
+                          return <option key={totalIn} value={cm} disabled={totalIn < Math.round(prefHeightMinCm / 2.54)}>{Math.floor(totalIn / 12)}&apos;{totalIn % 12}&quot; ({cm} cm)</option>;
+                        })}
                       </select>
                     </div>
                   </div>
