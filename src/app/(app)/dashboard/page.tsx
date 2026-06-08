@@ -32,6 +32,147 @@ function SendIcon() {
   );
 }
 
+// Preference SVG Icons
+function MaleSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 80 120" fill={fill} className={s.genderIcon}>
+      <circle cx="40" cy="18" r="13"/>
+      <path d="M20 46 Q20 34 30 34 L50 34 Q60 34 60 46 L57 82 Q56 87 51 87 L29 87 Q24 87 23 82 Z"/>
+      <rect x="25" y="89" width="11" height="28" rx="5"/>
+      <rect x="44" y="89" width="11" height="28" rx="5"/>
+    </svg>
+  );
+}
+
+function FemaleSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 80 120" fill={fill} className={s.genderIcon}>
+      <circle cx="40" cy="18" r="13"/>
+      <path d="M28 46 Q28 34 34 34 L46 34 Q52 34 52 46 L54 60 Q54 65 48 68 L52 87 Q53 90 48 90 L32 90 Q27 90 28 87 L32 68 Q26 65 26 60 Z"/>
+      <rect x="29" y="92" width="10" height="26" rx="5"/>
+      <rect x="41" y="92" width="10" height="26" rx="5"/>
+    </svg>
+  );
+}
+
+function EveryoneSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 100 120" fill={fill} className={s.genderIcon}>
+      {/* Figure 1 (Left, Female-ish) */}
+      <g opacity="0.8" transform="translate(-8, 5) scale(0.9)">
+        <circle cx="35" cy="18" r="12"/>
+        <path d="M25 44 Q25 34 31 34 L39 34 Q45 34 45 44 L47 56 Q47 60 42 63 L45 78 Q46 81 41 81 L29 81 Q24 81 25 78 L29 63 Q23 60 23 56 Z"/>
+      </g>
+      {/* Figure 2 (Right, Male-ish) */}
+      <g opacity="0.8" transform="translate(18, 5) scale(0.9)">
+        <circle cx="45" cy="18" r="12"/>
+        <path d="M29 44 Q29 34 37 34 L49 34 Q57 34 57 44 L55 74 Q54 78 50 78 L34 78 Q30 78 29 74 Z"/>
+      </g>
+      {/* Figure 3 (Center, Foreground) */}
+      <g transform="translate(5, 0)">
+        <circle cx="40" cy="18" r="13"/>
+        <path d="M24 46 Q24 34 32 34 L48 34 Q56 34 56 46 L53 82 Q52 87 47 87 L33 87 Q28 87 27 82 Z"/>
+      </g>
+    </svg>
+  );
+}
+
+function VegSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 1.35 4.3 0 10a8.9 8.9 0 0 1-8 8z" />
+      <path d="M19 2c-2.26 4.33-5.27 7.14-8 10" />
+    </svg>
+  );
+}
+
+function NonVegSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <path d="M16 3c-2.5 0-5 1.5-6.5 3.5C8 8.5 7.5 11 8 13.5l-5.5 5.5c-.8.8-.8 2 0 2.8.8.8 2 .8 2.8 0L10.8 16c2.5.5 5 0 7-1.5 2-1.5 3.5-4 3.5-6.5C21.3 5 19 3 16 3z" />
+      <circle cx="16" cy="8" r="2" fill={fill} />
+    </svg>
+  );
+}
+
+function VeganSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <path d="M2 22c1.25-3.87 3.55-7.07 6.55-9" />
+      <path d="M8.5 13C12 9 17 8 22 6c-1 5-4.5 9.5-8.5 12.5" />
+      <path d="M11 15.5c-2.5 1-4.7 2.8-6 5.5" />
+      <path d="M16.5 11.5c1-2.5 2.5-4.5 4.5-6" />
+    </svg>
+  );
+}
+
+function DietNoPrefSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <path d="M6 3v7a3 3 0 0 0 6 0V3M9 3v7" />
+      <path d="M18 3v13h-3v5" />
+      <path d="M9 13v8" />
+    </svg>
+  );
+}
+
+function DrinkingSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <path d="M5 3h14l-7 8-7-8z" />
+      <path d="M12 11v9" />
+      <path d="M8 20h8" />
+      <circle cx="12" cy="6" r="1" fill={fill} />
+    </svg>
+  );
+}
+
+function SoberSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z" />
+    </svg>
+  );
+}
+
+function DrinkNoPrefSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <path d="M6 3h5l-3.5 4-1.5-4zM6 7v6h4V7M8 13v5M5 18h6" />
+      <path d="M18 3h-5l3.5 4 1.5-4zM18 7v6h-4V7M16 13v5M19 18h-6" />
+    </svg>
+  );
+}
+
+function SmokingSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <path d="M18 12H3a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h15" />
+      <path d="M14 12v4" />
+      <path d="M18 12c1.5 0 2 1 2 2s-.5 2-2 2" />
+      <path d="M22 8c-1-1.5-2-1.5-2 0s-1 1.5-2 0" />
+    </svg>
+  );
+}
+
+function NonSmokingSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <circle cx="12" cy="12" r="10" stroke={fill} />
+      <path d="M18 12H6v3h12v-3z" />
+      <path d="M4.93 4.93l14.14 14.14" stroke={fill} strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function SmokeNoPrefSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42 0-.83.05-1.22.14a7 7 0 0 0-13.78 1.86 5 5 0 0 0 6.5 7h10" />
+    </svg>
+  );
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -54,13 +195,239 @@ export default function DashboardPage() {
   const [prefGender, setPrefGender] = useState<"male" | "female" | "everyone">("everyone");
   const [prefAgeMin, setPrefAgeMin] = useState(20);
   const [prefAgeMax, setPrefAgeMax] = useState(26);
-  const [prefHeightNoPref, setPrefHeightNoPref] = useState(true);
-  const [prefHeightMinCm, setPrefHeightMinCm] = useState(150);
-  const [prefHeightMaxCm, setPrefHeightMaxCm] = useState(190);
+  const [prefHeightNoPref, setPrefHeightNoPref] = useState(false);
+  const [prefHeightMinCm, setPrefHeightMinCm] = useState(152);
+  const [prefHeightMaxCm, setPrefHeightMaxCm] = useState(198);
   const [prefDietary, setPrefDietary] = useState("no_preference");
   const [prefDrinking, setPrefDrinking] = useState("no_preference");
   const [prefSmoking, setPrefSmoking] = useState("no_preference");
   const [requestId, setRequestId] = useState<string | null>(null);
+
+  // Transition & range slider dragging states
+  const [slideDir, setSlideDir] = useState<"forward" | "back">("forward");
+  const [showMorph, setShowMorph] = useState(false);
+  const [morphDir, setMorphDir] = useState<"v2h" | "h2v">("h2v");
+  const [dragHeightActive, setDragHeightActive] = useState<"min" | "max" | null>(null);
+  const [dragAgeActive, setDragAgeActive] = useState<"min" | "max" | null>(null);
+
+  // Range Slider Refs and constants
+  const heightRef = useRef<HTMLDivElement>(null);
+  const ageRef = useRef<HTMLDivElement>(null);
+
+  const MIN_CM = 122;
+  const MAX_CM = 213;
+
+  const cmToFtIn = (cm: number) => {
+    const totalInches = cm / 2.54;
+    const ft = Math.floor(totalInches / 12);
+    let inches = Math.round(totalInches % 12);
+    if (inches === 12) {
+      return { ft: ft + 1, inches: 0 };
+    }
+    return { ft, inches };
+  };
+
+  const changePrefSlide = (targetSlide: number) => {
+    setActionError("");
+    const currentSlide = prefSlide;
+
+    if (targetSlide > currentSlide) {
+      setSlideDir("forward");
+    } else {
+      setSlideDir("back");
+    }
+
+    // Morph animation check between Age (Slide 2) <-> Height (Slide 3)
+    if (currentSlide === 2 && targetSlide === 3) {
+      setMorphDir("h2v");
+      setShowMorph(true);
+      setTimeout(() => {
+        setShowMorph(false);
+        setPrefSlide(3);
+      }, 580);
+      return;
+    }
+
+    if (currentSlide === 3 && targetSlide === 2) {
+      setMorphDir("v2h");
+      setShowMorph(true);
+      setTimeout(() => {
+        setShowMorph(false);
+        setPrefSlide(2);
+      }, 580);
+      return;
+    }
+
+    setPrefSlide(targetSlide);
+  };
+
+  const handleHeightStartDrag = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!heightRef.current) return;
+    const rect = heightRef.current.getBoundingClientRect();
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    const frac = 1 - (clientY - rect.top) / rect.height;
+    const clampedFrac = Math.max(0, Math.min(1, frac));
+    const cm = Math.round(MIN_CM + clampedFrac * (MAX_CM - MIN_CM));
+
+    // Determine closer thumb
+    const distMin = Math.abs(cm - prefHeightMinCm);
+    const distMax = Math.abs(cm - prefHeightMaxCm);
+    const target = distMin < distMax ? "min" : "max";
+
+    setDragHeightActive(target);
+    setPrefHeightNoPref(false); // dragging automatically opts-in
+
+    if (target === "min") {
+      setPrefHeightMinCm(Math.min(cm, prefHeightMaxCm - 1));
+    } else {
+      setPrefHeightMaxCm(Math.max(cm, prefHeightMinCm + 1));
+    }
+  };
+
+  useEffect(() => {
+    if (!dragHeightActive) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!heightRef.current) return;
+      const rect = heightRef.current.getBoundingClientRect();
+      const frac = 1 - (e.clientY - rect.top) / rect.height;
+      const clampedFrac = Math.max(0, Math.min(1, frac));
+      const cm = Math.round(MIN_CM + clampedFrac * (MAX_CM - MIN_CM));
+
+      if (dragHeightActive === "min") {
+        setPrefHeightMinCm(Math.min(cm, prefHeightMaxCm - 1));
+      } else {
+        setPrefHeightMaxCm(Math.max(cm, prefHeightMinCm + 1));
+      }
+    };
+
+    const handleMouseUp = () => {
+      setDragHeightActive(null);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [dragHeightActive, prefHeightMinCm, prefHeightMaxCm]);
+
+  useEffect(() => {
+    if (!dragHeightActive) return;
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!heightRef.current || e.touches.length === 0) return;
+      const rect = heightRef.current.getBoundingClientRect();
+      const frac = 1 - (e.touches[0].clientY - rect.top) / rect.height;
+      const clampedFrac = Math.max(0, Math.min(1, frac));
+      const cm = Math.round(MIN_CM + clampedFrac * (MAX_CM - MIN_CM));
+
+      if (dragHeightActive === "min") {
+        setPrefHeightMinCm(Math.min(cm, prefHeightMaxCm - 1));
+      } else {
+        setPrefHeightMaxCm(Math.max(cm, prefHeightMinCm + 1));
+      }
+    };
+
+    const handleTouchEnd = () => {
+      setDragHeightActive(null);
+    };
+
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd);
+    return () => {
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [dragHeightActive, prefHeightMinCm, prefHeightMaxCm]);
+
+  const handleAgeStartDrag = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!ageRef.current) return;
+    const rect = ageRef.current.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const frac = (clientX - rect.left) / rect.width;
+    const clampedFrac = Math.max(0, Math.min(1, frac));
+    const age = 18 + clampedFrac * 12; // range 18 to 30 is 12 broad
+
+    const distMin = Math.abs(age - prefAgeMin);
+    const distMax = Math.abs(age - prefAgeMax);
+    const target = distMin < distMax ? "min" : "max";
+
+    setDragAgeActive(target);
+
+    if (target === "min") {
+      setPrefAgeMin(Math.min(age, prefAgeMax - 1));
+    } else {
+      setPrefAgeMax(Math.max(age, prefAgeMin + 1));
+    }
+  };
+
+  useEffect(() => {
+    // Keep age state clamped between 18 and 30
+    if (prefAgeMin > 30) setPrefAgeMin(30);
+    if (prefAgeMax > 30) setPrefAgeMax(30);
+    if (prefAgeMin < 18) setPrefAgeMin(18);
+    if (prefAgeMax < 18) setPrefAgeMax(18);
+  }, [prefAgeMin, prefAgeMax]);
+
+  useEffect(() => {
+    if (!dragAgeActive) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!ageRef.current) return;
+      const rect = ageRef.current.getBoundingClientRect();
+      const frac = (e.clientX - rect.left) / rect.width;
+      const clampedFrac = Math.max(0, Math.min(1, frac));
+      const age = 18 + clampedFrac * 12;
+
+      if (dragAgeActive === "min") {
+        setPrefAgeMin(Math.min(age, prefAgeMax - 1));
+      } else {
+        setPrefAgeMax(Math.max(age, prefAgeMin + 1));
+      }
+    };
+
+    const handleMouseUp = () => {
+      setDragAgeActive(null);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [dragAgeActive, prefAgeMin, prefAgeMax]);
+
+  useEffect(() => {
+    if (!dragAgeActive) return;
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!ageRef.current || e.touches.length === 0) return;
+      const rect = ageRef.current.getBoundingClientRect();
+      const frac = (e.touches[0].clientX - rect.left) / rect.width;
+      const clampedFrac = Math.max(0, Math.min(1, frac));
+      const age = 18 + clampedFrac * 12;
+
+      if (dragAgeActive === "min") {
+        setPrefAgeMin(Math.min(age, prefAgeMax - 1));
+      } else {
+        setPrefAgeMax(Math.max(age, prefAgeMin + 1));
+      }
+    };
+
+    const handleTouchEnd = () => {
+      setDragAgeActive(null);
+    };
+
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd);
+    return () => {
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [dragAgeActive, prefAgeMin, prefAgeMax]);
 
   // State 2: Searching Timer
   const [countdownText, setCountdownText] = useState("7d 00h 00m 00s");
@@ -269,14 +636,14 @@ export default function DashboardPage() {
 
     if (request.status === "unpaid") {
       setDashboardState(1);
-      setPrefSlide(5); // Go directly to checkout slide
+      setPrefSlide(7); // Go directly to checkout slide
       // Pre-fill fields from request
       setPrefGender(request.pref_gender);
-      setPrefAgeMin(request.pref_age_min);
-      setPrefAgeMax(request.pref_age_max);
-      setPrefHeightNoPref(!request.pref_height_min_cm);
-      setPrefHeightMinCm(request.pref_height_min_cm || 150);
-      setPrefHeightMaxCm(request.pref_height_max_cm || 190);
+      setPrefAgeMin(Math.max(18, Math.min(30, request.pref_age_min)));
+      setPrefAgeMax(Math.max(18, Math.min(30, request.pref_age_max)));
+      setPrefHeightNoPref(false);
+      setPrefHeightMinCm(request.pref_height_min_cm || 152);
+      setPrefHeightMaxCm(request.pref_height_max_cm || 198);
       setPrefDietary(request.pref_dietary);
       setPrefDrinking(request.pref_drinking);
       setPrefSmoking(request.pref_smoking);
@@ -453,8 +820,8 @@ export default function DashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prefGender,
-          prefAgeMin,
-          prefAgeMax,
+          prefAgeMin: Math.round(prefAgeMin),
+          prefAgeMax: Math.round(prefAgeMax),
           prefHeightMinCm: prefHeightNoPref ? null : prefHeightMinCm,
           prefHeightMaxCm: prefHeightNoPref ? null : prefHeightMaxCm,
           prefDietary,
@@ -465,7 +832,7 @@ export default function DashboardPage() {
       const data = await res.json();
       if (res.ok) {
         setRequestId(data.requestId);
-        setPrefSlide(5); // Go to checkout slide
+        setPrefSlide(7); // Go to checkout slide
       } else {
         setActionError(data.message || "Failed to save preferences.");
       }
@@ -828,248 +1195,448 @@ export default function DashboardPage() {
           <div className={s.stateCard}>
             {actionError && <div className={s.errorAlert}>{actionError}</div>}
 
-            {prefSlide === 1 && (
-              <div className={s.slideContent}>
-                <h1 className={s.title}>Who are you looking for?</h1>
-                <p className={s.subtitle}>Preferences help scope your daily campus match selection pool.</p>
-
-                <div className={s.genderButtons}>
-                  {[
-                    { key: "male", val: "Men" },
-                    { key: "female", val: "Women" },
-                    { key: "everyone", val: "Everyone" }
-                  ].map((g) => (
-                    <button
-                      key={g.key}
-                      className={`${s.genderBtn} ${prefGender === g.key ? s.activeBtn : ""}`}
-                      onClick={() => setPrefGender(g.key as any)}
-                    >
-                      {g.val}
-                    </button>
-                  ))}
+            {/* progress dots */}
+            <div className={s.dotRow}>
+              {[1, 2, 3, 4, 5, 6, 7].map((i, idx) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <div className={`${s.dot} ${i === prefSlide ? s.dotActive : i < prefSlide ? s.dotComplete : ""}`}/>
+                  {idx < 6 && (
+                    <div className={`${s.dotConnector} ${i < prefSlide ? s.dotConnectorDone : ""}`}/>
+                  )}
                 </div>
+              ))}
+            </div>
 
-                <div className={s.slideFooter}>
-                  <div />
-                  <button className="btn btn-secondary btn-pill" onClick={() => setPrefSlide(2)}>
-                    Next →
-                  </button>
+            {/* slide wrapper */}
+            <div className={s.slideWrapper}>
+              {showMorph && (
+                <div className={s.morphOverlay}>
+                  <div className={morphDir === "v2h" ? s.morphBarVtoH : s.morphBarHtoV}/>
                 </div>
-              </div>
-            )}
+              )}
 
-            {prefSlide === 2 && (
-              <div className={s.slideContent}>
-                <h1 className={s.title}>Preferred Age Range</h1>
-                <p className={s.subtitle}>Select the age boundary limit for your matches.</p>
+              {!showMorph && (
+                <div
+                  key={prefSlide}
+                  className={`${s.slidePanel} ${slideDir === "forward" ? s.slideRight : s.slideLeft}`}
+                >
+                  {prefSlide === 1 && (
+                    <div className={s.slideContent}>
+                      <h1 className={s.title}>Who are you looking for?</h1>
+                      <p className={s.subtitle}>Preferences help scope your daily campus match selection pool.</p>
 
-                <div className={s.ageSelects}>
-                  <div className={s.formGroup}>
-                    <label className={s.label}>Min Age</label>
-                    <select className={s.select} value={prefAgeMin} onChange={(e) => setPrefAgeMin(parseInt(e.target.value))}>
-                      {Array.from({ length: 23 }, (_, i) => i + 18).map(a => (
-                        <option key={a} value={a}>{a} years</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className={s.formGroup}>
-                    <label className={s.label}>Max Age</label>
-                    <select className={s.select} value={prefAgeMax} onChange={(e) => setPrefAgeMax(parseInt(e.target.value))}>
-                      {Array.from({ length: 23 }, (_, i) => i + 18).map(a => (
-                        <option key={a} value={a} disabled={a < prefAgeMin}>{a} years</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className={s.slideFooter}>
-                  <button className="btn btn-ghost" onClick={() => setPrefSlide(1)}>
-                    ← Back
-                  </button>
-                  <button className="btn btn-secondary btn-pill" onClick={() => setPrefSlide(3)}>
-                    Next →
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {prefSlide === 3 && (
-              <div className={s.slideContent}>
-                <h1 className={s.title}>Preferred Height</h1>
-                <p className={s.subtitle}>Height constraints can be restricted or skipped entirely.</p>
-
-                <div className={s.checkboxGroup}>
-                  <input
-                    type="checkbox"
-                    id="height-no-pref"
-                    checked={prefHeightNoPref}
-                    onChange={(e) => setPrefHeightNoPref(e.target.checked)}
-                  />
-                  <label htmlFor="height-no-pref">No preference (Recommended)</label>
-                </div>
-
-                {!prefHeightNoPref && (
-                  <div className={s.heightSelects}>
-                    <div className={s.formGroup}>
-                      <label className={s.label}>Min Height</label>
-                      <select className={s.select} value={Math.round(Math.round(prefHeightMinCm / 2.54) * 2.54)} onChange={(e) => setPrefHeightMinCm(parseInt(e.target.value))}>
-                        {Array.from({ length: 29 }, (_, i) => i + 51).map(totalIn => {
-                          const cm = Math.round(totalIn * 2.54);
-                          return <option key={totalIn} value={cm}>{Math.floor(totalIn / 12)}&apos;{totalIn % 12}&quot; ({cm} cm)</option>;
+                      <div className={s.genderPrefGrid}>
+                        {([
+                          { key: "male", label: "Men", Svg: MaleSVG },
+                          { key: "female", label: "Women", Svg: FemaleSVG },
+                          { key: "everyone", label: "Everyone", Svg: EveryoneSVG }
+                        ] as const).map((g) => {
+                          const active = prefGender === g.key;
+                          const accentFill = active ? "url(#accentGrad)" : "var(--text-muted)";
+                          return (
+                            <button
+                              key={g.key}
+                              className={`${s.genderPrefBtn} ${active ? s.genderPrefBtnActive : ""}`}
+                              onClick={() => setPrefGender(g.key as any)}
+                              type="button"
+                            >
+                              <svg width="0" height="0" style={{ position: "absolute" }}>
+                                <defs>
+                                  <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="hsl(340,82%,55%)" />
+                                    <stop offset="100%" stopColor="hsl(255,65%,60%)" />
+                                  </linearGradient>
+                                </defs>
+                              </svg>
+                              <g.Svg fill={accentFill} />
+                              <span className={s.genderPrefName}>{g.label}</span>
+                            </button>
+                          );
                         })}
-                      </select>
+                      </div>
+
+                      <div className={s.slideFooter}>
+                        <div />
+                        <button className="btn btn-secondary btn-pill" onClick={() => changePrefSlide(2)}>
+                          Next →
+                        </button>
+                      </div>
                     </div>
-                    <div className={s.formGroup}>
-                      <label className={s.label}>Max Height</label>
-                      <select className={s.select} value={Math.round(Math.round(prefHeightMaxCm / 2.54) * 2.54)} onChange={(e) => setPrefHeightMaxCm(parseInt(e.target.value))}>
-                        {Array.from({ length: 29 }, (_, i) => i + 51).map(totalIn => {
-                          const cm = Math.round(totalIn * 2.54);
-                          return <option key={totalIn} value={cm} disabled={totalIn < Math.round(prefHeightMinCm / 2.54)}>{Math.floor(totalIn / 12)}&apos;{totalIn % 12}&quot; ({cm} cm)</option>;
+                  )}
+
+                  {prefSlide === 2 && (
+                    <div className={s.slideContent}>
+                      <h1 className={s.title}>Preferred Age Range</h1>
+                      <p className={s.subtitle}>Drag the sliders to select the age boundary limit for your matches.</p>
+
+                      <div className={s.rulerBadge} style={{ margin: "1rem 0" }}>
+                        <span className={s.badgeValue}>{Math.round(prefAgeMin)} - {Math.round(prefAgeMax)}</span>
+                        <span className={s.badgeDivider}/>
+                        <span className={s.badgeAlt}>years old</span>
+                      </div>
+
+                      <div
+                        className={s.ageSliderWrapper}
+                        ref={ageRef}
+                        onMouseDown={handleAgeStartDrag}
+                        onTouchStart={handleAgeStartDrag}
+                      >
+                        {/* Age Scale Labels (sitting at the top of the line) */}
+                        <div className={s.ageScaleLabels}>
+                          {Array.from({ length: 13 }, (_, i) => {
+                            const age = 18 + i;
+                            const pct = (i / 12) * 100;
+
+                            const distMin = Math.abs(age - Math.round(prefAgeMin));
+                            const distMax = Math.abs(age - Math.round(prefAgeMax));
+                            const minDist = Math.min(distMin, distMax);
+
+                            let scaleClass = "";
+                            if (minDist === 0) scaleClass = s.dockScale0;
+                            else if (minDist === 1) scaleClass = s.dockScale1;
+                            else if (minDist === 2) scaleClass = s.dockScale2;
+
+                            return (
+                              <span
+                                key={age}
+                                className={`${s.ageScaleNum} ${scaleClass}`}
+                                style={{ left: `${pct}%` }}
+                              >
+                                {age}
+                              </span>
+                            );
+                          })}
+                        </div>
+
+                        <div className={s.ageSliderTrack}>
+                          <div
+                            className={s.ageSliderFill}
+                            style={{
+                              left: `${((prefAgeMin - 18) / 12) * 100}%`,
+                              width: `${((prefAgeMax - prefAgeMin) / 12) * 100}%`
+                            }}
+                          />
+                        </div>
+
+
+                        <div
+                          className={`${s.ageSliderThumb} ${dragAgeActive === "min" ? s.thumbLocked : ""}`}
+                          style={{ left: `${((prefAgeMin - 18) / 12) * 100}%` }}
+                        />
+                        <div
+                          className={`${s.ageSliderThumb} ${dragAgeActive === "max" ? s.thumbLocked : ""}`}
+                          style={{ left: `${((prefAgeMax - 18) / 12) * 100}%` }}
+                        />
+                      </div>
+
+                      <div className={s.slideFooter}>
+                        <button className="btn btn-ghost" onClick={() => changePrefSlide(1)}>
+                          ← Back
+                        </button>
+                        <button className="btn btn-secondary btn-pill" onClick={() => changePrefSlide(3)}>
+                          Next →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {prefSlide === 3 && (
+                    <div className={s.slideContent}>
+                      <h1 className={s.title}>Preferred Height</h1>
+
+                      <div className={s.rulerBadge} style={{ margin: "0.5rem 0" }}>
+                        <span className={s.badgeValue}>
+                          {cmToFtIn(prefHeightMinCm).ft}′{cmToFtIn(prefHeightMinCm).inches}″ - {cmToFtIn(prefHeightMaxCm).ft}′{cmToFtIn(prefHeightMaxCm).inches}″
+                        </span>
+                        <span className={s.badgeDivider}/>
+                        <span className={s.badgeAlt}>
+                          {prefHeightMinCm} - {prefHeightMaxCm} cm
+                        </span>
+                      </div>
+
+                      <div
+                        className={`${s.heightRuler} ${dragHeightActive ? s.rulerLocked : ""}`}
+                        ref={heightRef}
+                        onMouseDown={handleHeightStartDrag}
+                        onTouchStart={handleHeightStartDrag}
+                        style={{ height: "260px" }}
+                      >
+                        <div className={`${s.heightLabelsCol} ${s.right}`}>
+                          {[
+                            { cm: 122, label: "4′0″" },
+                            { cm: 137, label: "4′6″" },
+                            { cm: 152, label: "5′0″" },
+                            { cm: 167, label: "5′6″" },
+                            { cm: 183, label: "6′0″" },
+                            { cm: 198, label: "6′6″" },
+                            { cm: 213, label: "7′0″" },
+                          ].map(m => {
+                            const isActiveCm = m.cm === prefHeightMinCm || m.cm === prefHeightMaxCm;
+                            return (
+                              <span
+                                key={m.cm}
+                                className={`${s.rulerMarkLabel} ${isActiveCm ? s.rulerMarkActive : ""}`}
+                              >
+                                {m.label}
+                              </span>
+                            );
+                          }).reverse()}
+                        </div>
+
+                        <div className={s.heightTrackArea}>
+                          <div className={s.heightTrack}>
+                            <div
+                              className={s.heightFill}
+                              style={{
+                                bottom: `${((prefHeightMinCm - MIN_CM) / (MAX_CM - MIN_CM)) * 100}%`,
+                                height: `${((prefHeightMaxCm - prefHeightMinCm) / (MAX_CM - MIN_CM)) * 100}%`
+                              }}
+                            />
+                          </div>
+                          <div className={s.heightTicks}>
+                            {Array.from({ length: MAX_CM - MIN_CM + 1 }, (_, i) => {
+                              const cm = MIN_CM + i;
+                              const pct = ((cm - MIN_CM) / (MAX_CM - MIN_CM)) * 100;
+                              const isActiveCm = cm === prefHeightMinCm || cm === prefHeightMaxCm;
+                              const isMajor = cm % 10 === 0;
+                              const isMedium = cm % 5 === 0 && !isMajor;
+                              const isMinor = !isMajor && !isMedium;
+                              const sizeClass = isMajor ? s.major : isMedium ? s.medium : s.minor;
+                              return (
+                                <div key={cm} style={{ position: "absolute", bottom: `${pct}%`, left: 0, right: 0 }}>
+                                  <div className={`${s.heightTick} ${s.left} ${sizeClass} ${isActiveCm ? s.active : ""}`}/>
+                                  <div className={`${s.heightTick} ${s.right} ${sizeClass} ${isActiveCm ? s.active : ""}`}/>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div
+                            className={`${s.heightThumb} ${dragHeightActive === "min" ? s.thumbLocked : ""}`}
+                            style={{ bottom: `${((prefHeightMinCm - MIN_CM) / (MAX_CM - MIN_CM)) * 100}%` }}
+                          />
+                          <div
+                            className={`${s.heightThumb} ${dragHeightActive === "max" ? s.thumbLocked : ""}`}
+                            style={{ bottom: `${((prefHeightMaxCm - MIN_CM) / (MAX_CM - MIN_CM)) * 100}%` }}
+                          />
+                        </div>
+
+                        <div className={`${s.heightLabelsCol} ${s.left}`}>
+                          {[
+                            { cm: 122, label: "122" },
+                            { cm: 137, label: "137" },
+                            { cm: 152, label: "152" },
+                            { cm: 167, label: "167" },
+                            { cm: 183, label: "183" },
+                            { cm: 198, label: "198" },
+                            { cm: 213, label: "213" },
+                          ].map(m => {
+                            const isActiveCm = m.cm === prefHeightMinCm || m.cm === prefHeightMaxCm;
+                            return (
+                              <span
+                                key={m.cm}
+                                className={`${s.rulerMarkLabel} ${isActiveCm ? s.rulerMarkActive : ""}`}
+                              >
+                                {m.cm}
+                              </span>
+                            );
+                          }).reverse()}
+                        </div>
+                      </div>
+
+                      <div className={s.slideFooter}>
+                        <button className="btn btn-ghost" onClick={() => changePrefSlide(2)}>
+                          ← Back
+                        </button>
+                        <button className="btn btn-secondary btn-pill" onClick={() => changePrefSlide(4)}>
+                          Next →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {prefSlide === 4 && (
+                    <div className={s.slideContent}>
+                      <h1 className={s.title}>Dietary Preference</h1>
+                      <p className={s.subtitle}>Filter matches by their eating habits.</p>
+
+                      <div className={s.prefCardGrid}>
+                        {[
+                          { key: "veg", label: "Vegetarian", desc: "Eats plant-based and dairy", Svg: VegSVG },
+                          { key: "nonveg", label: "Non-Vegetarian", desc: "Eats meat, fish, poultry", Svg: NonVegSVG },
+                          { key: "vegan", label: "Vegan", desc: "No animal products", Svg: VeganSVG },
+                          { key: "no_preference", label: "No Preference", desc: "Open to matching anyone", Svg: DietNoPrefSVG }
+                        ].map((d) => {
+                          const active = prefDietary === d.key;
+                          const iconColor = active ? "var(--accent-primary)" : "var(--text-muted)";
+                          return (
+                            <button
+                              key={d.key}
+                              type="button"
+                              className={`${s.prefCard} ${active ? s.prefCardActive : ""}`}
+                              onClick={() => {
+                                setPrefDietary(d.key);
+                                setTimeout(() => changePrefSlide(5), 300);
+                              }}
+                            >
+                              <d.Svg fill={iconColor} />
+                              <div className={s.prefCardText}>
+                                <span className={s.prefCardTitle}>{d.label}</span>
+                                <span className={s.prefCardDesc}>{d.desc}</span>
+                              </div>
+                            </button>
+                          );
                         })}
-                      </select>
+                      </div>
+
+                      <div className={s.slideFooter}>
+                        <button className="btn btn-ghost" onClick={() => changePrefSlide(3)}>
+                          ← Back
+                        </button>
+                        <button className="btn btn-secondary btn-pill" onClick={() => changePrefSlide(5)}>
+                          Next →
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div className={s.slideFooter}>
-                  <button className="btn btn-ghost" onClick={() => setPrefSlide(2)}>
-                    ← Back
-                  </button>
-                  <button className="btn btn-secondary btn-pill" onClick={() => setPrefSlide(4)}>
-                    Next →
-                  </button>
-                </div>
-              </div>
-            )}
+                  {prefSlide === 5 && (
+                    <div className={s.slideContent}>
+                      <h1 className={s.title}>Drinking Preference</h1>
+                      <p className={s.subtitle}>Choose whether you prefer matches who drink.</p>
 
-            {prefSlide === 4 && (
-              <div className={s.slideContent}>
-                <h1 className={s.title}>Lifestyle Preferences</h1>
-                <p className={s.subtitle}>Filter matches by core lifestyle habits. Leaving as No Preference yields a larger pool.</p>
+                      <div className={s.prefCardGrid}>
+                        {[
+                          { key: "yes", label: "Drinks", desc: "Enjoys casual drinking", Svg: DrinkingSVG },
+                          { key: "no", label: "Sober / Teetotaler", desc: "Does not drink alcohol", Svg: SoberSVG },
+                          { key: "no_preference", label: "No Preference", desc: "Open to matching anyone", Svg: DrinkNoPrefSVG }
+                        ].map((d) => {
+                          const active = prefDrinking === d.key;
+                          const iconColor = active ? "var(--accent-primary)" : "var(--text-muted)";
+                          return (
+                            <button
+                              key={d.key}
+                              type="button"
+                              className={`${s.prefCard} ${active ? s.prefCardActive : ""}`}
+                              onClick={() => {
+                                setPrefDrinking(d.key);
+                                setTimeout(() => changePrefSlide(6), 300);
+                              }}
+                            >
+                              <d.Svg fill={iconColor} />
+                              <div className={s.prefCardText}>
+                                <span className={s.prefCardTitle}>{d.label}</span>
+                                <span className={s.prefCardDesc}>{d.desc}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
 
-                <div className={s.formGroup}>
-                  <label className={s.label}>Dietary Preference</label>
-                  <div className={s.prefGrid}>
-                    {[
-                      { key: "veg", val: "Veg" },
-                      { key: "nonveg", val: "Non-Veg" },
-                      { key: "vegan", val: "Vegan" },
-                      { key: "no_preference", val: "No Pref" }
-                    ].map((d) => (
-                      <button
-                        key={d.key}
-                        type="button"
-                        className={`${s.filterTag} ${prefDietary === d.key ? s.activeFilterTag : ""}`}
-                        onClick={() => setPrefDietary(d.key)}
-                      >
-                        {d.val}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className={s.formGroup}>
-                  <label className={s.label}>Drinking Preference</label>
-                  <div className={s.prefGrid}>
-                    {[
-                      { key: "yes", val: "Drinking" },
-                      { key: "no", val: "Sober" },
-                      { key: "no_preference", val: "No Pref" }
-                    ].map((d) => (
-                      <button
-                        key={d.key}
-                        type="button"
-                        className={`${s.filterTag} ${prefDrinking === d.key ? s.activeFilterTag : ""}`}
-                        onClick={() => setPrefDrinking(d.key)}
-                      >
-                        {d.val}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className={s.formGroup}>
-                  <label className={s.label}>Smoking Preference</label>
-                  <div className={s.prefGrid}>
-                    {[
-                      { key: "yes", val: "Smoking" },
-                      { key: "no", val: "Non-Smoking" },
-                      { key: "no_preference", val: "No Pref" }
-                    ].map((d) => (
-                      <button
-                        key={d.key}
-                        type="button"
-                        className={`${s.filterTag} ${prefSmoking === d.key ? s.activeFilterTag : ""}`}
-                        onClick={() => setPrefSmoking(d.key)}
-                      >
-                        {d.val}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className={s.slideFooter}>
-                  <button className="btn btn-ghost" onClick={() => setPrefSlide(3)}>
-                    ← Back
-                  </button>
-                  <button className="btn btn-primary btn-pill" onClick={handleSavePreferences} disabled={submitting}>
-                    {submitting ? "Saving..." : "Save Preferences →"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {prefSlide === 5 && (
-              <div className={s.slideContent}>
-                <h1 className={s.title}>Activate Campus Search</h1>
-                <p className={s.subtitle}>Start searching within your university. If no match is found within 7 days, credits return to your wallet.</p>
-
-                <div className={s.checkoutCard}>
-                  <div className={s.checkoutTitle}>University Match Search</div>
-                  <div className={s.checkoutPrice}>₹{isFirstMatch ? "49.00" : "69.00"}</div>
-                  <div className={s.checkoutText}>
-                    • Only matches students inside <strong>{universityName}</strong><br />
-                    • Bidirectional compatibility check<br />
-                    • 7-day refund guarantee to wallet
-                  </div>
-                </div>
-
-                {walletBalance >= (isFirstMatch ? 49 : 69) ? (
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-pill"
-                    style={{ width: "100%", marginTop: "1.5rem" }}
-                    onClick={handlePay}
-                    disabled={submitting}
-                  >
-                    {submitting ? "Processing..." : `Pay ₹${isFirstMatch ? 49 : 69} from Wallet (Bal: ₹${walletBalance}) ✓`}
-                  </button>
-                ) : (
-                  <div>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-pill"
-                      style={{ width: "100%", marginTop: "1.5rem" }}
-                      onClick={handleRazorpayPay}
-                      disabled={submitting}
-                    >
-                      {submitting ? "Processing..." : `Pay ₹${isFirstMatch ? 49 : 69} via UPI / Card (Razorpay) ✓`}
-                    </button>
-                    <div style={{ textAlign: "center", marginTop: "0.5rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-                      Wallet Balance: ₹{walletBalance} (Insufficient)
+                      <div className={s.slideFooter}>
+                        <button className="btn btn-ghost" onClick={() => changePrefSlide(4)}>
+                          ← Back
+                        </button>
+                        <button className="btn btn-secondary btn-pill" onClick={() => changePrefSlide(6)}>
+                          Next →
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
+                  {prefSlide === 6 && (
+                    <div className={s.slideContent}>
+                      <h1 className={s.title}>Smoking Preference</h1>
+                      <p className={s.subtitle}>Filter matches by their smoking habits.</p>
 
-                <div className={s.slideFooter} style={{ marginTop: "1rem" }}>
-                  <button className="btn btn-ghost" onClick={() => setPrefSlide(4)}>
-                    ← Edit Filters
-                  </button>
-                  <div />
+                      <div className={s.prefCardGrid}>
+                        {[
+                          { key: "yes", label: "Smokes", desc: "Casual or regular smoker", Svg: SmokingSVG },
+                          { key: "no", label: "Non-Smoker", desc: "Does not smoke", Svg: NonSmokingSVG },
+                          { key: "no_preference", label: "No Preference", desc: "Open to matching anyone", Svg: SmokeNoPrefSVG }
+                        ].map((d) => {
+                          const active = prefSmoking === d.key;
+                          const iconColor = active ? "var(--accent-primary)" : "var(--text-muted)";
+                          return (
+                            <button
+                              key={d.key}
+                              type="button"
+                              className={`${s.prefCard} ${active ? s.prefCardActive : ""}`}
+                              onClick={() => setPrefSmoking(d.key)}
+                            >
+                              <d.Svg fill={iconColor} />
+                              <div className={s.prefCardText}>
+                                <span className={s.prefCardTitle}>{d.label}</span>
+                                <span className={s.prefCardDesc}>{d.desc}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className={s.slideFooter}>
+                        <button className="btn btn-ghost" onClick={() => changePrefSlide(5)}>
+                          ← Back
+                        </button>
+                        <button className="btn btn-primary btn-pill" onClick={handleSavePreferences} disabled={submitting}>
+                          {submitting ? "Saving..." : "Save Preferences →"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {prefSlide === 7 && (
+                    <div className={s.slideContent}>
+                      <h1 className={s.title}>Activate Campus Search</h1>
+                      <p className={s.subtitle}>Start searching within your university. If no match is found within 7 days, credits return to your wallet.</p>
+
+                      <div className={s.checkoutCard}>
+                        <div className={s.checkoutTitle}>University Match Search</div>
+                        <div className={s.checkoutPrice}>₹{isFirstMatch ? "49.00" : "69.00"}</div>
+                        <div className={s.checkoutText}>
+                          • Only matches students inside <strong>{universityName}</strong><br />
+                          • Bidirectional compatibility check<br />
+                          • 7-day refund guarantee to wallet
+                        </div>
+                      </div>
+
+                      {walletBalance >= (isFirstMatch ? 49 : 69) ? (
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-pill"
+                          style={{ width: "100%", marginTop: "1.5rem" }}
+                          onClick={handlePay}
+                          disabled={submitting}
+                        >
+                          {submitting ? "Processing..." : `Pay ₹${isFirstMatch ? 49 : 69} from Wallet (Bal: ₹${walletBalance}) ✓`}
+                        </button>
+                      ) : (
+                        <div>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-pill"
+                            style={{ width: "100%", marginTop: "1.5rem" }}
+                            onClick={handleRazorpayPay}
+                            disabled={submitting}
+                          >
+                            {submitting ? "Processing..." : `Pay ₹${isFirstMatch ? 49 : 69} via UPI / Card (Razorpay) ✓`}
+                          </button>
+                          <div style={{ textAlign: "center", marginTop: "0.5rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                            Wallet Balance: ₹{walletBalance} (Insufficient)
+                          </div>
+                        </div>
+                      )}
+
+                      <div className={s.slideFooter} style={{ marginTop: "1rem" }}>
+                        <button className="btn btn-ghost" onClick={() => changePrefSlide(6)}>
+                          ← Edit Filters
+                        </button>
+                        <div />
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 
