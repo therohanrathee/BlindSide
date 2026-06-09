@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import s from "./page.module.css";
+import EyeLogo from "@/components/EyeLogo";
 
 /* ============================================
    LINE-ART SVG ICONS (Serene, minimal)
@@ -108,10 +109,7 @@ export default function LandingPage() {
       <nav className={`${s.navbar} ${scrolled ? s.navbarScrolled : ""}`} role="navigation" aria-label="Main navigation">
         <div className={s.navbarInner}>
           <Link href="/" className={s.logo} id="nav-logo">
-            <svg className={s.logoEye} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="12" cy="12" r="3" fill="currentColor" />
-            </svg>
+            <EyeLogo className={s.logoEye} width={24} height={24} animated={true} />
             BlindSide
           </Link>
           <div className={s.navActions}>
