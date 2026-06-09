@@ -17,38 +17,7 @@ function ShieldIcon() {
   );
 }
 
-const HOBBIES_LIST = [
-  { name: "Reading",      emoji: "📚" },
-  { name: "Gaming",       emoji: "🎮" },
-  { name: "Fitness",      emoji: "💪" },
-  { name: "Travel",       emoji: "✈️" },
-  { name: "Cooking",      emoji: "🍳" },
-  { name: "Music",        emoji: "🎵" },
-  { name: "Photography",  emoji: "📷" },
-  { name: "Hiking",       emoji: "🥾" },
-  { name: "Art",          emoji: "🎨" },
-  { name: "Dancing",      emoji: "💃" },
-  { name: "Movies",       emoji: "🎬" },
-  { name: "Sports",       emoji: "⚽" },
-  { name: "Yoga",         emoji: "🧘" },
-  { name: "Coffee",       emoji: "☕" },
-  { name: "Nightlife",    emoji: "🌃" },
-  { name: "Pets",         emoji: "🐾" },
-  { name: "Volunteering", emoji: "🤝" },
-  { name: "Tech",         emoji: "💻" },
-  { name: "Fashion",      emoji: "👗" },
-  { name: "Foodie",       emoji: "🍕" },
-  { name: "Writing",      emoji: "✍️" },
-  { name: "Gardening",    emoji: "🌱" },
-  { name: "Board Games",  emoji: "🎲" },
-  { name: "Anime",        emoji: "🎌" },
-  { name: "Singing",      emoji: "🎤" },
-  { name: "Cycling",      emoji: "🚴" },
-  { name: "Astronomy",    emoji: "🔭" },
-  { name: "DIY",          emoji: "🔧" },
-  { name: "Swimming",     emoji: "🏊" },
-  { name: "Meditation",   emoji: "🧘‍♂️" },
-];
+
 
 interface University {
   id: string;
@@ -102,6 +71,12 @@ function OnboardingContent() {
   const [heightCm, setHeightCm] = useState("170");
   const [weight, setWeight] = useState(""); // weight in kg
 
+  // Lifestyle & Fitness State
+  const [dietary, setDietary] = useState("no_preference");
+  const [drinking, setDrinking] = useState("sober");
+  const [smoking, setSmoking] = useState("non_smoker");
+  const [fitness, setFitness] = useState("not_active");
+
   // Hobbies State (Step 5)
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
 
@@ -128,6 +103,14 @@ function OnboardingContent() {
 
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const onboardingInitRef = useRef(false);
+
+  const getDisplayStep = (sNum: number) => {
+    if (sNum === 1) return 1;
+    if (sNum === 2 || sNum === 3) return 2;
+    if (sNum === 4) return 3;
+    if (sNum === 6 || sNum === 7) return 4;
+    return 1;
+  };
 
   // 1. Initial State Restoration & Load Universities
   useEffect(() => {
@@ -160,10 +143,10 @@ function OnboardingContent() {
           return;
         }
 
-        // Fetch profile hobbies
+        // Fetch profile details
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("hobbies")
+          .select("hobbies, dietary, drinking, smoking, fitness")
           .eq("user_id", session.user.id)
           .maybeSingle();
 
@@ -191,6 +174,10 @@ function OnboardingContent() {
           }
           if (userData.weight_kg) setWeight(userData.weight_kg.toString());
           if (profileData?.hobbies) setSelectedHobbies(profileData.hobbies);
+          if (profileData?.dietary) setDietary(profileData.dietary);
+          if (profileData?.drinking) setDrinking(profileData.drinking);
+          if (profileData?.smoking) setSmoking(profileData.smoking);
+          if (profileData?.fitness) setFitness(profileData.fitness);
           if (userData.university_id) {
             setSelectedUniId(userData.university_id);
             const selectedUni = unis?.find(u => u.id === userData.university_id);
@@ -204,16 +191,15 @@ function OnboardingContent() {
 
           // Determine the correct step based on DB data completeness
           let targetStep = 4;
-          const hasStep4Data = userData.first_name && userData.date_of_birth && userData.gender;
-          const hasStep5Data = profileData?.hobbies && profileData.hobbies.length === 3;
+          const hasHobbiesData = profileData?.hobbies && profileData.hobbies.length === 3;
           const hasStep6Data = userData.is_university_verified && userData.university_id;
 
           if (hasStep6Data) {
             targetStep = 7;
-          } else if (hasStep5Data) {
+          } else if (hasHobbiesData) {
             targetStep = 6;
-          } else if (hasStep4Data) {
-            targetStep = 5;
+          } else {
+            targetStep = 4;
           }
 
           setStep(targetStep);
@@ -734,6 +720,10 @@ function OnboardingContent() {
         longitude: lon,
         phone: isPrimaryEmail ? secondaryId : primaryId,
         deviceOs: detectDeviceOS(),
+        dietary,
+        drinking,
+        smoking,
+        fitness,
       };
 
       const res = await fetch("/api/onboarding/complete", {
@@ -755,16 +745,7 @@ function OnboardingContent() {
     }
   };
 
-  // Toggle hobbies selector
-  const handleToggleHobby = (hobby: string) => {
-    if (selectedHobbies.includes(hobby)) {
-      setSelectedHobbies(selectedHobbies.filter((h) => h !== hobby));
-    } else {
-      if (selectedHobbies.length < 3) {
-        setSelectedHobbies([...selectedHobbies, hobby]);
-      }
-    }
-  };
+
 
   // Autocomplete search handlers
   const handleSelectUniversity = async (uni: University) => {
@@ -796,6 +777,8 @@ function OnboardingContent() {
     firstName: string; lastName: string; dob: string;
     gender: "male" | "female" | "nonbinary";
     heightCm: number; heightUnit: "ft" | "cm"; weightKg: number;
+    dietary: string; drinking: string; smoking: string; fitness: string;
+    hobbies: string[];
   }) => {
     setFirstName(result.firstName);
     setLastName(result.lastName);
@@ -804,6 +787,11 @@ function OnboardingContent() {
     setHeightCm(result.heightCm.toString());
     setHeightUnit(result.heightUnit);
     setWeight(result.weightKg.toString());
+    setDietary(result.dietary);
+    setDrinking(result.drinking);
+    setSmoking(result.smoking);
+    setFitness(result.fitness);
+    setSelectedHobbies(result.hobbies);
 
     setSubmitting(true);
     try {
@@ -821,7 +809,21 @@ function OnboardingContent() {
         .eq("id", userId);
 
       if (saveError) throw saveError;
-      setStep(5);
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert({
+          user_id: userId,
+          dietary: result.dietary,
+          drinking: result.drinking,
+          smoking: result.smoking,
+          fitness: result.fitness,
+          hobbies: result.hobbies,
+        }, { onConflict: "user_id" });
+
+      if (profileError) throw profileError;
+
+      setStep(6);
     } catch (err: any) {
       setActionError("Failed to save profile details. Please try again.");
       console.error("Error saving Step 4:", err);
@@ -835,27 +837,7 @@ function OnboardingContent() {
     setActionError("");
     setActionSuccess("");
 
-    if (step === 5) {
-      if (selectedHobbies.length !== 3) return;
-
-      setSubmitting(true);
-      try {
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .upsert({
-            user_id: userId,
-            hobbies: selectedHobbies,
-          }, { onConflict: "user_id" });
-
-        if (profileError) throw profileError;
-        setStep(6);
-      } catch (err: any) {
-        setActionError("Failed to save hobbies. Please try again.");
-        console.error("Error saving Step 5:", err);
-      } finally {
-        setSubmitting(false);
-      }
-    } else if (step === 6) {
+    if (step === 6) {
       if (!uniVerified) return;
 
       setSubmitting(true);
@@ -882,7 +864,11 @@ function OnboardingContent() {
     setActionError("");
     setActionSuccess("");
     if (step > 4) {
-      setStep(step - 1);
+      if (step === 6) {
+        setStep(4);
+      } else {
+        setStep(step - 1);
+      }
     }
   };
 
@@ -898,9 +884,9 @@ function OnboardingContent() {
       <header className={s.onboardingHeader}>
         <span className={s.brand}>BlindSide</span>
         <div className={s.progressBarContainer}>
-          <div className={s.progressBar} style={{ width: `${(step / 7) * 100}%` }} />
+          <div className={s.progressBar} style={{ width: `${(getDisplayStep(step) / 4) * 100}%` }} />
         </div>
-        <span className={s.stepCounter}>Step {step} of 7</span>
+        <span className={s.stepCounter}>Step {getDisplayStep(step)} of 4</span>
       </header>
 
       {/* Main card */}
@@ -1087,46 +1073,14 @@ function OnboardingContent() {
               initialGender={gender}
               initialHeightCm={heightCm ? parseInt(heightCm) : undefined}
               initialWeightKg={weight ? parseFloat(weight) : undefined}
+              initialDietary={dietary}
+              initialDrinking={drinking}
+              initialSmoking={smoking}
+              initialFitness={fitness}
+              initialHobbies={selectedHobbies}
               onComplete={handleWizardComplete}
               onError={setActionError}
             />
-          )}
-
-          {/* STEP 5: VIBE / HOBBIES */}
-          {step === 5 && (
-            <div className={s.stepContent}>
-              <h1 className={s.stepTitle}>Choose your vibe</h1>
-              <p className={s.stepSubtitle}>Pick 3 hobbies that represent you best.</p>
-
-              <div className={s.vibeGrid}>
-                {HOBBIES_LIST.map((hobby) => {
-                  const isSelected = selectedHobbies.includes(hobby.name);
-                  const isMax = selectedHobbies.length >= 3 && !isSelected;
-                  return (
-                    <button
-                      key={hobby.name}
-                      type="button"
-                      disabled={isMax}
-                      className={`${s.vibeCard} ${isSelected ? s.vibeCardActive : ""} ${isMax ? s.vibeCardDisabled : ""}`}
-                      onClick={() => handleToggleHobby(hobby.name)}
-                    >
-                      <span className={s.vibeEmoji}>{hobby.emoji}</span>
-                      <span className={s.vibeName}>{hobby.name}</span>
-                      {isSelected && <span className={s.vibeCheck}>✓</span>}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className={s.vibeCounter}>
-                <div className={s.vibeCounterDots}>
-                  {[0, 1, 2].map(i => (
-                    <div key={i} className={`${s.vibeCounterDot} ${i < selectedHobbies.length ? s.vibeCounterDotFilled : ""}`} />
-                  ))}
-                </div>
-                <span className={s.vibeCounterText}>{selectedHobbies.length} / 3</span>
-              </div>
-            </div>
           )}
 
           {/* STEP 6: CAMPUS SELECTION & VERIFICATION */}
@@ -1322,8 +1276,8 @@ function OnboardingContent() {
             </div>
           )}
 
-          {/* Action buttons (steps 5-7; step 4 uses the internal wizard navigation) */}
-          {step >= 5 && (
+          {/* Action buttons (steps 6-7; step 4 uses the internal wizard navigation) */}
+          {step >= 6 && (
             <footer className={s.stepActions}>
               <button type="button" className="btn btn-ghost" onClick={handlePrevStep}>
                 ← Back
@@ -1334,10 +1288,7 @@ function OnboardingContent() {
                   type="button"
                   className="btn btn-secondary btn-pill"
                   onClick={handleNextStep}
-                  disabled={
-                    (step === 5 && selectedHobbies.length !== 3) ||
-                    (step === 6 && !uniVerified)
-                  }
+                  disabled={step === 6 && !uniVerified}
                 >
                   Continue →
                 </button>
