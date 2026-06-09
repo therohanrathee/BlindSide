@@ -54,7 +54,7 @@
   width: 100%;
   overflow: hidden;
   position: relative;
-  min-height: 340px;
+  min-height: 500px;
 }
 
 .slidePanel {
@@ -836,7 +836,7 @@
 
 @media (max-width: 480px) {
   .slideWrapper {
-    min-height: 300px;
+    min-height: 400px;
   }
 
   .genderGrid {
@@ -891,5 +891,36 @@
   .morphBarVtoH,
   .morphBarHtoV {
     animation-duration: 0.01ms !important;
+  }
+}
+
+/* --- Lifestyle and Fitness Grid layouts --- */
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.dietaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.dietaryBtnFull {
+  grid-column: span 2;
+}
+
+@media (max-width: 480px) {
+  .optionGrid,
+  .dietaryGrid {
+    gap: 0.625rem;
+    max-width: 100%;
   }
 }
