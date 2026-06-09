@@ -72,6 +72,7 @@ export async function GET(request: NextRequest) {
             dietary,
             drinking,
             smoking,
+            fitness,
             photo_url
           )
         )
@@ -206,14 +207,19 @@ export async function GET(request: NextRequest) {
 
           // 2.2 Lifestyle Match (Max 35 pts)
           let lifestyleScore = 0;
-          const pointsPerCategory = 35 / 3;
+          const pointsPerCategory = 8.75; // 35 / 4
 
           if (profileA && profileB) {
             // Dietary
-            const dietaryMatchA =
-              reqA.pref_dietary === "no_preference" || reqA.pref_dietary === profileB.dietary;
-            const dietaryMatchB =
-              reqB.pref_dietary === "no_preference" || reqB.pref_dietary === profileA.dietary;
+            const matchDietary = (pref: string, actual: string) => {
+              if (pref === "no_preference") return true;
+              if (pref === "vegan") return actual === "vegan";
+              if (pref === "veg") return actual === "veg" || actual === "vegan" || actual === "eggetarian";
+              if (pref === "nonveg") return true; // nonveg matches all
+              return false;
+            };
+            const dietaryMatchA = matchDietary(reqA.pref_dietary, profileB.dietary);
+            const dietaryMatchB = matchDietary(reqB.pref_dietary, profileA.dietary);
             if (dietaryMatchA && dietaryMatchB) {
               lifestyleScore += pointsPerCategory;
             }
@@ -221,9 +227,9 @@ export async function GET(request: NextRequest) {
             // Drinking
             const matchDrinking = (pref: string, actual: string) => {
               if (pref === "no_preference") return true;
-              if (pref === "yes") return actual === "yes" || actual === "sometimes";
-              if (pref === "no") return actual === "no";
-              return pref === actual;
+              if (pref === "yes") return actual === "occasionally" || actual === "socially" || actual === "regularly" || actual === "yes" || actual === "sometimes";
+              if (pref === "no") return actual === "sober" || actual === "no";
+              return false;
             };
             if (
               matchDrinking(reqA.pref_drinking, profileB.drinking) &&
@@ -235,15 +241,36 @@ export async function GET(request: NextRequest) {
             // Smoking
             const matchSmoking = (pref: string, actual: string) => {
               if (pref === "no_preference") return true;
-              if (pref === "yes") return actual === "yes" || actual === "sometimes";
-              if (pref === "no") return actual === "no";
-              return pref === actual;
+              if (pref === "yes") return actual === "occasionally" || actual === "socially" || actual === "regularly" || actual === "yes" || actual === "sometimes";
+              if (pref === "no") return actual === "non_smoker" || actual === "no";
+              return false;
             };
             if (
               matchSmoking(reqA.pref_smoking, profileB.smoking) &&
               matchSmoking(reqB.pref_smoking, profileA.smoking)
             ) {
               lifestyleScore += pointsPerCategory;
+            }
+
+            // Fitness
+            const fitnessLevels: Record<string, number> = {
+              not_active: 0,
+              occasionally: 1,
+              active: 2,
+              gym_rat: 3,
+            };
+            const levelA = fitnessLevels[profileA.fitness] ?? 0;
+            const levelB = fitnessLevels[profileB.fitness] ?? 0;
+            const distance = Math.abs(levelA - levelB);
+
+            if (distance === 0) {
+              lifestyleScore += 8.75;
+            } else if (distance === 1) {
+              lifestyleScore += 6.125;
+            } else if (distance === 2) {
+              lifestyleScore += 2.625;
+            } else if (distance === 3) {
+              lifestyleScore += 0;
             }
           }
 

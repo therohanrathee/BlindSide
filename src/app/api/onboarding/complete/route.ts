@@ -20,6 +20,10 @@ export async function POST(request: NextRequest) {
       longitude,
       phone,
       deviceOs,
+      dietary,
+      drinking,
+      smoking,
+      fitness,
     } = payload;
 
     if (!userId) {
@@ -73,6 +77,10 @@ export async function POST(request: NextRequest) {
     const profileInsert: any = {
       user_id: userId,
       hobbies: hobbies || [],
+      dietary: dietary || "no_preference",
+      drinking: drinking || "sober",
+      smoking: smoking || "non_smoker",
+      fitness: fitness || "not_active",
       updated_at: new Date().toISOString(),
     };
 
@@ -130,6 +138,10 @@ export async function POST(request: NextRequest) {
         ip_address: ipAddress,
         user_agent: userAgent,
         device_os: deviceOs || null,
+        dietary: dietary || null,
+        drinking: drinking || null,
+        smoking: smoking || null,
+        fitness: fitness || null,
       });
     } catch (leadErr) {
       console.error("Error logging lead data in onboarding complete route:", leadErr);
