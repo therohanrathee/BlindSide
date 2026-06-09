@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import s from "./dashboard.module.css";
+import SplashLoader from "@/components/SplashLoader";
 
 // Minimal Icons
 function HeartIcon() {
@@ -493,7 +494,7 @@ export default function DashboardPage() {
     async function loadDashboard() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        router.push("/auth");
+        window.location.href = "/auth";
         return;
       }
 
@@ -507,7 +508,7 @@ export default function DashboardPage() {
         .single();
 
       if (!userRecord?.is_onboarding_complete) {
-        router.push("/onboarding");
+        window.location.href = "/onboarding";
         return;
       }
 
@@ -660,6 +661,13 @@ export default function DashboardPage() {
         .single();
 
       if (match) {
+        const isChatExpired = new Date(match.chat_expires_at).getTime() < Date.now();
+        if (isChatExpired) {
+          setActiveMatch(match);
+          setDashboardState(4);
+          return;
+        }
+
         setActiveMatch(match);
         setDashboardState(3);
 
@@ -1165,8 +1173,12 @@ export default function DashboardPage() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push("/auth");
+    window.location.href = "/auth";
   };
+
+  if (loading) {
+    return <SplashLoader text="Entering BlindSide..." />;
+  }
 
   return (
     <div className={s.dashboardLayout}>
@@ -2006,17 +2018,6 @@ export default function DashboardPage() {
               disabled={submitting}
             >
               {submitting ? "Saving Review..." : "Submit Review ✓"}
-            </button>
-
-            <div className={s.divider} style={{ margin: "2rem 0" }}></div>
-
-            <button
-              className="btn btn-secondary btn-pill"
-              style={{ width: "100%" }}
-              onClick={handleResetMatch}
-              disabled={submitting}
-            >
-              Vibe Not Matched? Look for another Match →
             </button>
           </div>
         )}

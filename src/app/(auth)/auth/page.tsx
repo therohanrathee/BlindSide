@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import styles from "../auth.module.css";
+import EyeLogo from "@/components/EyeLogo";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function AuthPage() {
       } else {
         // Save identifier to localStorage for secure, query-free transfer
         localStorage.setItem("blindside_pending_identifier", identifier.trim());
-        router.push("/onboarding");
+        window.location.href = "/onboarding";
       }
     } catch (err: any) {
       setError(err.message || "Failed to check account. Please try again.");
@@ -104,9 +105,9 @@ export default function AuthPage() {
 
       // 3. Redirect based on onboarding completeness
       if (userData?.is_onboarding_complete) {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       } else {
-        router.push("/onboarding");
+        window.location.href = "/onboarding";
       }
     } catch (err: any) {
       setError(err.message || "Incorrect password. Please try again.");
@@ -124,10 +125,7 @@ export default function AuthPage() {
 
       <div className={styles.authCard}>
         <Link href="/" className={styles.authLogo} id="auth-logo">
-          <svg className={styles.authLogoEye} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="12" cy="12" r="3" fill="currentColor" />
-          </svg>
+          <EyeLogo className={styles.authLogoEye} width={24} height={24} animated={true} />
           BlindSide
         </Link>
 

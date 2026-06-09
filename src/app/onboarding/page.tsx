@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import s from "./onboarding.module.css";
 import AboutYouWizard from "./AboutYouWizard";
+import SplashLoader from "@/components/SplashLoader";
 
 // Minimal icons
 function ShieldIcon() {
@@ -155,7 +156,7 @@ function OnboardingContent() {
           .single();
 
         if (userData?.is_onboarding_complete) {
-          router.push("/dashboard");
+          window.location.href = "/dashboard";
           return;
         }
 
@@ -280,7 +281,7 @@ function OnboardingContent() {
           } else if (localPrimaryVerified) {
             setStep(2);
           } else {
-            router.push("/auth");
+            window.location.href = "/auth";
           }
         }
       }
@@ -742,7 +743,7 @@ function OnboardingContent() {
       });
 
       if (res.ok) {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         const errData = await res.json();
         setActionError(errData.message || "Failed to complete onboarding.");
@@ -886,11 +887,7 @@ function OnboardingContent() {
   };
 
   if (loading) {
-    return (
-      <div className={s.loadingContainer}>
-        <div className={s.spinner} />
-      </div>
-    );
+    return <SplashLoader text="Preparing Onboarding..." />;
   }
 
   return (
@@ -921,7 +918,7 @@ function OnboardingContent() {
                   type="button"
                   className={s.backToEditBtn}
                   onClick={() => {
-                    router.push(`/auth?identifier=${encodeURIComponent(primaryId)}`);
+                    window.location.href = `/auth?identifier=${encodeURIComponent(primaryId)}`;
                   }}
                 >
                   ← {primaryId}
@@ -1364,11 +1361,7 @@ function OnboardingContent() {
 
 export default function OnboardingPage() {
   return (
-    <Suspense fallback={
-      <div className={s.loadingContainer}>
-        <div className={s.spinner} />
-      </div>
-    }>
+    <Suspense fallback={<SplashLoader text="Loading..." />}>
       <OnboardingContent />
     </Suspense>
   );
