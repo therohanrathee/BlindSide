@@ -1,0 +1,128 @@
+/* ============================================
+   JourneyPath — SVG scroll-drawn path
+   ============================================ */
+
+/* Break out of the container to span the full physical screen */
+.svg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
+  transform: translateX(-50%);
+}
+
+/* Background guide path — INVISIBLE by default, glow reveals the drawn stroke */
+.pathBg {
+  stroke: transparent;
+}
+
+/* The actively-drawn stroke (no CSS transition — driven by JS) */
+.pathDraw {
+  will-change: stroke-dashoffset;
+}
+
+/* Glowing dot at the leading edge of the drawn path */
+.glowDot {
+  fill: var(--accent-primary);
+  opacity: 0;
+  will-change: opacity, cx, cy;
+}
+
+/* ---- Node markers — start INVISIBLE, glow illuminates them ---- */
+.nodeRing {
+  stroke: transparent;
+  fill: none;
+  transition: stroke 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              fill 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 0 0px transparent);
+}
+
+.nodeReached {
+  stroke: var(--accent-primary);
+  fill: rgba(232, 58, 114, 0.08);
+  filter: drop-shadow(0 0 10px rgba(232, 58, 114, 0.45));
+}
+
+.nodeDot {
+  fill: transparent;
+  transition: fill 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 0 0px transparent);
+}
+
+.nodeDotReached {
+  fill: var(--accent-primary);
+  filter: drop-shadow(0 0 8px rgba(232, 58, 114, 0.6));
+}
+
+/* ============================================
+   Light Theme
+   ============================================ */
+:global([data-theme="light"]) .nodeReached {
+  stroke: var(--accent-primary);
+  fill: rgba(212, 36, 102, 0.08);
+  filter: drop-shadow(0 0 10px rgba(212, 36, 102, 0.35));
+}
+
+:global([data-theme="light"]) .nodeDotReached {
+  fill: var(--accent-primary);
+  filter: drop-shadow(0 0 8px rgba(212, 36, 102, 0.5));
+}
+
+@media (prefers-color-scheme: light) {
+  :global(:root:not([data-theme="dark"])) .nodeReached {
+    stroke: var(--accent-primary);
+    fill: rgba(212, 36, 102, 0.08);
+    filter: drop-shadow(0 0 10px rgba(212, 36, 102, 0.35));
+  }
+  :global(:root:not([data-theme="dark"])) .nodeDotReached {
+    fill: var(--accent-primary);
+    filter: drop-shadow(0 0 8px rgba(212, 36, 102, 0.5));
+  }
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .pathDraw {
+    stroke-dashoffset: 0 !important;
+    stroke-dasharray: none !important;
+  }
+
+  .glowDot {
+    display: none;
+  }
+
+  .nodeRing,
+  .nodeDot {
+    transition: none;
+  }
+
+  /* Show everything immediately when motion is disabled */
+  .nodeRing {
+    stroke: var(--accent-primary);
+  }
+
+  .nodeDot {
+    fill: var(--accent-primary);
+  }
+}
+
+/* ============================================
+   Mobile: scale down nodes, keep SVG visible
+   ============================================ */
+@media (max-width: 768px) {
+  .nodeRing {
+    r: 6;
+  }
+
+  .nodeDot {
+    r: 2;
+  }
+}
