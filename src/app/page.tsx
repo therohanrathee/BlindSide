@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import s from "./page.module.css";
 import EyeLogo from "@/components/EyeLogo";
+import JourneyPath from "@/components/JourneyPath";
 
 /* ============================================
    LINE-ART SVG ICONS (Serene, minimal)
@@ -20,14 +21,6 @@ function StarIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  );
-}
-
-function MessageIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   );
 }
@@ -52,9 +45,12 @@ function KeyIcon() {
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
+  const [visibleSteps, setVisibleSteps] = useState<Set<number>>(new Set());
   const [envelopeOpen, setEnvelopeOpen] = useState(false);
   const [chatStage, setChatStage] = useState(0);
+
+  const journeyFlowRef = useRef<HTMLDivElement>(null);
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Monitor scroll for navbar transitions
   useEffect(() => {
@@ -65,36 +61,66 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Simple auto-advancing simulated chat
+  // IntersectionObserver for step reveal (once visible, stays visible)
   useEffect(() => {
-    if (activeStep === 2) {
+    const observers: IntersectionObserver[] = [];
+
+    stepRefs.current.forEach((step, i) => {
+      if (!step) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisibleSteps((prev) => {
+              if (prev.has(i)) return prev;
+              const next = new Set(prev);
+              next.add(i);
+              return next;
+            });
+          }
+        },
+        { threshold: 0.2 }
+      );
+      observer.observe(step);
+      observers.push(observer);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, []);
+
+  // Auto-advancing simulated chat (triggers when step 3 becomes visible)
+  useEffect(() => {
+    if (visibleSteps.has(2)) {
       const interval = setInterval(() => {
         setChatStage((prev) => (prev < 3 ? prev + 1 : 0));
       }, 3500);
       return () => clearInterval(interval);
     }
-  }, [activeStep]);
+  }, [visibleSteps]);
 
   const steps = [
     {
-      title: "1. Verify Identity",
+      num: "01",
+      title: "Verify Identity",
       subtitle: "University Verification",
       desc: "Confirm your status with a valid university email. A single OTP verification ensures all profiles are active, authenticated students from your specific campus network.",
     },
     {
-      title: "2. Set Scope & Match",
+      num: "02",
+      title: "Set Scope & Match",
       subtitle: "Personality First",
       desc: "Request a match to begin. Our algorithm analyzes core values, interests, and lifestyle intent to pair you with high-compatibility candidates.",
     },
     {
-      title: "3. Chat Blind",
+      num: "03",
+      title: "Chat Blind",
       subtitle: "Focus on Dialogue",
       desc: "A secure, text-only chat window opens for 48 hours. No photographs. No superficial reviews. We filter out contact details so you focus purely on the conversation.",
     },
     {
-      title: "4. The Reveal",
+      num: "04",
+      title: "The Reveal",
       subtitle: "The Signature Moment",
-      desc: "If both parties agree to meet, plan your date in-app. Exactly four hours before your date, we email both of you your match's photograph and confirmed location details.",
+      desc: "If both parties agree to meet, plan your date in-app. Exactly four hours before your date, we email both of you your match\u2019s photograph and confirmed location details.",
     },
   ];
 
@@ -150,7 +176,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ---- The Journey (Interactive Walkthrough) ---- */}
+      {/* ---- The Journey (Scroll-Driven Flow) ---- */}
       <section className={s.journeySection} id="how-it-works">
         <div className={s.sectionHeader}>
           <span className={s.sectionTag}>The Experience</span>
@@ -160,154 +186,156 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className={s.journeyGrid}>
-          {/* Left Panel: Steps Selector */}
-          <div className={s.journeySteps}>
-            {steps.map((step, idx) => (
-              <button
-                key={idx}
-                className={`${s.stepButton} ${activeStep === idx ? s.stepActive : ""}`}
-                onClick={() => {
-                  setActiveStep(idx);
-                  if (idx === 2) setChatStage(0);
-                }}
-                aria-label={`View step ${idx + 1}: ${step.title}`}
-              >
-                <div className={s.stepNum}>0{idx + 1}</div>
-                <div className={s.stepText}>
-                  <h3 className={s.stepTitleText}>{step.title}</h3>
-                  <span className={s.stepSubtitleText}>{step.subtitle}</span>
-                  <p className={s.stepDescription}>{step.desc}</p>
-                </div>
-              </button>
-            ))}
-          </div>
+        <div className={s.journeyFlow} ref={journeyFlowRef}>
+          {/* SVG path drawn on scroll (desktop only — CSS line on mobile) */}
+          <JourneyPath containerRef={journeyFlowRef} stepRefs={stepRefs} />
 
-          {/* Right Panel: Immersive Interactive Screen */}
-          <div className={s.journeyPreviewContainer}>
-            <div className={s.journeyPreviewInner}>
-              {/* Step 1: Verification Preview */}
-              {activeStep === 0 && (
-                <div className={s.previewCardVerify}>
-                  <div className={s.verifyHeader}>
-                    <ShieldIcon />
-                    <span>Campus Verification</span>
-                  </div>
-                  <p className={s.previewCardText}>Enter your institutional email address to join your college community.</p>
-                  <div className={s.fakeInputContainer}>
-                    <div className={s.fakeInput}>student@jnu.ac.in</div>
-                    <div className={s.fakeVerifyBadge}>Send OTP</div>
-                  </div>
-                  <div className={s.fakeOtpContainer}>
-                    <span className={s.otpDot}>4</span>
-                    <span className={s.otpDot}>9</span>
-                    <span className={s.otpDot}>2</span>
-                    <span className={`${s.otpDot} ${s.otpDotPulse}`}>•</span>
-                    <span className={s.otpDot}>•</span>
-                    <span className={s.otpDot}>•</span>
-                  </div>
-                  <div className={s.verifyFooter}>
-                    <span>Only @ac.in or verified domains allowed</span>
-                  </div>
-                </div>
-              )}
+          {steps.map((step, i) => (
+            <div
+              key={i}
+              ref={(el) => {
+                stepRefs.current[i] = el;
+              }}
+              className={`${s.journeyStep} ${i % 2 === 0 ? s.stepLeft : s.stepRight} ${
+                visibleSteps.has(i) ? s.stepVisible : ""
+              }`}
+            >
+              {/* Mobile-only node dot (replaces SVG nodes on small screens) */}
+              <div className={s.mobileNode} aria-hidden="true" />
 
-              {/* Step 2: Match Preview */}
-              {activeStep === 1 && (
-                <div className={s.previewCardMatch}>
-                  <div className={s.matchHeader}>
-                    <StarIcon />
-                    <span>Finding Compatibility</span>
-                  </div>
-                  <div className={s.matchVisual}>
-                    <div className={s.matchOrbLeft} />
-                    <div className={s.matchOrbRight} />
-                    <div className={s.matchPulseLine} />
-                  </div>
-                  <div className={s.matchDetails}>
-                    <p className={s.matchQuery}>Looking for matches in Delhi NCR...</p>
-                    <div className={s.matchingFilters}>
-                      <span className={s.matchFilterTag}>Mutual Interests</span>
-                      <span className={s.matchFilterTag}>Similar Lifestyle</span>
-                      <span className={s.matchFilterTag}>Serious Intent</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Text information */}
+              <div className={s.stepInfo}>
+                <span className={s.stepNumber}>{step.num}</span>
+                <h3 className={s.stepTitle}>{step.title}</h3>
+                <span className={s.stepSubtitle}>{step.subtitle}</span>
+                <p className={s.stepDesc}>{step.desc}</p>
+              </div>
 
-              {/* Step 3: Chat Preview */}
-              {activeStep === 2 && (
-                <div className={s.previewCardChat}>
-                  <div className={s.chatHeader}>
-                    <div className={s.chatAvatar}>
-                      <span className={s.avatarMask} />
+              {/* Interactive preview card */}
+              <div className={s.stepPreview}>
+                {/* Step 1: Verification Preview */}
+                {i === 0 && (
+                  <div className={s.previewCardVerify}>
+                    <div className={s.verifyHeader}>
+                      <ShieldIcon />
+                      <span>Campus Verification</span>
                     </div>
-                    <div className={s.chatHeaderInfo}>
-                      <span className={s.chatTargetName}>Mystery Match</span>
-                      <span className={s.chatTargetSub}>JNU • Shared Interests: Reading, Vinyl</span>
+                    <p className={s.previewCardText}>Enter your institutional email address to join your college community.</p>
+                    <div className={s.fakeInputContainer}>
+                      <div className={s.fakeInput}>student@jnu.ac.in</div>
+                      <div className={s.fakeVerifyBadge}>Send OTP</div>
                     </div>
-                    <div className={s.chatTimer}>47:59:12</div>
-                  </div>
-
-                  <div className={s.chatMessages}>
-                    <div className={`${s.chatBubble} ${s.chatBubbleReceived} ${chatStage >= 0 ? s.bubbleVisible : ""}`}>
-                      It's quite nice talking without knowing what you look like.
+                    <div className={s.fakeOtpContainer}>
+                      <span className={s.otpDot}>4</span>
+                      <span className={s.otpDot}>9</span>
+                      <span className={s.otpDot}>2</span>
+                      <span className={`${s.otpDot} ${s.otpDotPulse}`}>•</span>
+                      <span className={s.otpDot}>•</span>
+                      <span className={s.otpDot}>•</span>
                     </div>
-                    <div className={`${s.chatBubble} ${s.chatBubbleSent} ${chatStage >= 1 ? s.bubbleVisible : ""}`}>
-                      Yeah. It forces us to actually listen. What are you reading lately?
-                    </div>
-                    <div className={`${s.chatBubble} ${s.chatBubbleReceived} ${chatStage >= 2 ? s.bubbleVisible : ""}`}>
-                      A collection of essays on architectural design. You?
-                    </div>
-                    <div className={`${s.chatBubble} ${s.chatBubbleSent} ${chatStage >= 3 ? s.bubbleVisible : ""}`}>
-                      Just poetry. Let's get coffee and talk about both.
+                    <div className={s.verifyFooter}>
+                      <span>Only @ac.in or verified domains allowed</span>
                     </div>
                   </div>
+                )}
 
-                  <div className={s.chatInputFake}>
-                    <span>Type a message...</span>
-                    <span className={s.sendButtonFake}>Send</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 4: Reveal Preview */}
-              {activeStep === 3 && (
-                <div className={s.previewCardReveal}>
-                  <div className={s.revealTag}>T-4 Hours Before Date</div>
-                  
-                  <div 
-                    className={`${s.envelope} ${envelopeOpen ? s.envelopeOpenState : ""}`}
-                    onMouseEnter={() => setEnvelopeOpen(true)}
-                    onMouseLeave={() => setEnvelopeOpen(false)}
-                    onClick={() => setEnvelopeOpen(!envelopeOpen)}
-                  >
-                    <div className={s.envelopeFlap} />
-                    <div className={s.envelopePaper}>
-                      <div className={s.paperHeader}>
-                        <span>Date Details Revealed</span>
+                {/* Step 2: Match Preview */}
+                {i === 1 && (
+                  <div className={s.previewCardMatch}>
+                    <div className={s.matchHeader}>
+                      <StarIcon />
+                      <span>Finding Compatibility</span>
+                    </div>
+                    <div className={s.matchVisual}>
+                      <div className={s.matchOrbLeft} />
+                      <div className={s.matchOrbRight} />
+                      <div className={s.matchPulseLine} />
+                    </div>
+                    <div className={s.matchDetails}>
+                      <p className={s.matchQuery}>Looking for matches in Delhi NCR...</p>
+                      <div className={s.matchingFilters}>
+                        <span className={s.matchFilterTag}>Mutual Interests</span>
+                        <span className={s.matchFilterTag}>Similar Lifestyle</span>
+                        <span className={s.matchFilterTag}>Serious Intent</span>
                       </div>
-                      
-                      <div className={s.avatarContainer}>
-                        <div className={s.blurredAvatar}>
-                          <div className={s.avatarAbstractGradient} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Chat Preview */}
+                {i === 2 && (
+                  <div className={s.previewCardChat}>
+                    <div className={s.chatHeader}>
+                      <div className={s.chatAvatar}>
+                        <span className={s.avatarMask} />
+                      </div>
+                      <div className={s.chatHeaderInfo}>
+                        <span className={s.chatTargetName}>Mystery Match</span>
+                        <span className={s.chatTargetSub}>JNU • Shared Interests: Reading, Vinyl</span>
+                      </div>
+                      <div className={s.chatTimer}>47:59:12</div>
+                    </div>
+
+                    <div className={s.chatMessages}>
+                      <div className={`${s.chatBubble} ${s.chatBubbleReceived} ${chatStage >= 0 ? s.bubbleVisible : ""}`}>
+                        It&apos;s quite nice talking without knowing what you look like.
+                      </div>
+                      <div className={`${s.chatBubble} ${s.chatBubbleSent} ${chatStage >= 1 ? s.bubbleVisible : ""}`}>
+                        Yeah. It forces us to actually listen. What are you reading lately?
+                      </div>
+                      <div className={`${s.chatBubble} ${s.chatBubbleReceived} ${chatStage >= 2 ? s.bubbleVisible : ""}`}>
+                        A collection of essays on architectural design. You?
+                      </div>
+                      <div className={`${s.chatBubble} ${s.chatBubbleSent} ${chatStage >= 3 ? s.bubbleVisible : ""}`}>
+                        Just poetry. Let&apos;s get coffee and talk about both.
+                      </div>
+                    </div>
+
+                    <div className={s.chatInputFake}>
+                      <span>Type a message...</span>
+                      <span className={s.sendButtonFake}>Send</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 4: Reveal Preview */}
+                {i === 3 && (
+                  <div className={s.previewCardReveal}>
+                    <div className={s.revealTag}>T-4 Hours Before Date</div>
+
+                    <div
+                      className={`${s.envelope} ${envelopeOpen ? s.envelopeOpenState : ""}`}
+                      onMouseEnter={() => setEnvelopeOpen(true)}
+                      onMouseLeave={() => setEnvelopeOpen(false)}
+                      onClick={() => setEnvelopeOpen(!envelopeOpen)}
+                    >
+                      <div className={s.envelopeFlap} />
+                      <div className={s.envelopePaper}>
+                        <div className={s.paperHeader}>
+                          <span>Date Details Revealed</span>
                         </div>
-                        <div className={s.avatarCheckIcon}>✓</div>
-                      </div>
 
-                      <h4 className={s.paperName}>Priya, 22</h4>
-                      <p className={s.paperLocation}>Café Dori, Dhan Mill</p>
-                      <span className={s.paperTime}>Today at 5:00 PM</span>
-                      <div className={s.paperMapLink}>Open in Google Maps</div>
+                        <div className={s.avatarContainer}>
+                          <div className={s.blurredAvatar}>
+                            <div className={s.avatarAbstractGradient} />
+                          </div>
+                          <div className={s.avatarCheckIcon}>✓</div>
+                        </div>
+
+                        <h4 className={s.paperName}>Priya, 22</h4>
+                        <p className={s.paperLocation}>Café Dori, Dhan Mill</p>
+                        <span className={s.paperTime}>Today at 5:00 PM</span>
+                        <div className={s.paperMapLink}>Open in Google Maps</div>
+                      </div>
+                      <div className={s.envelopeFront} />
                     </div>
-                    <div className={s.envelopeFront} />
+
+                    <p className={s.envelopeHint}>Hover or tap the envelope to inspect your match details</p>
                   </div>
-                  
-                  <p className={s.envelopeHint}>Hover or tap the envelope to inspect your match details</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </section>
 
