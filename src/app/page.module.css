@@ -1033,6 +1033,8 @@
 /* Original smooth reveal animation on opening */
 .envelopeOpenState .envelopePaper {
   animation: paperReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
+  transform: translateY(-15px) scale(1.08);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
   z-index: 6;
 }
 
@@ -1049,9 +1051,8 @@
 }
 
 .envelope:not(.envelopeOpenState) .envelopePaper {
-  transform: translateY(0) scale(1) !important;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
-  animation: none;
+  transform: translateY(0) scale(1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   transition: all 0.8s var(--ease-out-expo);
 }
 
@@ -1917,4 +1918,3 @@
     box-shadow: var(--shadow-sm);
   }
 }
-
