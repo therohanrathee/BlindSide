@@ -839,6 +839,9 @@
   transition: transform 0.5s var(--ease-out-expo);
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
   overflow: visible;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .envelope:hover {
@@ -859,6 +862,9 @@
   transition: transform 0.7s var(--ease-out-expo),
               z-index 0s 0.25s;
   z-index: 5;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Letter / paper inside */
@@ -873,14 +879,15 @@
   border-radius: var(--radius-md);
   padding: 1rem;
   z-index: 1;
-  /* Smooth return transition when closing */
-  transition: transform 0.5s var(--ease-out-expo),
-              box-shadow 0.5s var(--ease-out-expo);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  will-change: transform, top, left, right, bottom, box-shadow, filter;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: all 0.6s var(--ease-out-expo);
 }
 
 .paperHeader {
@@ -905,6 +912,9 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   filter: blur(10px);
   transition: filter 0.8s var(--ease-out-expo);
+  will-change: filter;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .avatarAbstractGradient {
@@ -1012,20 +1022,43 @@
   pointer-events: none;
 }
 
-/* Open Envelope States */
+/* Open Envelope States - original animation on opening */
 .envelopeOpenState .envelopeFlap {
   transform: rotateX(180deg);
   z-index: 0;
+  transition: transform 0.7s var(--ease-out-expo),
+              z-index 0s 0.25s;
 }
 
-/* 4-step fluid reveal: shoot up → swoop down + scale forward */
+/* Original smooth reveal animation on opening */
 .envelopeOpenState .envelopePaper {
-  animation: paperReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+  animation: paperReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
+  transform: translateY(-15px) scale(1.08);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
   z-index: 6;
 }
 
 .envelopeOpenState .blurredAvatar {
   filter: blur(2px);
+  transition: filter 0.8s var(--ease-out-expo);
+}
+
+/* Smooth closing animation - back to original closed state */
+.envelope:not(.envelopeOpenState) .envelopeFlap {
+  transform: rotateX(0deg);
+  transition: transform 0.7s var(--ease-out-expo),
+              z-index 0s 0.25s;
+}
+
+.envelope:not(.envelopeOpenState) .envelopePaper {
+  transform: translateY(0) scale(1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.8s var(--ease-out-expo);
+}
+
+.envelope:not(.envelopeOpenState) .blurredAvatar {
+  filter: blur(10px);
+  transition: filter 0.6s var(--ease-out-expo);
 }
 
 @keyframes paperReveal {
@@ -1885,4 +1918,3 @@
     box-shadow: var(--shadow-sm);
   }
 }
-
