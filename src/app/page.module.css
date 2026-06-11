@@ -879,9 +879,6 @@
   border-radius: var(--radius-md);
   padding: 1rem;
   z-index: 1;
-  /* Smooth return transition when closing */
-  transition: transform 0.5s var(--ease-out-expo),
-              box-shadow 0.5s var(--ease-out-expo);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1032,17 +1029,25 @@
 
 /* 4-step fluid reveal: shoot up → swoop down + scale forward */
 .envelopeOpenState .envelopePaper {
-  animation: paperReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+  animation: paperReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
   z-index: 6;
 }
 
 .envelopeOpenState .blurredAvatar {
-  filter: blur(2px);
+  animation: avatarUnblur 0.8s var(--ease-out-expo) 0.12s forwards;
 }
 
-/* Smooth closing animation (reverse direction) */
+/* Smooth closing animation (reverse direction) when mouse leaves */
+.envelope .envelopePaper {
+  animation: none;
+}
+
 .envelope:not(.envelopeOpenState) .envelopePaper {
   animation: paperClose 0.75s var(--ease-out-expo) forwards;
+}
+
+.envelope:not(.envelopeOpenState) .blurredAvatar {
+  animation: avatarBlur 0.6s var(--ease-out-expo) forwards;
 }
 
 @keyframes paperReveal {
@@ -1075,6 +1080,26 @@
   100% {
     transform: translateY(0) scale(1);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Avatar blur animation on opening */
+@keyframes avatarUnblur {
+  0% {
+    filter: blur(10px);
+  }
+  100% {
+    filter: blur(2px);
+  }
+}
+
+/* Avatar blur animation on closing */
+@keyframes avatarBlur {
+  0% {
+    filter: blur(2px);
+  }
+  100% {
+    filter: blur(10px);
   }
 }
 
