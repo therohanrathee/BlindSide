@@ -1049,7 +1049,10 @@
 }
 
 .envelope:not(.envelopeOpenState) .envelopePaper {
-  animation: paperClose 0.75s var(--ease-out-expo) forwards;
+  transform: translateY(0) scale(1) !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+  animation: none;
+  transition: all 0.8s var(--ease-out-expo);
 }
 
 .envelope:not(.envelopeOpenState) .blurredAvatar {
@@ -1073,23 +1076,6 @@
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
   }
 }
-
-/* Reverse animation for closing envelope (smooth return) */
-@keyframes paperClose {
-  0% {
-    transform: translateY(-15px) scale(1.08);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
-  }
-  60% {
-    transform: translateY(-170px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-  }
-  100% {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-}
-
 
 .envelopeHint {
   font-size: 10px;
