@@ -884,9 +884,10 @@
   align-items: center;
   text-align: center;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  will-change: transform, box-shadow;
+  will-change: transform, top, left, right, bottom, box-shadow, filter;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  transition: all 0.6s var(--ease-out-expo);
 }
 
 .paperHeader {
@@ -1021,87 +1022,53 @@
   pointer-events: none;
 }
 
-/* Open Envelope States */
+/* Open Envelope States - stays open while hovering */
 .envelopeOpenState .envelopeFlap {
-  transform: rotateX(180deg);
+  transform: rotateX(-180deg);
   z-index: 0;
+  transition: transform 0.6s var(--ease-out-expo);
 }
 
-/* 4-step fluid reveal: shoot up → swoop down + scale forward */
+/* Paper expands to fill envelope when opened */
 .envelopeOpenState .envelopePaper {
-  animation: paperReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
+  transform: translateY(0) scale(1);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  border-radius: var(--radius-lg);
   z-index: 6;
+  transition: all 0.6s var(--ease-out-expo);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
 }
 
 .envelopeOpenState .blurredAvatar {
-  animation: avatarUnblur 0.8s var(--ease-out-expo) 0.12s forwards;
+  filter: blur(0px);
+  transition: filter 0.6s var(--ease-out-expo);
 }
 
-/* Smooth closing animation (reverse direction) when mouse leaves */
-.envelope .envelopePaper {
-  animation: none;
+/* Smooth closing animation - back to original closed state */
+.envelope:not(.envelopeOpenState) .envelopeFlap {
+  transform: rotateX(0deg);
+  transition: transform 0.6s var(--ease-out-expo);
 }
 
 .envelope:not(.envelopeOpenState) .envelopePaper {
-  animation: paperClose 0.75s var(--ease-out-expo) forwards;
+  transform: translateY(0) scale(1);
+  top: 10px;
+  left: 15px;
+  right: 15px;
+  bottom: 10px;
+  transition: all 0.6s var(--ease-out-expo);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .envelope:not(.envelopeOpenState) .blurredAvatar {
-  animation: avatarBlur 0.6s var(--ease-out-expo) forwards;
+  filter: blur(10px);
+  transition: filter 0.6s var(--ease-out-expo);
 }
 
-@keyframes paperReveal {
-  0% {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-  40% {
-    /* Card fully out of envelope */
-    transform: translateY(-170px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-  }
-  100% {
-    /* Card settles on top, zoomed forward */
-    transform: translateY(-15px) scale(1.08);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
-  }
-}
-
-/* Reverse animation for closing envelope (smooth return) */
-@keyframes paperClose {
-  0% {
-    transform: translateY(-15px) scale(1.08);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
-  }
-  60% {
-    transform: translateY(-170px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-  }
-  100% {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-}
-
-/* Avatar blur animation on opening */
-@keyframes avatarUnblur {
-  0% {
-    filter: blur(10px);
-  }
-  100% {
-    filter: blur(2px);
-  }
-}
-
-/* Avatar blur animation on closing */
-@keyframes avatarBlur {
-  0% {
-    filter: blur(2px);
-  }
-  100% {
-    filter: blur(10px);
-  }
-}
 
 .envelopeHint {
   font-size: 10px;
