@@ -139,8 +139,34 @@ function SoberSVG({ fill }: { fill: string }) {
 function DrinkNoPrefSVG({ fill }: { fill: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
-      <path d="M6 3h5l-3.5 4-1.5-4zM6 7v6h4V7M8 13v5M5 18h6" />
-      <path d="M18 3h-5l3.5 4 1.5-4zM18 7v6h-4V7M16 13v5M19 18h-6" />
+      {/* Martini glass on the left */}
+      <path d="M4 6h6l-3 3.5-3-3.5z" />
+      <path d="M7 9.5v5.5" />
+      <path d="M5 15h4" />
+      
+      {/* Water droplet on the right */}
+      <path d="M17 17a3 3 0 0 0 3-3c0-1.85-3-4.71-3-4.71S14 12.15 14 14a3 3 0 0 0 3 3z" />
+    </svg>
+  );
+}
+
+function DrinkSociallySVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      {/* Left Mug */}
+      <path d="M4 8h5v9H4V8z" />
+      <path d="M4 10H2v4h2" />
+      <line x1="4" y1="11" x2="9" y2="11" />
+      <path d="M3.5 8c0-1 1-1.5 2-1s1 .5 1.5 0 1-.5 2 0S10 8 9.5 8" />
+
+      {/* Right Mug */}
+      <path d="M15 8h5v9h-5V8z" />
+      <path d="M20 10h2v4h-2" />
+      <line x1="15" y1="11" x2="20" y2="11" />
+      <path d="M14.5 8c0-1 1-1.5 2-1s1 .5 1.5 0 1-.5 2 0S21 8 20.5 8" />
+
+      {/* Splashes */}
+      <path d="M11.5 4.5l1-1M13.5 4.5l-1-1" />
     </svg>
   );
 }
@@ -152,6 +178,31 @@ function SmokingSVG({ fill }: { fill: string }) {
       <path d="M14 12v4" />
       <path d="M18 12c1.5 0 2 1 2 2s-.5 2-2 2" />
       <path d="M22 8c-1-1.5-2-1.5-2 0s-1 1.5-2 0" />
+    </svg>
+  );
+}
+
+function SmokeOccasionallySVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      {/* Single cigarette */}
+      <path d="M3 14h14v3H3z" />
+      <path d="M6 14v3" />
+      {/* Smoke */}
+      <path d="M19 12c.5-1 1-1.5 2-1.5M18 14c.5-1 1-1.5 2-1.5" />
+    </svg>
+  );
+}
+
+function SmokeRegularlySVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.prefIcon}>
+      {/* Elegant pipe */}
+      <path d="M15 9h4v4c0 2-1.5 3.5-3.5 3.5S14 15 14 13.5V9z" />
+      <path d="M14 14.5H5c-1.5 0-2-1-2-2.5S4 10.5 5 10.5" />
+      <path d="M3 11v3" />
+      {/* Smoke */}
+      <path d="M17 7c0-1.5.5-2 1-2.5M19 7c0-1.5.5-2 1-2.5" />
     </svg>
   );
 }
@@ -768,6 +819,13 @@ export default function DashboardPage() {
       clearInterval(chatIntervalRef.current);
     }
     const expiry = new Date(expiryStr).getTime();
+    
+    // If the expiry is more than 30 days in the future, display infinite time for development
+    if (expiry - Date.now() > 30 * 24 * 60 * 60 * 1000) {
+      setChatCountdownText("∞ (No Expiry)");
+      return;
+    }
+
     chatIntervalRef.current = setInterval(() => {
       const now = Date.now();
       const diff = expiry - now;
@@ -877,8 +935,26 @@ export default function DashboardPage() {
   };
 
   const handleRazorpayPay = async () => {
-    if (!requestId) return;
+    console.log("handleRazorpayPay called! Current state:", {
+      requestId,
+      windowRazorpayExists: typeof (window as any).Razorpay !== "undefined",
+      submitting
+    });
+
+    if (!requestId) {
+      console.warn("handleRazorpayPay: Cannot proceed because requestId is missing (null/undefined).");
+      setActionError("Internal error: Request ID is missing. Please refresh and try again.");
+      return;
+    }
+
     setActionError("");
+
+    if (typeof (window as any).Razorpay === "undefined") {
+      setActionError("Razorpay payment gateway failed to load. Please check your internet connection or disable ad-blockers.");
+      console.error("Razorpay SDK not found on window object.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -925,7 +1001,8 @@ export default function DashboardPage() {
             } else {
               setActionError(verifyData.message || "Payment verification failed.");
             }
-          } catch {
+          } catch (err: any) {
+            console.error("Payment verification failed:", err);
             setActionError("Payment verification network error.");
           } finally {
             setSubmitting(false);
@@ -946,7 +1023,8 @@ export default function DashboardPage() {
 
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
-    } catch {
+    } catch (err: any) {
+      console.error("Failed to initiate Razorpay checkout:", err);
       setActionError("Failed to initiate Razorpay payment.");
       setSubmitting(false);
     }
@@ -1518,7 +1596,8 @@ export default function DashboardPage() {
 
                       <div className={s.prefCardGrid}>
                         {[
-                          { key: "yes", label: "Drinks", desc: "Enjoys casual drinking", Svg: DrinkingSVG },
+                          { key: "yes", label: "Drinks Regularly", desc: "Enjoys regular drinking", Svg: DrinkingSVG },
+                          { key: "socially", label: "Drinks Socially", desc: "Drinks only on social occasions", Svg: DrinkSociallySVG },
                           { key: "no", label: "Sober / Teetotaler", desc: "Does not drink alcohol", Svg: SoberSVG },
                           { key: "no_preference", label: "No Preference", desc: "Open to matching anyone", Svg: DrinkNoPrefSVG }
                         ].map((d) => {
@@ -1562,7 +1641,8 @@ export default function DashboardPage() {
 
                       <div className={s.prefCardGrid}>
                         {[
-                          { key: "yes", label: "Smokes", desc: "Casual or regular smoker", Svg: SmokingSVG },
+                          { key: "regular", label: "Regular Smoker", desc: "Smokes regularly", Svg: SmokeRegularlySVG },
+                          { key: "casual", label: "Casual Smoker", desc: "Smokes casually or socially", Svg: SmokeOccasionallySVG },
                           { key: "no", label: "Non-Smoker", desc: "Does not smoke", Svg: NonSmokingSVG },
                           { key: "no_preference", label: "No Preference", desc: "Open to matching anyone", Svg: SmokeNoPrefSVG }
                         ].map((d) => {

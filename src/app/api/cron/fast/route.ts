@@ -227,8 +227,9 @@ export async function GET(request: NextRequest) {
             // Drinking
             const matchDrinking = (pref: string, actual: string) => {
               if (pref === "no_preference") return true;
-              if (pref === "yes") return actual === "occasionally" || actual === "socially" || actual === "regularly" || actual === "yes" || actual === "sometimes";
-              if (pref === "no") return actual === "sober" || actual === "no";
+              const doesDrink = actual === "occasionally" || actual === "socially" || actual === "regularly" || actual === "yes" || actual === "sometimes";
+              if (pref === "yes" || pref === "socially") return doesDrink;
+              if (pref === "no") return !doesDrink;
               return false;
             };
             if (
@@ -241,8 +242,9 @@ export async function GET(request: NextRequest) {
             // Smoking
             const matchSmoking = (pref: string, actual: string) => {
               if (pref === "no_preference") return true;
-              if (pref === "yes") return actual === "occasionally" || actual === "socially" || actual === "regularly" || actual === "yes" || actual === "sometimes";
-              if (pref === "no") return actual === "non_smoker" || actual === "no";
+              const doesSmoke = actual === "occasionally" || actual === "socially" || actual === "regularly" || actual === "yes" || actual === "sometimes";
+              if (pref === "yes" || pref === "regular" || pref === "casual") return doesSmoke;
+              if (pref === "no") return !doesSmoke;
               return false;
             };
             if (
@@ -343,6 +345,11 @@ export async function GET(request: NextRequest) {
           const [userAId, userBId] = [reqA.user_id, reqB.user_id].sort();
           const [reqAId, reqBId] = reqA.user_id === userAId ? [reqA.id, reqB.id] : [reqB.id, reqA.id];
 
+          const isDev = process.env.NODE_ENV === "development" || !process.env.CRON_SECRET;
+          const chatWindowDurationMs = isDev
+            ? 100 * 365 * 24 * 60 * 60 * 1000 // 100 years for dev
+            : 48 * 60 * 60 * 1000;            // 48 hours for prod
+
           const { data: matchRecord, error: matchInsertError } = await supabase
             .from("matches")
             .insert({
@@ -352,7 +359,7 @@ export async function GET(request: NextRequest) {
               user_b_id: userBId,
               compatibility_score: Math.round(bestScore),
               status: "active",
-              chat_expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+              chat_expires_at: new Date(Date.now() + chatWindowDurationMs).toISOString(),
               matched_at: new Date().toISOString(),
             })
             .select()
