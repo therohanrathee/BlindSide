@@ -12,9 +12,10 @@ interface PhotoRevealParams {
   dateTimeStr: string;
 }
 
+import { sendEmail, isSESConfigured } from "./ses";
+
 export async function sendPhotoRevealEmail(params: PhotoRevealParams): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const fromAddress = process.env.EMAIL_FROM_ADDRESS || "reveal@blindside.app";
+  const isDev = process.env.NODE_ENV === "development";
   const formattedDate = new Date(params.dateTimeStr).toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
     dateStyle: "full",
@@ -44,34 +45,22 @@ export async function sendPhotoRevealEmail(params: PhotoRevealParams): Promise<b
     </div>
   `;
 
-  if (apiKey) {
+  if (isSESConfigured()) {
     try {
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: fromAddress,
-          to: params.to.trim().toLowerCase(),
-          subject: `BlindSide — Reveal for your date with ${params.partnerName}!`,
-          html: htmlContent,
-        }),
+      const subject = `BlindSide — Reveal for your date with ${params.partnerName}!`;
+      return await sendEmail({
+        to: params.to,
+        subject,
+        html: htmlContent,
+        from: process.env.EMAIL_FROM_ADDRESS || "reveal@blindside.in",
       });
-
-      if (response.ok) {
-        return true;
-      } else {
-        const errorData = await response.json();
-        console.error("Resend Photo Reveal API error response:", errorData);
-        return false;
-      }
     } catch (err) {
-      console.error("Failed to send photo reveal email via Resend:", err);
+      console.error("Failed to send photo reveal email via AWS SES:", err);
       return false;
     }
-  } else {
+  }
+
+  if (isDev) {
     // Local developer fallback console print
     console.log(`\n==================================================`);
     console.log(`[MOCK PHOTO REVEAL EMAIL]`);
@@ -81,8 +70,11 @@ export async function sendPhotoRevealEmail(params: PhotoRevealParams): Promise<b
     console.log(`Partner Photo URL: ${params.partnerPhotoUrl || "None"}`);
     console.log(`Location: ${params.locationText}`);
     console.log(`Time: ${formattedDate}`);
-    console.log(`(Configure RESEND_API_KEY in .env.local to send real emails)`);
+    console.log(`(Configure AWS_ACCESS_KEY_ID & AWS_SECRET_ACCESS_KEY in .env.local to send real emails via AWS SES)`);
     console.log(`==================================================\n`);
     return true;
   }
+
+  console.error("AWS SES is not configured in production environment for photo reveal.");
+  return false;
 }

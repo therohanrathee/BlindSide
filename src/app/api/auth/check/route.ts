@@ -17,6 +17,26 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient();
 
+    // Check if the email is blacklisted/bounced
+    if (isEmail) {
+      const { data: bouncedRecord, error: bounceError } = await supabase
+        .from("bounced_emails")
+        .select("email")
+        .eq("email", trimmedId)
+        .maybeSingle();
+
+      if (bounceError) {
+        console.error("Failed to query bounced_emails in auth check:", bounceError);
+      }
+
+      if (bouncedRecord) {
+        return NextResponse.json(
+          { message: "This email address is invalid or has bounced. Please use a different email." },
+          { status: 400 }
+        );
+      }
+    }
+
     // Query public.users
     let query = supabase
       .from("users")
