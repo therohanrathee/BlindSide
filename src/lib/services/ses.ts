@@ -30,7 +30,15 @@ interface SendEmailParams {
  * Returns true if successful, false otherwise.
  */
 export async function sendEmail({ to, subject, html, from }: SendEmailParams): Promise<boolean> {
-  const fromAddress = from || process.env.EMAIL_FROM_ADDRESS || "reveal@blindside.in";
+  const formatFromAddress = (addr?: string): string => {
+    const raw = addr || process.env.EMAIL_FROM_ADDRESS || "reveal@blindside.in";
+    if (raw.includes("<") && raw.includes(">")) {
+      return raw;
+    }
+    return `BlindSide <${raw.trim()}>`;
+  };
+
+  const fromAddress = formatFromAddress(from);
 
   if (!sesClient) {
     console.warn("AWS SES is not configured. Missing AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY.");
