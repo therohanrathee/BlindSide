@@ -490,6 +490,10 @@ export default function DashboardPage() {
   const [newMessageText, setNewMessageText] = useState("");
   const [userWantsMeet, setUserWantsMeet] = useState(false);
   const [partnerWantsMeet, setPartnerWantsMeet] = useState(false);
+  const [userSharesPhoto, setUserSharesPhoto] = useState(false);
+  const [partnerSharesPhoto, setPartnerSharesPhoto] = useState(false);
+  const [userSharesName, setUserSharesName] = useState(false);
+  const [partnerSharesName, setPartnerSharesName] = useState(false);
   
   // State 3: Date Planning
   const [dateProposed, setDateProposed] = useState("");
@@ -629,6 +633,12 @@ export default function DashboardPage() {
           const isUserA = payload.new.user_a_id === userId;
           setUserWantsMeet(isUserA ? payload.new.user_a_wants_meet : payload.new.user_b_wants_meet);
           setPartnerWantsMeet(isUserA ? payload.new.user_b_wants_meet : payload.new.user_a_wants_meet);
+          setUserSharesPhoto(isUserA ? payload.new.user_a_shares_photo : payload.new.user_b_shares_photo);
+          setPartnerSharesPhoto(isUserA ? payload.new.user_b_shares_photo : payload.new.user_a_shares_photo);
+          setUserSharesName(isUserA ? payload.new.user_a_shares_name : payload.new.user_b_shares_name);
+          setPartnerSharesName(isUserA ? payload.new.user_b_shares_name : payload.new.user_a_shares_name);
+
+          loadPartnerDetails(payload.new, userId);
         }
       )
       .on(
@@ -725,54 +735,12 @@ export default function DashboardPage() {
         const isUserA = match.user_a_id === uid;
         setUserWantsMeet(isUserA ? match.user_a_wants_meet : match.user_b_wants_meet);
         setPartnerWantsMeet(isUserA ? match.user_b_wants_meet : match.user_a_wants_meet);
+        setUserSharesPhoto(isUserA ? match.user_a_shares_photo : match.user_b_shares_photo);
+        setPartnerSharesPhoto(isUserA ? match.user_b_shares_photo : match.user_a_shares_photo);
+        setUserSharesName(isUserA ? match.user_a_shares_name : match.user_b_shares_name);
+        setPartnerSharesName(isUserA ? match.user_b_shares_name : match.user_a_shares_name);
 
-        // Fetch partner details
-        const partnerId = isUserA ? match.user_b_id : match.user_a_id;
-        const { data: partner } = await supabase
-          .from("users")
-          .select("first_name, date_of_birth, universities(name)")
-          .eq("id", partnerId)
-          .single();
-
-        const { data: partnerProfileData } = await supabase
-          .from("profiles")
-          .select("hobbies")
-          .eq("user_id", partnerId)
-          .single();
-
-        let partnerName = "Your Blind Date";
-        let partnerAge = 21;
-        let partnerUni = "Same Campus";
-        let partnerHobbies = ["Hobbies Hidden"];
-
-        if (partner) {
-          partnerName = partner.first_name || "Your Blind Date";
-          if (partner.date_of_birth) {
-            const dob = new Date(partner.date_of_birth);
-            const today = new Date();
-            let age = today.getFullYear() - dob.getFullYear();
-            const m = today.getMonth() - dob.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-              age--;
-            }
-            partnerAge = age;
-          }
-          partnerUni = (partner.universities as any)?.name || "Same Campus";
-        } else {
-          console.warn("⚠️ RLS Check: Failed to fetch partner's public user details. Did you apply Migration 006 RLS policy in your Supabase SQL Editor?");
-        }
-
-        if (partnerProfileData) {
-          partnerHobbies = partnerProfileData.hobbies || ["Hobbies Hidden"];
-        }
-
-        setPartnerProfile({
-          firstName: partnerName,
-          age: partnerAge,
-          university: partnerUni,
-          hobbies: partnerHobbies,
-          compatibility: match.compatibility_score || 55,
-        });
+        await loadPartnerDetails(match, uid);
 
         // Start Chat countdown
         startChatCountdown(match.chat_expires_at);
@@ -852,6 +820,72 @@ export default function DashboardPage() {
       .eq("match_id", matchId)
       .order("created_at", { ascending: true });
     if (msgs) setChatMessages(msgs);
+  };
+
+  const loadPartnerDetails = async (match: any, uid: string) => {
+    const isUserA = match.user_a_id === uid;
+    const partnerId = isUserA ? match.user_b_id : match.user_a_id;
+    const isPhotoShared = isUserA ? match.user_b_shares_photo : match.user_a_shares_photo;
+    const isNameShared = isUserA ? match.user_b_shares_name : match.user_a_shares_name;
+
+    // Fetch partner details
+    const { data: partner } = await supabase
+      .from("users")
+      .select("first_name, last_name, date_of_birth, universities(name)")
+      .eq("id", partnerId)
+      .single();
+
+    const { data: partnerProfileData } = await supabase
+      .from("profiles")
+      .select("hobbies, photo_url")
+      .eq("user_id", partnerId)
+      .single();
+
+    let partnerName = "Your Blind Date";
+    let partnerAge = 21;
+    let partnerUni = "Same Campus";
+    let partnerHobbies = ["Hobbies Hidden"];
+    let partnerPhotoUrl = "";
+
+    if (partner) {
+      if (isNameShared) {
+        partnerName = `${partner.first_name || ""} ${partner.last_name || ""}`.trim() || "Your Blind Date";
+      } else {
+        partnerName = partner.first_name || "Your Blind Date";
+      }
+      if (partner.date_of_birth) {
+        const dob = new Date(partner.date_of_birth);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+          age--;
+        }
+        partnerAge = age;
+      }
+      partnerUni = (partner.universities as any)?.name || "Same Campus";
+    }
+
+    if (partnerProfileData) {
+      partnerHobbies = partnerProfileData.hobbies || ["Hobbies Hidden"];
+      if (isPhotoShared && partnerProfileData.photo_url) {
+        const { data: signedData } = await supabase.storage
+          .from("photos")
+          .createSignedUrl(partnerProfileData.photo_url, 3600);
+        if (signedData?.signedUrl) {
+          partnerPhotoUrl = signedData.signedUrl;
+        }
+      }
+    }
+
+    setPartnerProfile({
+      firstName: partnerName,
+      age: partnerAge,
+      university: partnerUni,
+      hobbies: partnerHobbies,
+      compatibility: match.compatibility_score || 55,
+      photoUrl: partnerPhotoUrl,
+    });
   };
 
   const loadDateProposal = async (matchId: string, uid: string) => {
@@ -1091,6 +1125,60 @@ export default function DashboardPage() {
         setActiveMatch(updatedMatch);
         setPartnerWantsMeet(isUserA ? updatedMatch.user_b_wants_meet : updatedMatch.user_a_wants_meet);
       }
+    }
+  };
+
+  const handleSharePhoto = async () => {
+    if (!activeMatch || !userId) return;
+    const isUserA = activeMatch.user_a_id === userId;
+    const updateObj: any = {};
+    const nextVal = true;
+
+    if (isUserA) updateObj.user_a_shares_photo = nextVal;
+    else updateObj.user_b_shares_photo = nextVal;
+
+    setUserSharesPhoto(nextVal);
+
+    const { data: updatedMatch, error } = await supabase
+      .from("matches")
+      .update(updateObj)
+      .eq("id", activeMatch.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error sharing photo:", error);
+      setUserSharesPhoto(!nextVal); // rollback
+    } else {
+      setActiveMatch(updatedMatch);
+      await loadPartnerDetails(updatedMatch, userId);
+    }
+  };
+
+  const handleShareName = async () => {
+    if (!activeMatch || !userId) return;
+    const isUserA = activeMatch.user_a_id === userId;
+    const updateObj: any = {};
+    const nextVal = true;
+
+    if (isUserA) updateObj.user_a_shares_name = nextVal;
+    else updateObj.user_b_shares_name = nextVal;
+
+    setUserSharesName(nextVal);
+
+    const { data: updatedMatch, error } = await supabase
+      .from("matches")
+      .update(updateObj)
+      .eq("id", activeMatch.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error sharing name:", error);
+      setUserSharesName(!nextVal); // rollback
+    } else {
+      setActiveMatch(updatedMatch);
+      await loadPartnerDetails(updatedMatch, userId);
     }
   };
 
@@ -1798,10 +1886,31 @@ export default function DashboardPage() {
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                   </svg>
-                  <div className={s.radialScoreVal}>
-                    <span>{partnerProfile.compatibility}%</span>
-                    <span className={s.radialScoreLabel}>Compat</span>
-                  </div>
+                  {partnerProfile.photoUrl ? (
+                    <div 
+                      className={s.radialScoreVal} 
+                      style={{ 
+                        width: "105px", 
+                        height: "105px", 
+                        borderRadius: "50%", 
+                        overflow: "hidden",
+                        border: "2px solid rgba(255, 255, 255, 0.1)",
+                        top: "10px",
+                        left: "10px"
+                      }}
+                    >
+                      <img 
+                        src={partnerProfile.photoUrl} 
+                        alt="Profile avatar" 
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    </div>
+                  ) : (
+                    <div className={s.radialScoreVal}>
+                      <span>{partnerProfile.compatibility}%</span>
+                      <span className={s.radialScoreLabel}>Compat</span>
+                    </div>
+                  )}
                 </div>
 
                 <h1 className={s.matchName}>{partnerProfile.firstName}, {partnerProfile.age}</h1>
@@ -1838,6 +1947,23 @@ export default function DashboardPage() {
                     "Let's Meet!"
                   )}
                 </button>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginTop: "1rem", marginBottom: "0.25rem" }}>
+                  <button
+                    className={`${s.meetToggleBtn} ${userSharesName ? s.meetActive : ""}`}
+                    onClick={handleShareName}
+                    disabled={userSharesName}
+                  >
+                    {userSharesName ? "✓ Name Shared" : "Share Name"}
+                  </button>
+                  <button
+                    className={`${s.meetToggleBtn} ${userSharesPhoto ? s.meetActive : ""}`}
+                    onClick={handleSharePhoto}
+                    disabled={userSharesPhoto}
+                  >
+                    {userSharesPhoto ? "✓ Photo Shared" : "Share Photo"}
+                  </button>
+                </div>
 
                 {/* Date Proposal Status */}
                 {userWantsMeet && partnerWantsMeet && (

@@ -1,5 +1,6 @@
 -- ============================================================================
 -- BlindSide — Migration 015: Create Storage Bucket for Profile Photos & RLS
+-- Also includes columns for manual sharing of photo/name in matches.
 -- ============================================================================
 
 -- 1. Create the 'photos' storage bucket if it does not already exist
@@ -46,3 +47,10 @@ create policy "Allow users to delete their own files"
     bucket_id = 'photos' 
     and split_part(name, '/', 1) = auth.uid()::text
   );
+
+-- 7. Add columns for manual sharing of photo and name to public.matches table
+alter table public.matches 
+  add column if not exists user_a_shares_photo boolean default false not null,
+  add column if not exists user_b_shares_photo boolean default false not null,
+  add column if not exists user_a_shares_name boolean default false not null,
+  add column if not exists user_b_shares_name boolean default false not null;

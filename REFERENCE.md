@@ -760,6 +760,10 @@ All contrast ratios meet WCAG AA compliance (≥ 4.5:1).
 | `compatibility_score` | DECIMAL | Soft score (0–100) |
 | `user_a_wants_meet` | BOOLEAN | User A's "I want to meet" toggle |
 | `user_b_wants_meet` | BOOLEAN | User B's "I want to meet" toggle |
+| `user_a_shares_photo` | BOOLEAN | Whether User A shared profile photo in-chat |
+| `user_b_shares_photo` | BOOLEAN | Whether User B shared profile photo in-chat |
+| `user_a_shares_name` | BOOLEAN | Whether User A shared name in-chat |
+| `user_b_shares_name` | BOOLEAN | Whether User B shared name in-chat |
 | `status` | TEXT | `active`, `date_planned`, `completed`, `expired`, `declined` |
 | `chat_expires_at` | TIMESTAMPTZ | `matched_at + 48 hours` |
 | `matched_at` | TIMESTAMPTZ | When the match was created |
