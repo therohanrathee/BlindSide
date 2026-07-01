@@ -8,9 +8,6 @@ insert into storage.buckets (id, name, public)
 values ('photos', 'photos', false)
 on conflict (id) do nothing;
 
--- 2. Enable RLS on storage.objects
-alter table storage.objects enable row level security;
-
 -- 3. Policy to allow authenticated users to insert/upload their own photos
 -- Files must be stored under a path starting with the user's UUID (e.g. 'user_uuid/profile.jpg')
 create policy "Allow authenticated uploads to user folders"
