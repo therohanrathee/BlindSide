@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/blindside-logo.svg",
+        source: "/logo.svg",
         headers: [
           {
             key: "Access-Control-Allow-Origin",

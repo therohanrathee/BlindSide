@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.2" baseProfile="tiny-ps" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="512" height="512">
+  <title>BlindSide Logo</title>
+  <defs>
+    <linearGradient id="bimiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e83a72" />
+      <stop offset="100%" stop-color="#7c5ce8" />
+    </linearGradient>
+  </defs>
+  <!-- Solid white background for light mode and BIMI compliance -->
+  <rect width="32" height="32" fill="#ffffff" />
+  
+  <!-- Centered Eye Logo Group (24x24 viewport padded to 32x32 for safe circular cropping) -->
+  <g transform="translate(4, 4)" stroke="url(#bimiGrad)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Eye outline -->
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+    <!-- Pupil -->
+    <circle cx="12" cy="12" r="3" fill="url(#bimiGrad)" stroke="none" />
+  </g>
+</svg>
