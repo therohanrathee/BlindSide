@@ -2,7 +2,7 @@
 
 > **Single source of truth.** This document describes every detail of how BlindSide works — product logic, user flows, database schema, API surface, design tokens, and business rules. Updated alongside code changes.
 
-**Last updated:** 2026-06-06
+**Last updated:** 2026-07-01
 
 ---
 
@@ -114,11 +114,12 @@ Every filter and preference is checked in **BOTH** directions:
 | Auth | Supabase Auth + custom OTP | Email/password + university verification |
 | Payments | Razorpay | INR payments |
 | Real-time Chat | Supabase Realtime | Live message delivery via WebSocket |
-| Email | Resend | Transactional email (OTP, photo reveal, notifications) |
+| Email | AWS SES | Transactional email (OTP, photo reveal, notifications) |
 | WhatsApp | Meta Cloud API | T-4hr reveal notification (future) |
 | Push | Web Push API (PWA) | Match alerts, chat notifications |
 | Photo Storage | Supabase Storage | Private photo bucket (signed URLs) |
-| Hosting | Vercel (Hobby plan) | Frontend + serverless API, 2 cron jobs |
+| Hosting | Vercel (Hobby plan) | Frontend + serverless API |
+| Cron Scheduler | Supabase pg_cron + pg_net | Triggers fast and hourly cron jobs asynchronously |
 | Calendar | .ics generation + Google Calendar link | "Add to Calendar" in reveal email |
 
 ### Key Packages
@@ -129,7 +130,7 @@ react / react-dom 19.x      — UI library
 @supabase/supabase-js       — Supabase client
 @supabase/ssr               — Supabase server-side helpers
 razorpay                    — Payment gateway SDK
-resend                      — Email API
+@aws-sdk/client-ses         — AWS SES SDK
 web-push                    — PWA push notifications
 ```
 
@@ -142,7 +143,7 @@ web-push                    — PWA push notifications
 ```
 1. Landing Page → Single Action Button ("Enter BlindSide")
      ↓
-2. Enter Email or Phone Number
+2. Enter Personal Email Address
      ↓
 3. Check if User Exists:
      ├─► Yes (Old User): Enter Password → Log In → Go to Dashboard (States 1–4)
@@ -151,36 +152,33 @@ web-push                    — PWA push notifications
 
 #### New User Onboarding Flow:
 ```
-1. Verify Initial Identifier (Email or Phone) via 6-digit OTP
+1. Verify Personal Email via 6-digit OTP (Verify contact)
      ↓
-2. Enter & Verify Secondary Identifier (Phone or Email) via 6-digit OTP
+2. Secure Account: Choose Password → Create Supabase Auth Account (User is now logged in)
      ↓
-3. Secure Account: Choose Password → Create Supabase Auth Account (User is now logged in)
+3. Profile Details: First Name, Date of Birth (must be >= 18), Height (ft/in ↔ cm), Weight (kg)
      ↓
-4. Profile Details: First Name, Date of Birth (must be >= 18), Height (ft/in ↔ cm), Weight (kg)
+4. Hibe/Vibe Selector: Select exactly 3 Hobbies from visual grid
      ↓
-5. Hibe/Vibe Selector: Select exactly 3 Hobbies from visual grid
+5. University Autocomplete Search: Select campus → Enter university email → 6-digit OTP
      ↓
-6. University Autocomplete Search: Select campus → Enter university email → 6-digit OTP
+6. Proximity Verification: Authorize location access
      ↓
-7. Proximity Verification: Authorize location access
-     ↓
-8. Go to Dashboard State 1 (Unpaid Match Request)
+7. Go to Dashboard State 1 (Unpaid Match Request)
 ```
 
-### 4.2 Onboarding (7 Steps)
+### 4.2 Onboarding (6 Steps)
 
 Onboarding collects **who the user IS** and verifies their contact coordinates and university status.
 
 | Step | Section | Description | Target Storage |
 |------|---------|-------------|----------------|
-| 1 | Initial ID Verification | Verify entered Email or Phone with a 6-digit OTP | `otp_verifications` |
-| 2 | Secondary ID Verification | Ask for the other coordinate (Phone or Email) and verify via OTP | `otp_verifications` |
-| 3 | Password & Account | Set password to create a Supabase authenticated session | `auth.users` + auto-trigger |
-| 4 | About You | First Name, DOB (minimum 18 years old), Height (ft/in ↔ cm), Weight (kg) | `users` (`first_name`, `date_of_birth`, `height_cm`, `weight_kg`) |
-| 5 | Your Vibe | Choose exactly 3 hobbies from a 20-item visual grid | `profiles.hobbies` |
-| 6 | University Verification | Autocomplete select campus → enter campus email → verify with OTP | `users.university_id`, `users.university_email`, `users.is_university_verified` |
-| 7 | Proximity Consent | Authorize browser geolocation coordinates | `users.latitude`, `users.longitude` |
+| 1 | Personal Email Verification | Verify entered Email with a 6-digit OTP | `otp_verifications` |
+| 2 | Password & Account | Set password to create a Supabase authenticated session | `auth.users` + auto-trigger |
+| 3 | About You | First Name, DOB (minimum 18 years old), Height (ft/in ↔ cm), Weight (kg) | `users` (`first_name`, `date_of_birth`, `height_cm`, `weight_kg`) |
+| 4 | Your Vibe | Choose exactly 3 hobbies from a 20-item visual grid | `profiles.hobbies` |
+| 5 | University Verification | Autocomplete select campus → enter campus email → verify with OTP | `users.university_id`, `users.university_email`, `users.is_university_verified` |
+| 6 | Proximity Consent | Authorize browser geolocation coordinates | `users.latitude`, `users.longitude` |
 
 #### Height & Weight Input
 - **Height**: Defaults to feet/inches display, switchable to centimeters, stored as centimeters (`users.height_cm`).
@@ -629,8 +627,6 @@ All contrast ratios meet WCAG AA compliance (≥ 4.5:1).
 |--------|------|-------------|
 | `id` | UUID (PK) | Primary key, matches Supabase auth user |
 | `email` | TEXT (UNIQUE) | User's login email |
-| `phone` | TEXT (UNIQUE) | User's personal phone number |
-| `is_phone_verified` | BOOLEAN | `true` if phone was verified via OTP |
 | `first_name` | TEXT | First name only |
 | `date_of_birth` | DATE | Used to calculate age |
 | `height_cm` | DECIMAL | Height stored in centimetres |
@@ -640,6 +636,15 @@ All contrast ratios meet WCAG AA compliance (≥ 4.5:1).
 | `university_id` | UUID (FK → universities) | Verified university |
 | `university_email` | TEXT | University email used for OTP |
 | `is_university_verified` | BOOLEAN | `true` after OTP verification |
+
+### `bounced_emails`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID (PK) | Primary key |
+| `email` | TEXT (UNIQUE) | Normalized email address that bounced or complained |
+| `bounce_type` | TEXT | Type of bounce or complaint event |
+| `created_at` | TIMESTAMPTZ | Log timestamp |
 | `is_first_match_used` | BOOLEAN | `false` until first match payment |
 | `is_onboarding_complete` | BOOLEAN | `true` after all 7 steps |
 | `latitude` | DECIMAL | Location lat (from browser API) |
@@ -656,7 +661,6 @@ All contrast ratios meet WCAG AA compliance (≥ 4.5:1).
 | `user_id` | UUID (FK → users, ON DELETE SET NULL) | Reference to registered user |
 | `full_name` | TEXT | Full name |
 | `personal_email` | TEXT | Personal/signup email address |
-| `mobile_no` | TEXT | Mobile/phone number |
 | `hobbies` | TEXT[] | Hobbies list |
 | `date_of_birth` | DATE | DOB |
 | `height_cm` | DECIMAL | Height in cm |
@@ -889,15 +893,13 @@ Match → Many Messages, Many Date Proposals, 0-1 Confirmed Date, 0-2 Feedback
 
 | Method | Route | Purpose |
 |--------|-------|---------|
-| POST | `/api/auth/signup` | Create account (email + password) |
-| POST | `/api/auth/login` | Login |
-| GET | `/api/auth/callback` | Supabase auth callback |
+| POST | `/api/auth/check` | Check if email exists and is not bounced/suppressed |
 
 ### OTP
 
 | Method | Route | Purpose |
 |--------|-------|---------|
-| POST | `/api/otp/send` | Send 6-digit OTP to university email via Resend |
+| POST | `/api/otp/send` | Send 6-digit OTP to personal or university email via AWS SES |
 | POST | `/api/otp/verify` | Verify OTP code, mark user as verified |
 
 ### Onboarding
@@ -906,56 +908,27 @@ Match → Many Messages, Many Date Proposals, 0-1 Confirmed Date, 0-2 Feedback
 |--------|-------|---------|
 | POST | `/api/onboarding/complete` | Save all onboarding data (about you, gender, hobbies, lifestyle) |
 
-### Wallet
-
-| Method | Route | Purpose |
-|--------|-------|---------|
-| GET | `/api/wallet/balance` | Get current wallet balance |
-| GET | `/api/wallet/transactions` | Get transaction history (paginated) |
-| POST | `/api/wallet/topup` | Initiate wallet top-up (creates Razorpay order) |
-| POST | `/api/wallet/pay` | Pay from wallet (debit + create match request) |
-
 ### Payment (Razorpay)
 
 | Method | Route | Purpose |
 |--------|-------|---------|
-| POST | `/api/payment/create-order` | Create Razorpay order for direct payment |
-| POST | `/api/payment/verify` | Verify Razorpay payment signature |
-| POST | `/api/payment/webhook` | Handle Razorpay webhook events (async confirmation) |
+| POST | `/api/payment/create-order` | Create Razorpay order for direct payment or wallet top-up |
+| POST | `/api/payment/verify` | Verify Razorpay payment signature & credit wallet / activate request |
 
 ### Matching
 
 | Method | Route | Purpose |
 |--------|-------|---------|
-| POST | `/api/match/request` | Create match request (after payment is confirmed) |
-| POST | `/api/match/toggle-meet` | Toggle "I want to meet" for a match |
+| POST | `/api/match/request` | Create new search request (in `unpaid` status) |
+| POST | `/api/match/pay` | Defray fee from wallet balance and set request to `active` |
+| POST | `/api/match/reset` | Cancel active search request or match, and refund fee to wallet |
+| POST | `/api/match/feedback` | Log post-date feedback and mark match as `completed` |
 
-### Date
-
-| Method | Route | Purpose |
-|--------|-------|---------|
-| POST | `/api/date/propose` | Submit date proposal (date, time, location) |
-| POST | `/api/date/respond` | Approve proposal or suggest edit |
-| POST | `/api/date/confirm` | Finalize confirmed date record |
-
-### Chat
+### Webhooks
 
 | Method | Route | Purpose |
 |--------|-------|---------|
-| POST | `/api/chat/send` | Send chat message (with content filtering) |
-
-### Feedback & Reports
-
-| Method | Route | Purpose |
-|--------|-------|---------|
-| POST | `/api/feedback/submit` | Submit post-date feedback |
-| POST | `/api/report/submit` | Report a user (category + description) |
-
-### Push Notifications
-
-| Method | Route | Purpose |
-|--------|-------|---------|
-| POST | `/api/push/subscribe` | Save browser push subscription object |
+| POST | `/api/webhooks/aws-sns` | Handle AWS SNS webhook events (logs email bounces & complaints to DB) |
 
 ### Cron Jobs
 
@@ -963,6 +936,9 @@ Match → Many Messages, Many Date Proposals, 0-1 Confirmed Date, 0-2 Feedback
 |--------|-------|----------|---------|
 | GET | `/api/cron/fast` | Every 10 min | Match runner + Photo reveal |
 | GET | `/api/cron/hourly` | Every hour | Request expiry + Chat expiry + Feedback prompt |
+
+> [!NOTE]
+> **Client-Side Supabase Direct Operations**: To reduce serverless latency and utilize Supabase's secure Row-Level Security (RLS), certain real-time operations—such as sending messages, proposing dates, confirming dates, blocking users, and reporting users—are executed directly from the client using the Supabase Client SDK, rather than route wrappers.
 
 ---
 
@@ -987,35 +963,71 @@ Route: `/api/cron/hourly`
 | **Chat Expiry** | Expire matches where 48hr timer has passed without mutual "I want to meet" (`match.status → 'expired'`) |
 | **Feedback Prompt** | Send push notification for dates where `date_time < now()` and no feedback submitted yet |
 
-### Vercel Cron Configuration
+### Supabase Cron Configuration
 
-```json
-{
-  "crons": [
-    { "path": "/api/cron/fast", "schedule": "*/10 * * * *" },
-    { "path": "/api/cron/hourly", "schedule": "0 * * * *" }
-  ]
-}
+The cron scheduler runs internally on Supabase via `pg_cron` and `pg_net` extensions, invoking the Vercel API endpoints asynchronously. The schedules are as follows:
+
+```sql
+-- Fast Match Cron (runs every 10 minutes)
+select cron.schedule(
+  'blindside-fast-cron',
+  '*/10 * * * *',
+  $$
+  select net.http_get(
+    url := 'https://blind-side-silk.vercel.app/api/cron/fast',
+    headers := jsonb_build_object('Authorization', 'Bearer datwe2-nixvip-pArwis')
+  );
+  $$
+);
+
+-- Hourly Expiry Cron (runs every hour)
+select cron.schedule(
+  'blindside-hourly-cron',
+  '0 * * * *',
+  $$
+  select net.http_get(
+    url := 'https://blind-side-silk.vercel.app/api/cron/hourly',
+    headers := jsonb_build_object('Authorization', 'Bearer datwe2-nixvip-pArwis')
+  );
+  $$
+);
 ```
-
-2 cron jobs — fits within Vercel Hobby plan limit.
 
 ---
 
-## 14. Pages
+## 14. Pages & SPA Architecture
+
+BlindSide is built as a **Single Page Application (SPA) dashboard** to maximize performance and avoid flashes of layout on state/tab changes. The actual Next.js pages/routes are minimal:
 
 | Route | Page | Auth Required | Description |
 |-------|------|--------------|-------------|
-| `/` | Landing Page | No | Hero, value proposition, CTA to sign up |
-| `/signup` | Sign Up | No | Email + password registration |
-| `/login` | Login | No | Email + password login |
-| `/onboarding` | Onboarding | Yes | 5-step onboarding flow (about you → gender → hobbies → lifestyle → university verification) |
-| `/dashboard` | Dashboard | Yes | Home screen after onboarding. Shows active match status, wallet balance, CTA to find a date |
-| `/find` | Find a Blind Date | Yes | Set search preferences → select scope → pay |
-| `/wallet` | Wallet | Yes | View balance, transaction history, top-up |
-| `/match/[id]` | Match & Chat | Yes | Match card, icebreaker chat, "I want to meet" toggle, date planning |
-| `/feedback/[matchId]` | Post-Date Feedback | Yes | Feedback form after date |
-| `/settings` | Settings | Yes | Profile editing, theme toggle, push notification preferences |
+| `/` | Landing Page | No | Value proposition, CTA to log in or register |
+| `/auth` | Unified Login/Signup | No | Unified password login & signup entry point with automatic identifier checks |
+| `/onboarding` | Onboarding Flow | Yes | 3-step metadata wizard (profile details, hobbies, university verification, geolocation) |
+| `/dashboard` | Dashboard Hub | Yes | The entire core experience containing state machines for search preferences, matching, active chat, and settings |
+
+### Dashboard State Machine (`dashboardState`)
+
+Inside the unified `/dashboard` page (`dashboard/page.tsx`), the view transitions dynamically depending on the current user state:
+
+1. **State 1 (Unpaid Match Request)**:
+   - Renders the search preferences sliders (gender, age range, height, dietary, drinking, smoking).
+   - Once preferences are saved, displays the Checkout options (wallet or direct Razorpay).
+2. **State 2 (Paid & Active Search)**:
+   - Renders the searching screen with a 7-day countdown timer.
+   - Shows the option to cancel the search request (which triggers a balance refund back to the user's wallet).
+3. **State 3 (Matched / Chat / Date Planning)**:
+   - Renders the active match view.
+   - Includes real-time Chat (listening to the `messages` table via WebSocket).
+   - Handles the bidirectional "I Want to Meet" toggle.
+   - Hosts the interactive Date Proposal form (propose, approve, or suggest edit).
+   - Displays the Google Maps search button.
+4. **State 4 (Post-Date Feedback)**:
+   - Once the confirmed date time passes, renders the private feedback form questionnaire.
+
+### Overlay/Modal drawers:
+- **Wallet Drawer**: Slide-over or modal to top-up wallet balances.
+- **Settings/Profile Drawer**: Slide-over to edit profile preferences, change theme, or toggle notifications.
 
 ---
 
@@ -1034,6 +1046,7 @@ Route: `/api/cron/hourly`
 | Height stored as cm | Displayed as ft/in or cm per user preference |
 | Minimum compatibility score | 55/100 |
 | FIFO processing | Oldest requests matched first (fairness) |
+| Automated Email Suppression | Bounces or complaints recorded by AWS SES/SNS are instantly logged to `bounced_emails` and blocked at registration |
 | Max OTP attempts | 3 per code |
 | OTP cooldown | 5 minutes between resends |
 | OTP expiry | 10 minutes |
@@ -1051,16 +1064,16 @@ Route: `/api/cron/hourly`
 
 ## 16. Current Project Status
 
-As of **June 6, 2026**, the following features are fully implemented, verified, and active in the project:
+As of **July 1, 2026**, the following features are fully implemented, verified, and active in the project:
 
 ### 16.1 Completed Features
 
 1. **User Auth & Signup Flow**
-   - Completed with email/password signup and login.
+   - Transitioned to pure Email Authentication (phone/SMS verification was completely removed for simplicity and cost-efficiency).
    - Restructured onboarding so that no intermediary page is flashed between the Main onboarding entry and the OTP screen.
 
 2. **Onboarding Details & University Verification**
-   - Dynamic 7-step onboarding process saving Name, DOB, height/weight (with ft/in to cm converters), Gender, Hobbies selection (max 3), Lifestyle (relationship intent, dietary, drinking, smoking), and location.
+   - Dynamic 6-step onboarding process saving Name, DOB, height/weight (with ft/in to cm converters), Gender, Hobbies selection (max 3), Lifestyle (relationship intent, dietary, drinking, smoking), and location.
    - University verification utilizing student email and 6-digit OTP code validation.
 
 3. **Find a Date & Search Preferences**
@@ -1089,12 +1102,16 @@ As of **June 6, 2026**, the following features are fully implemented, verified, 
 
 8. **Photo Reveal (T-4 Hours)**
    - Automatic checking of confirmed dates scheduled in $\le 4$ hours.
-   - Generates signed Supabase storage URLs for photos and sends reveal email notifications via Resend (with console fallback in development).
+   - Generates signed Supabase storage URLs for photos and sends reveal email notifications via AWS SES (using `verify@blindside.in` for OTPs and `reveal@blindside.in` for date details, with console fallback in local development).
 
 9. **Real-time Synchronized Chat**
    - Real-time client subscription channels listening to `messages`, `matches`, and `date_proposals` table updates.
    - **Reconnection Bug Fix:** Wrapped browser client in React's `useMemo` hook to maintain a single, stable Supabase client instance across renders. This prevents the websocket connection from being torn down and rebuilt when countdown timers tick.
    - **RLS Subquery Resolution:** Replaced database SELECT policies for `public.messages` and `public.date_proposals` to be subquery-free (`using (auth.uid() is not null)`), making them 100% compatible with Supabase Realtime replication.
+
+10. **AWS SES & SNS suppression webhook Integration**
+    - Integrated with AWS SES SDK to handle transaction emails.
+    - Webhook endpoint at `/api/webhooks/aws-sns` to receive bounce and complaint notifications, logging them in `bounced_emails` to block bad registrations.
 
 ### 16.2 Developer Instructions for AI Coding Agents
 
