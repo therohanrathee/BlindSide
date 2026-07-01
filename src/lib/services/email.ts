@@ -52,7 +52,7 @@ export async function sendPhotoRevealEmail(params: PhotoRevealParams): Promise<b
         to: params.to,
         subject,
         html: htmlContent,
-        from: process.env.EMAIL_FROM_ADDRESS || "reveal@blindside.in",
+        from: process.env.EMAIL_FROM_ADDRESS || "BlindSide <reveal@blindside.in>",
       });
     } catch (err) {
       console.error("Failed to send photo reveal email via AWS SES:", err);

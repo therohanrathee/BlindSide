@@ -27,7 +27,7 @@ export async function sendEmailOTP(email: string, otp: string): Promise<boolean>
         to: email,
         subject,
         html,
-        from: process.env.EMAIL_OTP_FROM_ADDRESS || "verify@blindside.in",
+        from: process.env.EMAIL_OTP_FROM_ADDRESS || "BlindSide <verify@blindside.in>",
       });
     } catch (err) {
       console.error("Failed to send verification email via AWS SES:", err);
