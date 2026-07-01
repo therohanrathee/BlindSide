@@ -105,10 +105,9 @@ function OnboardingContent() {
   const onboardingInitRef = useRef(false);
 
   const getDisplayStep = (sNum: number) => {
-    if (sNum === 1) return 1;
-    if (sNum === 2 || sNum === 3) return 2;
-    if (sNum === 4) return 3;
-    if (sNum === 6 || sNum === 7) return 4;
+    if (sNum === 1 || sNum === 3) return 1;
+    if (sNum === 4) return 2;
+    if (sNum === 6 || sNum === 7) return 3;
     return 1;
   };
 
@@ -154,8 +153,6 @@ function OnboardingContent() {
           setPrimaryId(userData.email || "");
           setIsPrimaryEmail(true);
           setPrimaryVerified(true);
-          setSecondaryId(userData.phone || "");
-          setSecondaryVerified(true);
 
           // Pre-populate fields from DB if they exist
           if (userData.first_name) setFirstName(userData.first_name);
@@ -215,15 +212,12 @@ function OnboardingContent() {
           localStorage.removeItem("blindside_pending_identifier");
           
           setPrimaryId(pendingId);
-          const isEmail = pendingId.includes("@");
-          setIsPrimaryEmail(isEmail);
+          setIsPrimaryEmail(true);
           
           // Trigger OTP sending automatically
           setSubmitting(true);
           try {
-            const payload: any = {};
-            if (isEmail) payload.email = pendingId.trim().toLowerCase();
-            else payload.phone = pendingId.trim();
+            const payload = { email: pendingId.trim().toLowerCase() };
 
             const res = await fetch("/api/otp/send", {
               method: "POST",
@@ -247,25 +241,16 @@ function OnboardingContent() {
           // Try to restore from localStorage (pre-registration abort cases)
           const localPrimaryId = localStorage.getItem("blindside_onboarding_primaryId");
           const localPrimaryVerified = localStorage.getItem("blindside_onboarding_primaryVerified") === "true";
-          const localSecondaryId = localStorage.getItem("blindside_onboarding_secondaryId");
-          const localSecondaryVerified = localStorage.getItem("blindside_onboarding_secondaryVerified") === "true";
 
           if (localPrimaryId) {
             setPrimaryId(localPrimaryId);
-            setIsPrimaryEmail(localPrimaryId.includes("@"));
+            setIsPrimaryEmail(true);
             setPrimaryVerified(localPrimaryVerified);
             setPrimaryOtpSent(localPrimaryVerified);
           }
-          if (localSecondaryId) {
-            setSecondaryId(localSecondaryId);
-            setSecondaryVerified(localSecondaryVerified);
-            setSecondaryOtpSent(localSecondaryVerified);
-          }
 
-          if (localPrimaryVerified && localSecondaryVerified) {
+          if (localPrimaryVerified) {
             setStep(3);
-          } else if (localPrimaryVerified) {
-            setStep(2);
           } else {
             window.location.href = "/auth";
           }
@@ -293,18 +278,15 @@ function OnboardingContent() {
     setActionSuccess("");
 
     if (!primaryId.trim()) {
-      setActionError("Please enter your email or phone number.");
+      setActionError("Please enter your email address.");
       return;
     }
 
-    const isEmail = primaryId.includes("@");
-    setIsPrimaryEmail(isEmail);
+    setIsPrimaryEmail(true);
 
     setSubmitting(true);
     try {
-      const payload: any = {};
-      if (isEmail) payload.email = primaryId.trim().toLowerCase();
-      else payload.phone = primaryId.trim();
+      const payload = { email: primaryId.trim().toLowerCase() };
 
       const res = await fetch("/api/otp/send", {
         method: "POST",
@@ -337,9 +319,10 @@ function OnboardingContent() {
 
     setSubmitting(true);
     try {
-      const payload: any = { otp: primaryOtp };
-      if (isPrimaryEmail) payload.email = primaryId.trim().toLowerCase();
-      else payload.phone = primaryId.trim();
+      const payload = {
+        otp: primaryOtp,
+        email: primaryId.trim().toLowerCase(),
+      };
 
       const res = await fetch("/api/otp/verify", {
         method: "POST",
@@ -352,82 +335,6 @@ function OnboardingContent() {
         // Persist progress to localStorage
         localStorage.setItem("blindside_onboarding_primaryId", primaryId);
         localStorage.setItem("blindside_onboarding_primaryVerified", "true");
-
-        setActionSuccess("Verified!");
-        setStep(2);
-      } else {
-        const errData = await res.json();
-        setActionError(errData.message || "Invalid code.");
-      }
-    } catch {
-      setActionError("Network error.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // 3. Secondary OTP Sending & Verification
-  const handleSendSecondaryOtp = async () => {
-    setActionError("");
-    setActionSuccess("");
-
-    if (!secondaryId.trim()) {
-      setActionError(`Please enter your ${isPrimaryEmail ? "phone number" : "email"}.`);
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const payload: any = {};
-      if (isPrimaryEmail) payload.phone = secondaryId.trim();
-      else payload.email = secondaryId.trim().toLowerCase();
-
-      const res = await fetch("/api/otp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        setSecondaryOtpSent(true);
-        setActionSuccess("Verification code sent! Check your terminal console.");
-      } else {
-        const errData = await res.json();
-        setActionError(errData.message || "Failed to send code.");
-      }
-    } catch {
-      setActionError("Network error.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleVerifySecondaryOtp = async () => {
-    setActionError("");
-    setActionSuccess("");
-
-    if (!secondaryOtp.trim()) {
-      setActionError("Please enter the code.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const payload: any = { otp: secondaryOtp };
-      if (isPrimaryEmail) payload.phone = secondaryId.trim();
-      else payload.email = secondaryId.trim().toLowerCase();
-
-      const res = await fetch("/api/otp/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        setSecondaryVerified(true);
-        // Persist progress to localStorage
-        localStorage.setItem("blindside_onboarding_secondaryId", secondaryId);
-        localStorage.setItem("blindside_onboarding_secondaryVerified", "true");
 
         setActionSuccess("Verified!");
         setStep(3);
@@ -458,8 +365,7 @@ function OnboardingContent() {
 
     setSubmitting(true);
     try {
-      const emailVal = isPrimaryEmail ? primaryId.trim().toLowerCase() : secondaryId.trim().toLowerCase();
-      const phoneVal = isPrimaryEmail ? secondaryId.trim() : primaryId.trim();
+      const emailVal = primaryId.trim().toLowerCase();
       
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: emailVal,
@@ -470,21 +376,9 @@ function OnboardingContent() {
       if (data?.user) {
         setUserId(data.user.id);
         
-        // Save the phone number to public.users table immediately after registration succeeds
-        const { error: phoneUpdateError } = await supabase
-          .from("users")
-          .update({ phone: phoneVal })
-          .eq("id", data.user.id);
-
-        if (phoneUpdateError) {
-          console.error("Failed to update user phone number in Step 3:", phoneUpdateError);
-        }
-
         // Clear local storage since registration is complete
         localStorage.removeItem("blindside_onboarding_primaryId");
         localStorage.removeItem("blindside_onboarding_primaryVerified");
-        localStorage.removeItem("blindside_onboarding_secondaryId");
-        localStorage.removeItem("blindside_onboarding_secondaryVerified");
 
         setActionSuccess("Account created successfully!");
         setStep(4);
@@ -884,9 +778,9 @@ function OnboardingContent() {
       <header className={s.onboardingHeader}>
         <span className={s.brand}>BlindSide</span>
         <div className={s.progressBarContainer}>
-          <div className={s.progressBar} style={{ width: `${(getDisplayStep(step) / 4) * 100}%` }} />
+          <div className={s.progressBar} style={{ width: `${(getDisplayStep(step) / 3) * 100}%` }} />
         </div>
-        <span className={s.stepCounter}>Step {getDisplayStep(step)} of 4</span>
+        <span className={s.stepCounter}>Step {getDisplayStep(step)} of 3</span>
       </header>
 
       {/* Main card */}
@@ -937,86 +831,6 @@ function OnboardingContent() {
             </div>
           )}
 
-          {/* STEP 2: SECONDARY ID VERIFICATION */}
-          {step === 2 && (
-            <div className={s.stepContent}>
-              <h1 className={s.stepTitle}>Complete coordinate verification</h1>
-
-              {secondaryOtpSent ? (
-                <>
-                  <div className={s.verifiedTargetRow}>
-                    <button
-                      type="button"
-                      className={s.backToEditBtn}
-                      onClick={() => {
-                        setSecondaryOtpSent(false);
-                        setSecondaryVerified(false);
-                        setSecondaryOtp("");
-                        setActionSuccess("");
-                        setActionError("");
-                      }}
-                    >
-                      ← {secondaryId}
-                    </button>
-                  </div>
-
-                  <div className={s.formGroup}>
-                    <label className={s.label} htmlFor="secondary-otp">Enter 6-Digit OTP</label>
-                    <div className={s.verifyEmailRow}>
-                      <input
-                        type="text"
-                        id="secondary-otp"
-                        className={s.input}
-                        maxLength={6}
-                        placeholder="Enter code"
-                        value={secondaryOtp}
-                        onChange={(e) => setSecondaryOtp(e.target.value)}
-                        autoFocus
-                      />
-                      <button
-                        type="button"
-                        className={s.inlineSendBtn}
-                        onClick={handleVerifySecondaryOtp}
-                        disabled={submitting || !secondaryOtp}
-                      >
-                        {submitting && secondaryOtp ? "Verifying..." : submitting ? "Sending..." : "Verify"}
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p className={s.stepSubtitle}>
-                    You verified your {isPrimaryEmail ? "email" : "phone"}. Let&apos;s verify your {isPrimaryEmail ? "phone number" : "email"} now.
-                  </p>
-
-                  <div className={s.formGroup}>
-                    <label className={s.label} htmlFor="secondary-id">
-                      {isPrimaryEmail ? "Personal Phone Number" : "Personal Email Address"}
-                    </label>
-                    <div className={s.verifyEmailRow}>
-                      <input
-                        type={isPrimaryEmail ? "tel" : "email"}
-                        id="secondary-id"
-                        className={s.input}
-                        placeholder={isPrimaryEmail ? "9876543210" : "you@gmail.com"}
-                        value={secondaryId}
-                        onChange={(e) => setSecondaryId(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className={s.inlineSendBtn}
-                        onClick={handleSendSecondaryOtp}
-                        disabled={submitting || !secondaryId}
-                      >
-                        {submitting ? "Sending..." : "Send OTP"}
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
 
           {/* STEP 3: PASSWORD & REGISTER */}
           {step === 3 && (

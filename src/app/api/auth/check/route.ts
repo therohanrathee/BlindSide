@@ -15,38 +15,38 @@ export async function POST(request: NextRequest) {
     const trimmedId = identifier.trim().toLowerCase();
     const isEmail = trimmedId.includes("@");
 
+    if (!isEmail) {
+      return NextResponse.json(
+        { message: "A valid email address is required." },
+        { status: 400 }
+      );
+    }
+
     const supabase = createAdminClient();
 
     // Check if the email is blacklisted/bounced
-    if (isEmail) {
-      const { data: bouncedRecord, error: bounceError } = await supabase
-        .from("bounced_emails")
-        .select("email")
-        .eq("email", trimmedId)
-        .maybeSingle();
+    const { data: bouncedRecord, error: bounceError } = await supabase
+      .from("bounced_emails")
+      .select("email")
+      .eq("email", trimmedId)
+      .maybeSingle();
 
-      if (bounceError) {
-        console.error("Failed to query bounced_emails in auth check:", bounceError);
-      }
+    if (bounceError) {
+      console.error("Failed to query bounced_emails in auth check:", bounceError);
+    }
 
-      if (bouncedRecord) {
-        return NextResponse.json(
-          { message: "This email address is invalid or has bounced. Please use a different email." },
-          { status: 400 }
-        );
-      }
+    if (bouncedRecord) {
+      return NextResponse.json(
+        { message: "This email address is invalid or has bounced. Please use a different email." },
+        { status: 400 }
+      );
     }
 
     // Query public.users
-    let query = supabase
+    const query = supabase
       .from("users")
-      .select("id, email, phone");
-
-    if (isEmail) {
-      query = query.eq("email", trimmedId);
-    } else {
-      query = query.eq("phone", trimmedId);
-    }
+      .select("id, email")
+      .eq("email", trimmedId);
 
     const { data, error } = await query.maybeSingle();
 

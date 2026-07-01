@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
       universityEmail,
       latitude,
       longitude,
-      phone,
       deviceOs,
       dietary,
       drinking,
@@ -55,10 +54,6 @@ export async function POST(request: NextRequest) {
     }
     if (latitude) userUpdate.latitude = parseFloat(latitude);
     if (longitude) userUpdate.longitude = parseFloat(longitude);
-    if (phone) {
-      userUpdate.phone = phone.trim();
-      userUpdate.is_phone_verified = true;
-    }
 
     const { error: userError } = await supabase
       .from("users")
@@ -125,7 +120,6 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         full_name: `${firstName || ""} ${lastName || ""}`.trim(),
         personal_email: userRow?.email || "",
-        mobile_no: phone || userRow?.phone || "",
         hobbies: hobbies || [],
         date_of_birth: dateOfBirth || null,
         height_cm: heightCm ? parseFloat(heightCm) : null,

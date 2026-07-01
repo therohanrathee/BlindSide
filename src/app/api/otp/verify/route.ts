@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, email, phone, otp } = await request.json();
+    const { userId, email, otp } = await request.json();
 
     if (!otp) {
       return NextResponse.json(
@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!email && !phone && !userId) {
+    if (!email && !userId) {
       return NextResponse.json(
-        { message: "Identifier (email, phone, or userId) is required." },
+        { message: "Identifier (email or userId) is required." },
         { status: 400 }
       );
     }
@@ -32,13 +32,16 @@ export async function POST(request: NextRequest) {
       .order("created_at", { ascending: false })
       .limit(1);
 
-    if (userId) {
+    if (userId && email) {
       // If verifying university email, query by userId and university email
       query = query.eq("user_id", userId).eq("email", email.trim().toLowerCase());
     } else if (email) {
       query = query.eq("email", email.trim().toLowerCase());
     } else {
-      query = query.eq("phone", phone.trim());
+      return NextResponse.json(
+        { message: "Email is required for verification." },
+        { status: 400 }
+      );
     }
 
     const { data: records, error } = await query;

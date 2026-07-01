@@ -31,7 +31,13 @@ export default function AuthPage() {
   const handleIdentifierSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!identifier.trim()) return;
+    const trimmedId = identifier.trim();
+    if (!trimmedId) return;
+
+    if (!trimmedId.includes("@")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -69,26 +75,8 @@ export default function AuthPage() {
     setLoading(true);
     try {
       // 1. Sign in with password using Supabase client
-      const isEmail = identifier.includes("@");
-      let emailForSignIn = identifier;
-
-      if (!isEmail) {
-        // If it's a phone, fetch the associated email first from our database API
-        const res = await fetch("/api/auth/check", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ identifier, getEmail: true }),
-        });
-        const data = await res.json();
-        if (res.ok && data.email) {
-          emailForSignIn = data.email;
-        } else {
-          throw new Error("Could not find the account details for this phone number.");
-        }
-      }
-
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: emailForSignIn,
+        email: identifier.trim().toLowerCase(),
         password,
       });
 
@@ -133,18 +121,18 @@ export default function AuthPage() {
           <>
             <h1 className={styles.authTitle}>Enter BlindSide</h1>
             <p className={styles.authSubtitle}>
-              Enter your email or phone number to sign in or get started
+              Enter your email address to sign in or get started
             </p>
 
             {error && <div className={styles.authError} id="auth-error">{error}</div>}
 
             <form className={styles.authForm} onSubmit={handleIdentifierSubmit}>
               <div className={styles.authField}>
-                <label htmlFor="auth-identifier">Personal Email or Phone Number</label>
+                <label htmlFor="auth-identifier">Personal Email Address</label>
                 <input
-                  type="text"
+                  type="email"
                   id="auth-identifier"
-                  placeholder="you@gmail.com or 9876543210"
+                  placeholder="you@gmail.com"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   required
@@ -173,9 +161,9 @@ export default function AuthPage() {
 
             <form className={styles.authForm} onSubmit={handlePasswordSubmit}>
               <div className={styles.authField}>
-                <label>Email or Phone</label>
+                <label>Personal Email</label>
                 <input
-                  type="text"
+                  type="email"
                   value={identifier}
                   disabled
                   className={styles.disabledInput}

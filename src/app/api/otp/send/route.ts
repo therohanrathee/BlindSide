@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { sendEmailOTP, sendSMSOTP } from "@/lib/services/otp";
+import { sendEmailOTP } from "@/lib/services/otp";
 import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, email, phone } = await request.json();
+    const { userId, email } = await request.json();
 
-    if (!email && !phone) {
+    if (!email) {
       return NextResponse.json(
-        { message: "Either email or phone is required." },
+        { message: "Email is required." },
         { status: 400 }
       );
     }
@@ -58,21 +58,6 @@ export async function POST(request: NextRequest) {
           );
         }
       }
-
-      if (phone) {
-        const { data: existingPhoneUser } = await supabase
-          .from("users")
-          .select("id")
-          .eq("phone", phone.trim())
-          .maybeSingle();
-
-        if (existingPhoneUser) {
-          return NextResponse.json(
-            { message: "This phone number is already associated with another profile." },
-            { status: 400 }
-          );
-        }
-      }
     } else {
       // University email verification uniqueness check
       if (email) {
@@ -102,7 +87,6 @@ export async function POST(request: NextRequest) {
 
     if (userId) insertData.user_id = userId;
     if (email) insertData.email = email.trim().toLowerCase();
-    if (phone) insertData.phone = phone.trim();
 
     const { error } = await supabase
       .from("otp_verifications")
@@ -116,13 +100,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send OTP via service (handles Resend/Twilio or fallbacks to console log)
-    let sendSuccess = false;
-    if (email) {
-      sendSuccess = await sendEmailOTP(email, otp);
-    } else if (phone) {
-      sendSuccess = await sendSMSOTP(phone, otp);
-    }
+    // Send OTP via service (handles AWS SES or falls back to console log)
+    const sendSuccess = await sendEmailOTP(email, otp);
 
     if (!sendSuccess) {
       return NextResponse.json(
