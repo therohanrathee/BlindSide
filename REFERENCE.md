@@ -156,29 +156,33 @@ web-push                    — PWA push notifications
      ↓
 2. Secure Account: Choose Password → Create Supabase Auth Account (User is now logged in)
      ↓
-3. Profile Details: First Name, Date of Birth (must be >= 18), Height (ft/in ↔ cm), Weight (kg)
+3. Profile Details Wizard (About You):
+     ├─ Name (First name required, Last name optional)
+     ├─ Profile Photo (Upload, crop with circular mask, locally compress, save to private bucket)
+     ├─ DOB (minimum 18 years old)
+     ├─ Gender identification
+     ├─ Height (ft/in ↔ cm) & Weight (kg)
+     ├─ Lifestyle sliders (Diet, Alcohol, Smoking, Activity level)
+     └─ Vibe Selector (Select exactly 3 Hobbies from visual grid)
      ↓
-4. Hibe/Vibe Selector: Select exactly 3 Hobbies from visual grid
+4. University Verification: Select campus → Enter university email → 6-digit OTP
      ↓
-5. University Autocomplete Search: Select campus → Enter university email → 6-digit OTP
+5. Proximity Verification: Authorize location access
      ↓
-6. Proximity Verification: Authorize location access
-     ↓
-7. Go to Dashboard State 1 (Unpaid Match Request)
+6. Go to Dashboard State 1 (Unpaid Match Request)
 ```
 
-### 4.2 Onboarding (6 Steps)
+### 4.2 Onboarding (4 Steps UI, 5 Steps Database)
 
 Onboarding collects **who the user IS** and verifies their contact coordinates and university status.
 
 | Step | Section | Description | Target Storage |
 |------|---------|-------------|----------------|
 | 1 | Personal Email Verification | Verify entered Email with a 6-digit OTP | `otp_verifications` |
-| 2 | Password & Account | Set password to create a Supabase authenticated session | `auth.users` + auto-trigger |
-| 3 | About You | First Name, DOB (minimum 18 years old), Height (ft/in ↔ cm), Weight (kg) | `users` (`first_name`, `date_of_birth`, `height_cm`, `weight_kg`) |
-| 4 | Your Vibe | Choose exactly 3 hobbies from a 20-item visual grid | `profiles.hobbies` |
-| 5 | University Verification | Autocomplete select campus → enter campus email → verify with OTP | `users.university_id`, `users.university_email`, `users.is_university_verified` |
-| 6 | Proximity Consent | Authorize browser geolocation coordinates | `users.latitude`, `users.longitude` |
+| 2 | Password & Account | Set password to create a Supabase authenticated session | `auth.users` |
+| 3 | About You Wizard | Name, Photo, DOB, Gender, Height, Weight, Lifestyle & Hobbies | `users` (`first_name`, `last_name`, `date_of_birth`, `height_cm`, `weight_kg`) + `profiles` (`photo_url`, `dietary`, `drinking`, `smoking`, `fitness`, `hobbies`) |
+| 4 | University Verification | Autocomplete select campus → enter campus email → verify with OTP | `users.university_id`, `users.university_email`, `users.is_university_verified` |
+| 5 | Proximity Consent | Authorize browser geolocation coordinates | `users.latitude`, `users.longitude` |
 
 #### Height & Weight Input
 - **Height**: Defaults to feet/inches display, switchable to centimeters, stored as centimeters (`users.height_cm`).
@@ -1073,7 +1077,7 @@ As of **July 1, 2026**, the following features are fully implemented, verified, 
    - Restructured onboarding so that no intermediary page is flashed between the Main onboarding entry and the OTP screen.
 
 2. **Onboarding Details & University Verification**
-   - Dynamic 6-step onboarding process saving Name, DOB, height/weight (with ft/in to cm converters), Gender, Hobbies selection (max 3), Lifestyle (relationship intent, dietary, drinking, smoking), and location.
+   - Dynamic 4-step onboarding wizard saving Name (First Name required, Last Name optional), Profile Photo (cropped and compressed locally, uploaded to Supabase `photos` private bucket), DOB (with age check $\ge 18$), Height/Weight, Gender, Lifestyle details (dietary, drinking, smoking, fitness), and Hobbies selection (exactly 3).
    - University verification utilizing student email and 6-digit OTP code validation.
 
 3. **Find a Date & Search Preferences**

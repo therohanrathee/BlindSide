@@ -924,3 +924,233 @@
     max-width: 100%;
   }
 }
+
+/* =========================================
+   SUB-STEP — PROFILE PHOTO UPLOADER & CROPPER
+   ========================================= */
+
+.photoContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.fileInputLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 280px;
+  height: 280px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  padding: 1.5rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.fileInputLabel:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-surface-hover);
+  transform: translateY(-2px);
+}
+
+.uploadIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: hsla(340, 82%, 55%, 0.1);
+  color: var(--accent-primary);
+  margin-bottom: 1.25rem;
+  font-size: 1.75rem;
+  transition: transform 0.3s ease;
+}
+
+.fileInputLabel:hover .uploadIcon {
+  transform: scale(1.1);
+}
+
+.uploadText {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.uploadSubtext {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.cropWrapper {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: #000;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.cropWrapper:active {
+  cursor: grabbing;
+}
+
+.cropImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+  pointer-events: none; /* Let drag events trigger on container */
+}
+
+/* Circular overlay mask */
+.circleCutout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px rgba(14, 17, 23, 0.75); /* Match `--bg-primary` page background brightness */
+  border: 2px solid var(--accent-primary);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Rule of Thirds Guidelines inside circle */
+.guideLineH1 {
+  position: absolute;
+  top: 33.33%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.guideLineH2 {
+  position: absolute;
+  top: 66.66%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.guideLineV1 {
+  position: absolute;
+  left: 33.33%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.guideLineV2 {
+  position: absolute;
+  left: 66.66%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Slider styling */
+.zoomSliderContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 280px;
+  margin-top: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.zoomIcon {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.zoomSlider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+}
+
+.zoomSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  box-shadow: 0 0 8px hsla(340, 82%, 55%, 0.35);
+  transition: transform 0.1s ease;
+}
+
+.zoomSlider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.btnRow {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 280px;
+}
+
+.photoLoadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(14, 17, 23, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--accent-primary);
+  gap: 0.5rem;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid hsla(340, 82%, 55%, 0.15);
+  border-radius: 50%;
+  border-top-color: var(--accent-primary);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+

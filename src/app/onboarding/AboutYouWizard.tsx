@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 import a from "./about-you.module.css";
 import s from "./onboarding.module.css";
 
@@ -436,9 +437,11 @@ interface WizardResult {
   smoking: string;
   fitness: string;
   hobbies: string[];
+  photoUrl: string;
 }
 
 interface Props {
+  userId: string | null;
   initialFirstName?: string;
   initialLastName?: string;
   initialDob?: string;
@@ -450,11 +453,13 @@ interface Props {
   initialSmoking?: string;
   initialFitness?: string;
   initialHobbies?: string[];
+  initialPhotoUrl?: string;
   onComplete: (result: WizardResult) => void;
   onError: (msg: string) => void;
 }
 
 export default function AboutYouWizard({
+  userId,
   initialFirstName = "",
   initialLastName = "",
   initialDob = "",
@@ -466,6 +471,7 @@ export default function AboutYouWizard({
   initialSmoking = "non_smoker",
   initialFitness = "not_active",
   initialHobbies = [],
+  initialPhotoUrl = "",
   onComplete,
   onError,
 }: Props) {
@@ -484,6 +490,18 @@ export default function AboutYouWizard({
   const [lastName, setLastName] = useState(initialLastName);
   const [showGreeting, setShowGreeting] = useState(false);
   const [needLastName, setNeedLastName] = useState(false);
+
+  /* --- profile photo state --- */
+  const [photoDataUrl, setPhotoDataUrl] = useState("");
+  const [photoUrl, setPhotoUrl] = useState(initialPhotoUrl);
+  const [scale, setScale] = useState(1.0);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [photoLoading, setPhotoLoading] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   /* --- dob --- */
   const initDate = initialDob ? new Date(initialDob) : null;
@@ -519,13 +537,160 @@ export default function AboutYouWizard({
   useEffect(() => {
     if (initialFirstName) {
       if (initialFitness && initialFitness !== "not_active") {
-        setSub(9); // jump to hobbies if fitness is already set
+        setSub(10); // jump to hobbies if fitness is already set
       } else {
-        setSub(8); // jump to fitness
+        setSub(9); // jump to fitness
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* --- image uploader and cropper logic --- */
+  const clampOffset = (x: number, y: number, currentScale: number, w: number, h: number) => {
+    const sw = 280 * currentScale;
+    const sh = 280 * currentScale * (h / w);
+    const minX = 280 - sw;
+    const minY = 280 - sh;
+    return {
+      x: Math.min(0, Math.max(minX, x)),
+      y: Math.min(0, Math.max(minY, y)),
+    };
+  };
+
+  const handleZoomChange = (newScale: number) => {
+    setScale(newScale);
+    if (imgRef.current) {
+      const { naturalWidth: w, naturalHeight: h } = imgRef.current;
+      const clamped = clampOffset(offset.x, offset.y, newScale, w, h);
+      setOffset(clamped);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPhotoDataUrl(reader.result as string);
+      setScale(1.0);
+      setOffset({ x: 0, y: 0 });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (photoLoading) return;
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || photoLoading) return;
+    if (imgRef.current) {
+      const { naturalWidth: w, naturalHeight: h } = imgRef.current;
+      const x = e.clientX - dragStart.x;
+      const y = e.clientY - dragStart.y;
+      const clamped = clampOffset(x, y, scale, w, h);
+      setOffset(clamped);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (photoLoading) return;
+    setIsDragging(true);
+    setDragStart({
+      x: e.touches[0].clientX - offset.x,
+      y: e.touches[0].clientY - offset.y,
+    });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || photoLoading) return;
+    if (imgRef.current) {
+      const { naturalWidth: w, naturalHeight: h } = imgRef.current;
+      const x = e.touches[0].clientX - dragStart.x;
+      const y = e.touches[0].clientY - dragStart.y;
+      const clamped = clampOffset(x, y, scale, w, h);
+      setOffset(clamped);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleCropAndUpload = async () => {
+    if (!imgRef.current || !userId) {
+      onError("Authentication required or image not loaded.");
+      return;
+    }
+
+    setPhotoLoading(true);
+    try {
+      const img = imgRef.current;
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 500;
+      canvas.height = 500;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Failed to create canvas context");
+
+      const ratio = 500 / 280;
+      const destX = offset.x * ratio;
+      const destY = offset.y * ratio;
+      const destW = 500 * scale;
+      const destH = 500 * scale * (h / w);
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+
+      ctx.drawImage(img, destX, destY, destW, destH);
+
+      canvas.toBlob(
+        async (blob) => {
+          if (!blob) {
+            onError("Failed to compress image.");
+            setPhotoLoading(false);
+            return;
+          }
+
+          try {
+            const supabase = createClient();
+            const filename = `${Date.now()}_profile.jpg`;
+            const filePath = `${userId}/${filename}`;
+
+            const { error } = await supabase.storage
+              .from("photos")
+              .upload(filePath, blob, {
+                contentType: "image/jpeg",
+                upsert: true,
+              });
+
+            if (error) throw error;
+
+            setPhotoUrl(filePath);
+            goForward();
+          } catch (err: any) {
+            onError(err.message || "Failed to upload image. Please try again.");
+          } finally {
+            setPhotoLoading(false);
+          }
+        },
+        "image/jpeg",
+        0.8
+      );
+    } catch (err: any) {
+      onError(err.message || "Failed to process image.");
+      setPhotoLoading(false);
+    }
+  };
 
   /* --- navigation --- */
   const goForward = () => { setDir("forward"); setSub(s => s + 1); };
@@ -535,12 +700,12 @@ export default function AboutYouWizard({
   const goToWeight = () => {
     setMorphDir("v2h");
     setShowMorph(true);
-    setTimeout(() => { setShowMorph(false); setDir("forward"); setSub(4); }, 580);
+    setTimeout(() => { setShowMorph(false); setDir("forward"); setSub(5); }, 580);
   };
   const goBackToHeight = () => {
     setMorphDir("h2v");
     setShowMorph(true);
-    setTimeout(() => { setShowMorph(false); setDir("back"); setSub(3); }, 580);
+    setTimeout(() => { setShowMorph(false); setDir("back"); setSub(4); }, 580);
   };
 
   /* --- name handlers --- */
@@ -563,7 +728,6 @@ export default function AboutYouWizard({
   };
 
   const handleLastNameSubmit = () => {
-    if (!lastName.trim()) return;
     setNeedLastName(false);
     setTimeout(goForward, 600);
   };
@@ -656,6 +820,7 @@ export default function AboutYouWizard({
       smoking,
       fitness,
       hobbies: selectedHobbies,
+      photoUrl,
     });
   };
 
@@ -679,7 +844,7 @@ export default function AboutYouWizard({
         return (
           <div className={a.nameContent}>
             <h2 className={a.subTitle}>What should we call you?</h2>
-            <p className={a.subHint}>Enter your full name — first and last.</p>
+            <p className={a.subHint}>Enter your name to get started.</p>
 
             <input
               className={a.nameInput}
@@ -699,7 +864,7 @@ export default function AboutYouWizard({
 
             {needLastName && showGreeting && (
               <div className={a.lastNameRow}>
-                <div className={a.lastNameLabel}>And your last name?</div>
+                <div className={a.lastNameLabel}>And your last name? (optional)</div>
                 <input
                   className={a.nameInput}
                   type="text"
@@ -712,9 +877,8 @@ export default function AboutYouWizard({
                 <button
                   className={a.confirmBtn}
                   onClick={handleLastNameSubmit}
-                  disabled={!lastName.trim()}
                 >
-                  Continue →
+                  {lastName.trim() ? "Continue →" : "Skip →"}
                 </button>
               </div>
             )}
@@ -731,8 +895,136 @@ export default function AboutYouWizard({
           </div>
         );
 
-      /* ─── 1: DOB ─── */
+      /* ─── 1: PROFILE PHOTO (NEW) ─── */
       case 1:
+        return (
+          <div className={a.photoContent}>
+            <h2 className={a.subTitle}>Add a profile photo</h2>
+            <p className={a.subHint}>This will be revealed to your matches 4 hours before your date.</p>
+
+            {!photoDataUrl ? (
+              <label className={a.fileInputLabel}>
+                <div className={a.uploadIcon}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                </div>
+                <div className={a.uploadText}>Upload Profile Picture</div>
+                <div className={a.uploadSubtext}>JPG or PNG, max 10MB</div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
+              </label>
+            ) : (
+              <>
+                <div 
+                  ref={containerRef}
+                  className={a.cropWrapper}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  <img
+                    ref={imgRef}
+                    src={photoDataUrl}
+                    className={a.cropImage}
+                    alt="Source"
+                    style={{
+                      transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+                      transformOrigin: "0 0",
+                      width: "100%",
+                      height: "auto"
+                    }}
+                    onLoad={(e) => {
+                      const img = e.currentTarget;
+                      const w = img.naturalWidth;
+                      const h = img.naturalHeight;
+                      const sh = 280 * (h / w);
+                      setOffset({
+                        x: 0,
+                        y: h > w ? (280 - sh) / 2 : 0
+                      });
+                    }}
+                  />
+                  {/* Thirds Guidelines */}
+                  <div className={a.guideLineH1} />
+                  <div className={a.guideLineH2} />
+                  <div className={a.guideLineV1} />
+                  <div className={a.guideLineV2} />
+                  {/* Circular Cutout Mask */}
+                  <div className={a.circleCutout} />
+
+                  {photoLoading && (
+                    <div className={a.photoLoadingOverlay}>
+                      <div className={a.spinner} />
+                      <div>Optimizing & Uploading...</div>
+                    </div>
+                  )}
+                </div>
+
+                <div className={a.zoomSliderContainer}>
+                  <svg className={a.zoomIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <line x1="8" y1="11" x2="14" y2="11" />
+                  </svg>
+                  <input
+                    type="range"
+                    className={a.zoomSlider}
+                    min="1.0"
+                    max="3.0"
+                    step="0.05"
+                    value={scale}
+                    onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
+                    disabled={photoLoading}
+                  />
+                  <svg className={a.zoomIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <line x1="11" y1="8" x2="11" y2="14" />
+                    <line x1="8" y1="11" x2="14" y2="11" />
+                  </svg>
+                </div>
+
+                <div className={a.btnRow}>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => setPhotoDataUrl("")}
+                    disabled={photoLoading}
+                    style={{ flex: 1 }}
+                  >
+                    Change
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleCropAndUpload}
+                    disabled={photoLoading}
+                    style={{ flex: 1 }}
+                  >
+                    Use Photo →
+                  </button>
+                </div>
+              </>
+            )}
+            <div className={a.navRow}>
+              <button className={a.navBack} onClick={goBack} disabled={photoLoading}>← Back</button>
+            </div>
+          </div>
+        );
+
+      /* ─── 2: DOB (was 1) ─── */
+      case 2:
         return (
           <div className={a.dobContent}>
             <h2 className={a.subTitle}>When were you born?</h2>
@@ -788,7 +1080,7 @@ export default function AboutYouWizard({
         );
 
       /* ─── 2: GENDER ─── */
-      case 2:
+      case 3:
         return (
           <div className={a.genderContent}>
             <h2 className={a.subTitle}>How do you identify?</h2>
@@ -824,7 +1116,7 @@ export default function AboutYouWizard({
         );
 
       /* ─── 3: HEIGHT ─── */
-      case 3:
+      case 4:
         return (
           <div>
             <h2 className={a.rulerTitle}>How tall are you?</h2>
@@ -900,7 +1192,7 @@ export default function AboutYouWizard({
         );
 
       /* ─── 4: WEIGHT ─── */
-      case 4:
+      case 5:
         return (
           <div>
             <h2 className={a.rulerTitle}>What do you weigh?</h2>
@@ -976,7 +1268,7 @@ export default function AboutYouWizard({
         );
 
       /* ─── 5: DIETARY ─── */
-      case 5:
+      case 6:
         return (
           <div className={a.genderContent}>
             <h2 className={a.subTitle}>What is your diet?</h2>
@@ -1013,7 +1305,7 @@ export default function AboutYouWizard({
         );
 
       /* ─── 6: DRINKING ─── */
-      case 6:
+      case 7:
         return (
           <div className={a.genderContent}>
             <h2 className={a.subTitle}>Do you drink alcohol?</h2>
@@ -1050,7 +1342,7 @@ export default function AboutYouWizard({
         );
 
       /* ─── 7: SMOKING ─── */
-      case 7:
+      case 8:
         return (
           <div className={a.genderContent}>
             <h2 className={a.subTitle}>Do you smoke?</h2>
@@ -1087,7 +1379,7 @@ export default function AboutYouWizard({
         );
 
       /* ─── 8: FITNESS ─── */
-      case 8:
+      case 9:
         return (
           <div className={a.genderContent}>
             <h2 className={a.subTitle}>How active are you?</h2>
@@ -1127,7 +1419,7 @@ export default function AboutYouWizard({
         );
 
       /* ─── 9: HOBBIES ─── */
-      case 9:
+      case 10:
         return (
           <div className={a.genderContent} style={{ width: "100%" }}>
             <h2 className={a.subTitle}>Choose your vibe</h2>
@@ -1205,10 +1497,10 @@ export default function AboutYouWizard({
       </svg>
       {/* progress dots */}
       <div className={a.dotRow}>
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i, idx) => (
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i, idx) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <div className={`${a.dot} ${i === sub ? a.dotActive : i < sub ? a.dotComplete : ""}`}/>
-            {idx < 9 && (
+            {idx < 10 && (
               <div className={`${a.dotConnector} ${i < sub ? a.dotConnectorDone : ""}`}/>
             )}
           </div>

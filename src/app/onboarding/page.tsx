@@ -673,6 +673,7 @@ function OnboardingContent() {
     heightCm: number; heightUnit: "ft" | "cm"; weightKg: number;
     dietary: string; drinking: string; smoking: string; fitness: string;
     hobbies: string[];
+    photoUrl: string;
   }) => {
     setFirstName(result.firstName);
     setLastName(result.lastName);
@@ -713,6 +714,7 @@ function OnboardingContent() {
           smoking: result.smoking,
           fitness: result.fitness,
           hobbies: result.hobbies,
+          photo_url: result.photoUrl,
         }, { onConflict: "user_id" });
 
       if (profileError) throw profileError;
@@ -881,6 +883,7 @@ function OnboardingContent() {
           {/* STEP 4: ABOUT YOU — Interactive Sub-step Wizard */}
           {step === 4 && (
             <AboutYouWizard
+              userId={userId}
               initialFirstName={firstName}
               initialLastName={lastName}
               initialDob={dob}
