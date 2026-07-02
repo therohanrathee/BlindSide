@@ -928,18 +928,38 @@ export default function DashboardPage() {
     const isPhotoShared = isUserA ? match.user_b_shares_photo : match.user_a_shares_photo;
     const isNameShared = isUserA ? match.user_b_shares_name : match.user_a_shares_name;
 
+    console.log("loadPartnerDetails stats:", {
+      matchId: match.id,
+      isUserA,
+      partnerId,
+      isNameShared,
+      isPhotoShared,
+      user_a_shares_name: match.user_a_shares_name,
+      user_b_shares_name: match.user_b_shares_name,
+      user_a_shares_photo: match.user_a_shares_photo,
+      user_b_shares_photo: match.user_b_shares_photo
+    });
+
     // Fetch partner details
-    const { data: partner } = await supabase
+    const { data: partner, error: partnerErr } = await supabase
       .from("users")
       .select("first_name, last_name, date_of_birth, universities(name)")
       .eq("id", partnerId)
       .single();
 
-    const { data: partnerProfileData } = await supabase
+    if (partnerErr) {
+      console.error("loadPartnerDetails: error fetching partner from users:", partnerErr);
+    }
+
+    const { data: partnerProfileData, error: profileErr } = await supabase
       .from("profiles")
       .select("hobbies, photo_url")
       .eq("user_id", partnerId)
       .single();
+
+    if (profileErr) {
+      console.error("loadPartnerDetails: error fetching partner from profiles:", profileErr);
+    }
 
     let partnerName = "Your Blind Date";
     let partnerAge = 21;
