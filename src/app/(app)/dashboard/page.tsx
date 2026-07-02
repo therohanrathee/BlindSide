@@ -1805,7 +1805,7 @@ export default function DashboardPage() {
                   <div className={s.lifestyleItemCard}>
                     <span className={s.lifestyleItemLabel}>Dietary</span>
                     <span className={s.lifestyleItemVal}>
-                      {myDietary === "veg" ? "Veg 🥦" : myDietary === "non_veg" ? "Non-Veg 🍗" : myDietary === "vegan" ? "Vegan 🌱" : myDietary === "eggitarian" ? "Eggitarian 🥚" : "No Preference"}
+                      {myDietary === "veg" ? "Veg 🥦" : myDietary === "nonveg" ? "Non-Veg 🍗" : myDietary === "vegan" ? "Vegan 🌱" : myDietary === "eggitarian" ? "Eggitarian 🥚" : "No Preference"}
                     </span>
                   </div>
                   <div className={s.lifestyleItemCard}>
@@ -2996,7 +2996,7 @@ export default function DashboardPage() {
                       </div>
                       <div className={s.infoTileContent} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
-                          {editDietary === "veg" ? "Vegetarian" : editDietary === "non_veg" ? "Non-Vegetarian" : editDietary === "vegan" ? "Vegan" : editDietary === "eggitarian" ? "Eggetarian" : "Dietary Option"}
+                          {editDietary === "veg" ? "Vegetarian" : editDietary === "nonveg" ? "Non-Vegetarian" : editDietary === "vegan" ? "Vegan" : editDietary === "eggitarian" ? "Eggetarian" : "Dietary Option"}
                         </div>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
                           {editDrinking === "sober" ? "Sober" : editDrinking === "socially" ? "Socially" : editDrinking === "frequently" ? "Frequently" : editDrinking === "regularly" ? "Regularly" : "Drinking"}
@@ -3246,7 +3246,7 @@ export default function DashboardPage() {
                     <div className={s.capsuleGrid}>
                       {[
                         { key: "veg", label: "Vegetarian", Svg: VegSVG },
-                        { key: "non_veg", label: "Non-Vegetarian", Svg: NonVegSVG },
+                        { key: "nonveg", label: "Non-Vegetarian", Svg: NonVegSVG },
                         { key: "vegan", label: "Vegan", Svg: VeganSVG },
                         { key: "eggitarian", label: "Eggetarian", Svg: EggetarianSVG },
                       ].map((d) => {
