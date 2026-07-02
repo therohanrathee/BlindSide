@@ -314,6 +314,7 @@ export default function DashboardPage() {
   const [editIsDragging, setEditIsDragging] = useState(false);
   const [editDragStart, setEditDragStart] = useState({ x: 0, y: 0 });
   const [editPhotoLoading, setEditPhotoLoading] = useState(false);
+  const [showMobileInfoDrawer, setShowMobileInfoDrawer] = useState(false);
 
   // State 1: Search Preferences
   const [prefSlide, setPrefSlide] = useState(1);
@@ -1739,6 +1740,179 @@ export default function DashboardPage() {
     }
   };
 
+  const renderLeftColumnContent = () => {
+    if (!partnerProfile) return null;
+    return (
+      <>
+        {/* Match profile card with radial progress compatibility */}
+        <div className={s.matchProfileCard}>
+          <div className={s.chatProfilePhotoContainer}>
+            {partnerProfile.photoUrl ? (
+              <img 
+                src={partnerProfile.photoUrl} 
+                alt="Profile avatar" 
+                className={s.chatProfilePhoto}
+              />
+            ) : (
+              <div className={s.chatProfilePhotoPlaceholder}>👤</div>
+            )}
+          </div>
+
+          <h1 className={s.matchName}>{partnerProfile.firstName}, {partnerProfile.age}</h1>
+          <p className={s.matchUni}>🎓 Student at {partnerProfile.university}</p>
+
+          <div className={s.hobbiesRow}>
+            {partnerProfile.hobbies.map((h: string) => (
+              <span key={h} className={s.hobbyBadge}>{h}</span>
+            ))}
+          </div>
+
+          <div className={s.chatTimerBox}>
+            <div className={s.timerLabel}>Chat window expires in</div>
+            <div className={s.chatTimerVal}>{chatCountdownText}</div>
+          </div>
+        </div>
+
+        {/* Meet toggle and Proposal Panel */}
+        <div className={s.meetAndPlanCard}>
+          <h2 className={s.sectionTitle}>Meet In-Person</h2>
+          <p className={s.sectionText}>
+            Activate the toggle when you are ready to meet {partnerProfile.firstName}. Once both toggle ON, the date proposal form will unlock.
+          </p>
+
+          <button
+            className={`${s.meetToggleBtn} ${userWantsMeet ? s.meetActive : ""}`}
+            onClick={handleToggleMeet}
+          >
+            {userWantsMeet ? (
+              <span className={s.btnContent}>
+                <span className={s.checkIcon}>✓</span> Ready to Meet!
+              </span>
+            ) : (
+              "Let's Meet!"
+            )}
+          </button>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginTop: "1rem", marginBottom: "0.25rem" }}>
+            <button
+              className={`${s.meetToggleBtn} ${userSharesName ? s.meetActive : ""}`}
+              onClick={handleShareName}
+            >
+              {userSharesName ? "✓ Name Shared" : "Share Name"}
+            </button>
+            <button
+              className={`${s.meetToggleBtn} ${userSharesPhoto ? s.meetActive : ""}`}
+              onClick={handleSharePhoto}
+            >
+              {userSharesPhoto ? "✓ Photo Shared" : "Share Photo"}
+            </button>
+          </div>
+
+          {/* Date Proposal Status */}
+          {userWantsMeet && partnerWantsMeet && (
+            <div className={s.proposalBox}>
+              {proposalStatus === "none" && (
+                <form onSubmit={handleProposeDate} className={s.proposalForm}>
+                  <h3 className={s.boxTitle}>Propose a Date</h3>
+                  <div className={s.formGroup}>
+                    <label className={s.label}>Meeting Date</label>
+                    <input
+                      type="date"
+                      className={s.input}
+                      required
+                      value={dateProposed}
+                      onChange={(e) => setDateProposed(e.target.value)}
+                    />
+                  </div>
+                  <div className={s.formGroup}>
+                    <label className={s.label}>Meeting Time</label>
+                    <input
+                      type="time"
+                      className={s.input}
+                      required
+                      value={timeProposed}
+                      onChange={(e) => setTimeProposed(e.target.value)}
+                    />
+                  </div>
+                  <div className={s.formGroup}>
+                    <label className={s.label}>Meeting Location</label>
+                    <input
+                      type="text"
+                      className={s.input}
+                      required
+                      placeholder="e.g. Café Dori, Hauz Khas"
+                      value={locationProposed}
+                      onChange={(e) => setLocationProposed(e.target.value)}
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary btn-pill" disabled={submitting}>
+                    {submitting ? "Sending..." : "Send Proposal →"}
+                  </button>
+                </form>
+              )}
+
+              {proposalStatus === "pending_them" && (
+                <div className={s.proposalMessage}>
+                  <h3 className={s.boxTitle}>Proposal Sent!</h3>
+                  <p className={s.sectionText}>
+                    Waiting for {partnerProfile.firstName} to approve or suggest edits:
+                    <br />
+                    <strong>{currentProposal.proposed_date}</strong> at <strong>{currentProposal.proposed_time.slice(0, 5)}</strong>
+                    <br />
+                    Location: <strong>{currentProposal.location_text}</strong>
+                  </p>
+                </div>
+              )}
+
+              {proposalStatus === "pending_me" && (
+                <div className={s.proposalMessage}>
+                  <h3 className={s.boxTitle}>Review Date Proposal</h3>
+                  <p className={s.sectionText}>
+                    {partnerProfile.firstName} proposed to meet on:
+                    <br />
+                    <strong>{currentProposal.proposed_date}</strong> at <strong>{currentProposal.proposed_time.slice(0, 5)}</strong>
+                    <br />
+                    Location: <strong>{currentProposal.location_text}</strong>
+                  </p>
+                  <div className={s.actionRow} style={{ marginTop: "1rem" }}>
+                    <button className="btn btn-ghost" onClick={() => handleRespondProposal(false)} disabled={submitting}>
+                      Suggest Edit
+                    </button>
+                    <button className="btn btn-primary btn-pill" onClick={() => handleRespondProposal(true)} disabled={submitting}>
+                      Approve Date
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {proposalStatus === "confirmed" && (
+                <div className={s.proposalMessage} style={{ borderColor: "var(--success)" }}>
+                  <h3 className={s.boxTitle} style={{ color: "var(--success)" }}>🎉 Date Locked!</h3>
+                  <p className={s.sectionText}>
+                    Meeting confirmed: <strong>{currentProposal.proposed_date}</strong> at <strong>{currentProposal.proposed_time.slice(0, 5)}</strong>.
+                    <br />
+                    Location: <strong>{currentProposal.location_text}</strong>
+                  </p>
+                  <a
+                    href={currentProposal.google_maps_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={s.mapsLink}
+                  >
+                    📍 View on Google Maps
+                  </a>
+                  <p className={s.revealNotice}>
+                    🕵️ Check your email T-4 hours before the date to reveal their photo and details!
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </>
+    );
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     window.location.href = "/auth";
@@ -1754,7 +1928,6 @@ export default function DashboardPage() {
       <header className={s.dashboardHeader}>
         <div className={s.headerLeft}>
           <span className={s.brand}>BlindSide</span>
-          <span className={s.campusBadge}>{universityName}</span>
         </div>
         <div className={s.headerRight}>
           {dashboardState === 0 && (
@@ -1811,9 +1984,19 @@ export default function DashboardPage() {
             </div>
           )}
           {dashboardState === 3 ? (
-            <button type="button" className={s.signOutBtn} onClick={() => setDashboardState(0)}>
-              My Profile
-            </button>
+            <div 
+              onClick={() => setDashboardState(0)}
+              style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+              title="My Profile"
+            >
+              <div className={s.profilePhotoContainer} style={{ width: "36px", height: "36px", border: "2px solid var(--border)", margin: 0 }}>
+                {myPhotoSignedUrl ? (
+                  <img src={myPhotoSignedUrl} alt="My Profile" className={s.profilePhotoImg} />
+                ) : (
+                  <div className={s.profilePhotoPlaceholder} style={{ fontSize: "16px" }}>👤</div>
+                )}
+              </div>
+            </div>
           ) : (
             <button type="button" className={s.signOutBtn} onClick={handleSignOut}>
               Sign Out
@@ -1831,6 +2014,55 @@ export default function DashboardPage() {
             {/* Left Column: Profile Card */}
             <div className={s.profileMasterCard}>
 
+              {/* Mobile Dynamic Action Button */}
+              <div className={s.mobileOnly} style={{ width: "100%", marginBottom: "1rem" }}>
+                {matchStatus === "none" && (
+                  <button 
+                    className="btn btn-primary btn-pill btn-glow" 
+                    style={{ width: "100%" }}
+                    onClick={() => { setDashboardState(1); setPrefSlide(1); }}
+                  >
+                    ⚡ Find a Match
+                  </button>
+                )}
+                {matchStatus === "unpaid" && (
+                  <button 
+                    className="btn btn-primary btn-pill btn-glow" 
+                    style={{ width: "100%" }}
+                    onClick={() => { setDashboardState(1); setPrefSlide(7); }}
+                  >
+                    🔑 Activate Match Search
+                  </button>
+                )}
+                {matchStatus === "searching" && (
+                  <button 
+                    className="btn btn-primary btn-pill btn-glow" 
+                    style={{ width: "100%", background: "var(--bg-surface-hover)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                    onClick={() => { setDashboardState(1); setPrefSlide(7); }}
+                  >
+                    🔍 Searching: {countdownText}
+                  </button>
+                )}
+                {matchStatus === "matched" && (
+                  <button 
+                    className="btn btn-primary btn-pill btn-glow" 
+                    style={{ width: "100%" }}
+                    onClick={() => setDashboardState(3)}
+                  >
+                    💬 Enter Chat
+                  </button>
+                )}
+                {matchStatus === "feedback" && (
+                  <button 
+                    className="btn btn-primary btn-pill btn-glow" 
+                    style={{ width: "100%" }}
+                    onClick={() => setDashboardState(4)}
+                  >
+                    📝 Share Feedback
+                  </button>
+                )}
+              </div>
+
               <div className={s.profilePhotoWrapper}>
                 <div className={s.profilePhotoContainer}>
                   {myPhotoSignedUrl ? (
@@ -1843,7 +2075,7 @@ export default function DashboardPage() {
                   {myFirstName} {myLastName}
                 </h2>
                 <div className={s.profileUniText}>
-                  🏫 {universityName}
+                  {universityName}
                 </div>
               </div>
 
@@ -1929,7 +2161,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Right Column: Dynamic Match Status Card */}
-            <div className={`${s.matchPortalCard}`}>
+            <div className={`${s.matchPortalCard} ${s.desktopOnly}`}>
               {/* Glow backgrounds depending on state */}
               {matchStatus === "searching" && <div className={`${s.portalGlowBg} ${s.portalSearchingGlow}`} />}
               {matchStatus === "matched" && <div className={`${s.portalGlowBg} ${s.portalMatchedGlow}`} />}
@@ -2600,194 +2832,80 @@ export default function DashboardPage() {
               </defs>
             </svg>
 
-            {/* Left Column: Profile & Date Planning */}
-            <div className={s.leftColumn}>
-              {/* Match profile card with radial progress compatibility */}
-              <div className={s.matchProfileCard}>
-                <div className={s.chatProfilePhotoContainer}>
-                  {partnerProfile.photoUrl ? (
-                    <img 
-                      src={partnerProfile.photoUrl} 
-                      alt="Profile avatar" 
-                      className={s.chatProfilePhoto}
-                    />
-                  ) : (
-                    <div className={s.chatProfilePhotoPlaceholder}>👤</div>
-                  )}
-                </div>
-
-                <h1 className={s.matchName}>{partnerProfile.firstName}, {partnerProfile.age}</h1>
-                <p className={s.matchUni}>🎓 Student at {partnerProfile.university}</p>
-
-                <div className={s.hobbiesRow}>
-                  {partnerProfile.hobbies.map((h: string) => (
-                    <span key={h} className={s.hobbyBadge}>{h}</span>
-                  ))}
-                </div>
-
-                <div className={s.chatTimerBox}>
-                  <div className={s.timerLabel}>Chat window expires in</div>
-                  <div className={s.chatTimerVal}>{chatCountdownText}</div>
-                </div>
-              </div>
-
-              {/* Meet toggle and Proposal Panel */}
-              <div className={s.meetAndPlanCard}>
-                <h2 className={s.sectionTitle}>Meet In-Person</h2>
-                <p className={s.sectionText}>
-                  Activate the toggle when you are ready to meet {partnerProfile.firstName}. Once both toggle ON, the date proposal form will unlock.
-                </p>
-
-                <button
-                  className={`${s.meetToggleBtn} ${userWantsMeet ? s.meetActive : ""}`}
-                  onClick={handleToggleMeet}
-                >
-                  {userWantsMeet ? (
-                    <span className={s.btnContent}>
-                      <span className={s.checkIcon}>✓</span> Ready to Meet!
-                    </span>
-                  ) : (
-                    "Let's Meet!"
-                  )}
-                </button>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginTop: "1rem", marginBottom: "0.25rem" }}>
-                  <button
-                    className={`${s.meetToggleBtn} ${userSharesName ? s.meetActive : ""}`}
-                    onClick={handleShareName}
-                  >
-                    {userSharesName ? "✓ Name Shared" : "Share Name"}
-                  </button>
-                  <button
-                    className={`${s.meetToggleBtn} ${userSharesPhoto ? s.meetActive : ""}`}
-                    onClick={handleSharePhoto}
-                  >
-                    {userSharesPhoto ? "✓ Photo Shared" : "Share Photo"}
-                  </button>
-                </div>
-
-                {/* Date Proposal Status */}
-                {userWantsMeet && partnerWantsMeet && (
-                  <div className={s.proposalBox}>
-                    {proposalStatus === "none" && (
-                      <form onSubmit={handleProposeDate} className={s.proposalForm}>
-                        <h3 className={s.boxTitle}>Propose a Date</h3>
-                        <div className={s.formGroup}>
-                          <label className={s.label}>Meeting Date</label>
-                          <input
-                            type="date"
-                            className={s.input}
-                            required
-                            value={dateProposed}
-                            onChange={(e) => setDateProposed(e.target.value)}
-                          />
-                        </div>
-                        <div className={s.formGroup}>
-                          <label className={s.label}>Meeting Time</label>
-                          <input
-                            type="time"
-                            className={s.input}
-                            required
-                            value={timeProposed}
-                            onChange={(e) => setTimeProposed(e.target.value)}
-                          />
-                        </div>
-                        <div className={s.formGroup}>
-                          <label className={s.label}>Meeting Location</label>
-                          <input
-                            type="text"
-                            className={s.input}
-                            required
-                            placeholder="e.g. Café Dori, Hauz Khas"
-                            value={locationProposed}
-                            onChange={(e) => setLocationProposed(e.target.value)}
-                          />
-                        </div>
-                        <button type="submit" className="btn btn-primary btn-pill" disabled={submitting}>
-                          {submitting ? "Sending..." : "Send Proposal →"}
-                        </button>
-                      </form>
-                    )}
-
-                    {proposalStatus === "pending_them" && (
-                      <div className={s.proposalMessage}>
-                        <h3 className={s.boxTitle}>Proposal Sent!</h3>
-                        <p className={s.sectionText}>
-                          Waiting for {partnerProfile.firstName} to approve or suggest edits:
-                          <br />
-                          <strong>{currentProposal.proposed_date}</strong> at <strong>{currentProposal.proposed_time.slice(0, 5)}</strong>
-                          <br />
-                          Location: <strong>{currentProposal.location_text}</strong>
-                        </p>
-                      </div>
-                    )}
-
-                    {proposalStatus === "pending_me" && (
-                      <div className={s.proposalMessage}>
-                        <h3 className={s.boxTitle}>Review Date Proposal</h3>
-                        <p className={s.sectionText}>
-                          {partnerProfile.firstName} proposed to meet on:
-                          <br />
-                          <strong>{currentProposal.proposed_date}</strong> at <strong>{currentProposal.proposed_time.slice(0, 5)}</strong>
-                          <br />
-                          Location: <strong>{currentProposal.location_text}</strong>
-                        </p>
-                        <div className={s.actionRow} style={{ marginTop: "1rem" }}>
-                          <button className="btn btn-ghost" onClick={() => handleRespondProposal(false)} disabled={submitting}>
-                            Suggest Edit
-                          </button>
-                          <button className="btn btn-primary btn-pill" onClick={() => handleRespondProposal(true)} disabled={submitting}>
-                            Approve Date
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {proposalStatus === "confirmed" && (
-                      <div className={s.proposalMessage} style={{ borderColor: "var(--success)" }}>
-                        <h3 className={s.boxTitle} style={{ color: "var(--success)" }}>🎉 Date Locked!</h3>
-                        <p className={s.sectionText}>
-                          Meeting confirmed: <strong>{currentProposal.proposed_date}</strong> at <strong>{currentProposal.proposed_time.slice(0, 5)}</strong>.
-                          <br />
-                          Location: <strong>{currentProposal.location_text}</strong>
-                        </p>
-                        <a
-                          href={currentProposal.google_maps_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={s.mapsLink}
-                        >
-                          📍 View on Google Maps
-                        </a>
-                        <p className={s.revealNotice}>
-                          🕵️ Check your email T-4 hours before the date to reveal their photo and details!
-                        </p>
-                      </div>
-                    )}
+            {/* Mobile Info Drawer Overlay */}
+            {showMobileInfoDrawer && (
+              <div className={s.mobileInfoDrawerOverlay}>
+                <div className={s.mobileInfoDrawerContent}>
+                  <div className={s.mobileInfoDrawerHeader}>
+                    <h3>Details & Planning</h3>
+                    <button type="button" className={s.closeDrawerBtn} onClick={() => setShowMobileInfoDrawer(false)}>×</button>
                   </div>
-                )}
+                  <div className={s.mobileInfoDrawerBody}>
+                    {renderLeftColumnContent()}
+                  </div>
+                </div>
               </div>
+            )}
+
+            {/* Left Column: Profile & Date Planning (Desktop Only) */}
+            <div className={`${s.leftColumn} ${s.desktopOnly}`}>
+              {renderLeftColumnContent()}
             </div>
 
             {/* Right Column: Chat Box */}
             <div className={s.chatWindowCard}>
-              <div className={s.chatHeader} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div className={s.chatStatusIndicator}>
-                  <span className={s.chatStatusDot} />
-                  <span className={s.chatStatusText}>
+              <div className={s.chatHeader}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", minWidth: 0 }}>
+                  {/* Back Arrow Button */}
+                  <button 
+                    type="button"
+                    className={s.chatBackBtn}
+                    onClick={() => setDashboardState(0)}
+                    aria-label="Back to dashboard"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="19" y1="12" x2="5" y2="12" />
+                      <polyline points="12 19 5 12 12 5" />
+                    </svg>
+                  </button>
+
+                  {/* Match Avatar */}
+                  <div className={s.chatHeaderAvatar}>
+                    {partnerProfile.photoUrl ? (
+                      <img src={partnerProfile.photoUrl} alt="Avatar" className={s.chatHeaderAvatarImg} />
+                    ) : (
+                      <span className={s.chatHeaderAvatarPlaceholder}>👤</span>
+                    )}
+                  </div>
+
+                  {/* Name */}
+                  <span className={s.chatHeaderName}>
                     {partnerSharesName && partnerProfile?.rawFirstName
-                      ? `Chat with ${partnerProfile.rawFirstName}`
-                      : "Blind Chat Active"}
+                      ? partnerProfile.rawFirstName
+                      : "Your Blind Date"}
                   </span>
                 </div>
-                <button 
-                  type="button"
-                  className="btn btn-ghost btn-sm" 
-                  onClick={() => setDashboardState(0)}
-                  style={{ fontSize: "11px", fontWeight: "700" }}
-                >
-                  ← Dashboard
-                </button>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  {/* Chat Timer on the right */}
+                  <span className={s.chatHeaderTimer}>
+                    ⏱️ {chatCountdownText}
+                  </span>
+
+                  {/* Info 'i' button on mobile only */}
+                  <button 
+                    type="button" 
+                    className={`${s.chatInfoBtn} ${s.mobileOnly}`} 
+                    onClick={() => setShowMobileInfoDrawer(true)}
+                    aria-label="View match info"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div className={s.messagesArea}>
                 {chatMessages.length === 0 ? (
@@ -3010,7 +3128,7 @@ export default function DashboardPage() {
                     <div className={s.infoTile} onClick={() => setEditModalSection("identity")}>
                       <div className={s.infoTileHeader}>
                         <span className={s.infoTileTitle}>Identity & Photo</span>
-                        <span className={s.infoTileEditIcon}>✏️ Edit</span>
+                        <span className={s.infoTileEditIcon}>Edit</span>
                       </div>
                       <div className={s.infoTileContent} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "1rem" }}>
                         <div className={s.profilePhotoContainer} style={{ width: "50px", height: "50px", margin: 0, flexShrink: 0 }}>
@@ -3037,7 +3155,7 @@ export default function DashboardPage() {
                     <div className={s.infoTile} onClick={() => setEditModalSection("stats")}>
                       <div className={s.infoTileHeader}>
                         <span className={s.infoTileTitle}>Physical Stats</span>
-                        <span className={s.infoTileEditIcon}>✏️ Edit</span>
+                        <span className={s.infoTileEditIcon}>Edit</span>
                       </div>
                       <div className={s.infoTileContent}>
                         <div style={{ fontSize: "11px", display: "flex", justifyContent: "space-between" }}>
@@ -3055,7 +3173,7 @@ export default function DashboardPage() {
                     <div className={s.infoTile} onClick={() => setEditModalSection("lifestyle")}>
                       <div className={s.infoTileHeader}>
                         <span className={s.infoTileTitle}>Lifestyle Traits</span>
-                        <span className={s.infoTileEditIcon}>✏️ Edit</span>
+                        <span className={s.infoTileEditIcon}>Edit</span>
                       </div>
                       <div className={s.infoTileContent} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
@@ -3077,7 +3195,7 @@ export default function DashboardPage() {
                     <div className={s.infoTile} onClick={() => setEditModalSection("hobbies")}>
                       <div className={s.infoTileHeader}>
                         <span className={s.infoTileTitle}>Hobbies & vibe</span>
-                        <span className={s.infoTileEditIcon}>✏️ Edit</span>
+                        <span className={s.infoTileEditIcon}>Edit</span>
                       </div>
                       <div className={s.infoTileContent} style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem" }}>
                         {editHobbies.map((hob) => {
