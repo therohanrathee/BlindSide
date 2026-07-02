@@ -2811,6 +2811,47 @@
   .masterGrid {
     grid-template-columns: 1fr !important;
   }
+
+  /* Lock layout to viewport height in chat mode */
+  .dashboardLayoutMatched {
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .dashboardHeaderMatched {
+    display: none !important;
+  }
+
+  .mainContainerMatched {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .matchedWrapperMatched {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .chatWindowCard {
+    height: 100% !important;
+    flex: 1 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: var(--bg-primary) !important;
+  }
 }
 
 

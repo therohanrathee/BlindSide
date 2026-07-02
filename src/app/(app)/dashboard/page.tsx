@@ -1923,9 +1923,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={s.dashboardLayout}>
+    <div className={`${s.dashboardLayout} ${dashboardState === 3 ? s.dashboardLayoutMatched : ""}`}>
       {/* Header */}
-      <header className={s.dashboardHeader}>
+      <header className={`${s.dashboardHeader} ${dashboardState === 3 ? s.dashboardHeaderMatched : ""}`}>
         <div className={s.headerLeft}>
           <span className={s.brand}>BlindSide</span>
         </div>
@@ -2005,7 +2005,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className={s.mainContainer}>
+      <main className={`${s.mainContainer} ${dashboardState === 3 ? s.mainContainerMatched : ""}`}>
         {/* ==================================================
             STATE 0: MASTER PROFILE DASHBOARD (PROFILE HOMEPAGE)
             ================================================== */}
@@ -2821,7 +2821,7 @@ export default function DashboardPage() {
             STATE 3: MATCHED (CHAT AND PLANNING)
             ================================================== */}
         {dashboardState === 3 && partnerProfile && (
-          <div className={s.matchedWrapper}>
+          <div className={`${s.matchedWrapper} ${s.matchedWrapperMatched}`}>
             {/* Global SVG defs for gradients */}
             <svg style={{ position: "absolute", width: 0, height: 0 }} width="0" height="0">
               <defs>
