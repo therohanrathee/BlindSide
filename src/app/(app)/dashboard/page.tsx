@@ -264,6 +264,9 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState("");
   const [universityName, setUniversityName] = useState("");
   const [walletBalance, setWalletBalance] = useState(0);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [showTransactions, setShowTransactions] = useState(false);
+  const transactionCardRef = useRef<HTMLDivElement>(null);
   const [isFirstMatch, setIsFirstMatch] = useState(true);
 
   // Match State Machine
@@ -676,13 +679,23 @@ export default function DashboardPage() {
         }
       }
 
-      // Load Wallet
+      // Load Wallet & Transactions
       const { data: wallet } = await supabase
         .from("wallets")
-        .select("balance")
+        .select("id, balance")
         .eq("user_id", session.user.id)
         .single();
-      if (wallet) setWalletBalance(parseFloat(wallet.balance as any));
+      if (wallet) {
+        setWalletBalance(parseFloat(wallet.balance as any));
+        const { data: txs } = await supabase
+          .from("wallet_transactions")
+          .select("*")
+          .eq("wallet_id", wallet.id)
+          .order("created_at", { ascending: false });
+        if (txs) {
+          setTransactions(txs);
+        }
+      }
 
       // Check if this is the user's first paid match search request
       const { count: paidCount, error: countError } = await supabase
@@ -698,8 +711,22 @@ export default function DashboardPage() {
       await refreshMatchStatus(session.user.id);
       setLoading(false);
     }
-    loadDashboard();
   }, [supabase, router]);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        showTransactions &&
+        transactionCardRef.current &&
+        !transactionCardRef.current.contains(e.target as Node) &&
+        !(e.target as Element).closest("#wallet-trigger-btn")
+      ) {
+        setShowTransactions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [showTransactions]);
 
   // Realtime subscription for chat messages, meet toggles, and date proposals
   useEffect(() => {
@@ -1729,10 +1756,59 @@ export default function DashboardPage() {
           <span className={s.campusBadge}>{universityName}</span>
         </div>
         <div className={s.headerRight}>
-          <div className={s.walletCard}>
-            <span className={s.walletLabel}>Balance</span>
-            <span className={s.walletVal}>₹{walletBalance}</span>
-          </div>
+          {dashboardState === 0 && (
+            <div style={{ position: "relative" }}>
+              <div 
+                id="wallet-trigger-btn"
+                className={s.walletCard} 
+                onClick={() => setShowTransactions(!showTransactions)}
+                style={{ cursor: "pointer" }}
+              >
+                <span className={s.walletLabel}>Balance</span>
+                <span className={s.walletVal}>₹{walletBalance}</span>
+              </div>
+
+              {showTransactions && (
+                <div ref={transactionCardRef} className={s.transactionDropdown}>
+                  <div className={s.txHeader}>
+                    <span className={s.txHeaderTitle}>Wallet Balance</span>
+                    <span className={s.txHeaderBalance}>₹{walletBalance}</span>
+                  </div>
+                  <div className={s.txList}>
+                    {transactions.length === 0 ? (
+                      <div className={s.txEmpty}>No transactions yet</div>
+                    ) : (
+                      transactions.map((tx) => {
+                        const dateStr = new Date(tx.created_at).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric"
+                        });
+                        const isCredit = tx.direction === "credit";
+                        
+                        let displayDesc = tx.description || "Transaction";
+                        if (tx.category === "wallet_topup") displayDesc = "Wallet Top-up";
+                        else if (tx.category === "match_payment") displayDesc = "Match Search Payment";
+                        else if (tx.category === "promo_credit") displayDesc = "Promo Credit";
+                        
+                        return (
+                          <div key={tx.id} className={s.txItem}>
+                            <div className={s.txItemLeft}>
+                              <span className={s.txItemDesc}>{displayDesc}</span>
+                              <span className={s.txItemDate}>{dateStr}</span>
+                            </div>
+                            <div className={s.txItemRight} style={{ color: isCredit ? "#10b981" : "#ef4444" }}>
+                              {isCredit ? "+" : "-"}₹{tx.amount}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           {dashboardState === 3 ? (
             <button type="button" className={s.signOutBtn} onClick={() => setDashboardState(0)}>
               My Profile
@@ -1775,13 +1851,7 @@ export default function DashboardPage() {
                 <div className={s.infoCol}>
                   <span className={s.infoLabel}>Gender</span>
                   <span className={s.infoVal}>
-                    {myGender === "male" ? (
-                      <>Male <span style={{ display: "inline-block", transform: "translateY(-1.5px)" }}>♂️</span></>
-                    ) : myGender === "female" ? (
-                      <>Female <span style={{ display: "inline-block", transform: "translateY(-1.5px)" }}>♀️</span></>
-                    ) : (
-                      <>Everyone <span style={{ display: "inline-block", transform: "translateY(-1.5px)" }}>⚧️</span></>
-                    )}
+                    {myGender === "male" ? "Male" : myGender === "female" ? "Female" : "Everyone"}
                   </span>
                 </div>
                 <div className={s.infoCol}>
@@ -2533,42 +2603,15 @@ export default function DashboardPage() {
             <div className={s.leftColumn}>
               {/* Match profile card with radial progress compatibility */}
               <div className={s.matchProfileCard}>
-                <div className={s.radialScoreContainer}>
-                  <svg className={s.radialScoreSvg} viewBox="0 0 36 36">
-                    <path
-                      className={s.radialScoreBg}
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
-                    <path
-                      className={s.radialScoreProgress}
-                      strokeDasharray={`${partnerProfile.compatibility}, 100`}
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
-                  </svg>
+                <div className={s.chatProfilePhotoContainer}>
                   {partnerProfile.photoUrl ? (
-                    <div 
-                      className={s.radialScoreVal} 
-                      style={{ 
-                        width: "105px", 
-                        height: "105px", 
-                        borderRadius: "50%", 
-                        overflow: "hidden",
-                        border: "2px solid rgba(255, 255, 255, 0.1)",
-                        top: "10px",
-                        left: "10px"
-                      }}
-                    >
-                      <img 
-                        src={partnerProfile.photoUrl} 
-                        alt="Profile avatar" 
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    </div>
+                    <img 
+                      src={partnerProfile.photoUrl} 
+                      alt="Profile avatar" 
+                      className={s.chatProfilePhoto}
+                    />
                   ) : (
-                    <div className={s.radialScoreVal}>
-                      <span>{partnerProfile.compatibility}%</span>
-                      <span className={s.radialScoreLabel}>Compat</span>
-                    </div>
+                    <div className={s.chatProfilePhotoPlaceholder}>👤</div>
                   )}
                 </div>
 
@@ -2982,14 +3025,8 @@ export default function DashboardPage() {
                           <div style={{ fontWeight: 800, fontSize: "13px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {editFirstName} {editLastName || ""}
                           </div>
-                          <div style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px", display: "inline-flex", alignItems: "center", gap: "3px" }}>
-                            🎂 {editDob ? `${new Date().getFullYear() - new Date(editDob).getFullYear()} yrs` : "No Birthday"} • {editGender === "male" ? (
-                              <>Male <span style={{ display: "inline-block", transform: "translateY(-1px)" }}>♂️</span></>
-                            ) : editGender === "female" ? (
-                              <>Female <span style={{ display: "inline-block", transform: "translateY(-1px)" }}>♀️</span></>
-                            ) : (
-                              <>Non-binary <span style={{ display: "inline-block", transform: "translateY(-1px)" }}>⚧️</span></>
-                            )}
+                          <div style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px" }}>
+                            🎂 {editDob ? `${new Date().getFullYear() - new Date(editDob).getFullYear()} yrs` : "No Birthday"} • {editGender === "male" ? "Male" : editGender === "female" ? "Female" : "Non-binary"}
                           </div>
                         </div>
                       </div>

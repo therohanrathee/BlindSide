@@ -1748,6 +1748,7 @@
 .infoCol {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
 }
 
@@ -1764,6 +1765,7 @@
   color: var(--text-primary);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
 }
 
@@ -2513,5 +2515,129 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Wallet Transaction Dropdown */
+.transactionDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  padding: 1rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.txHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.txHeaderTitle {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.txHeaderBalance {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+
+.txList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.txList::-webkit-scrollbar {
+  width: 4px;
+}
+.txList::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.txItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.txItem:last-child {
+  border-bottom: none;
+}
+
+.txItemLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.txItemDesc {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.txItemDate {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.txItemRight {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.txEmpty {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+/* Chat Section Profile Photo (no rings, no scores) */
+.chatProfilePhotoContainer {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-surface-hover);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatProfilePhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chatProfilePhotoPlaceholder {
+  font-size: 3rem;
+  color: var(--text-muted);
+}
+
 
 
