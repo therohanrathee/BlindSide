@@ -1922,12 +1922,12 @@ export default function DashboardPage() {
                     <br />
                     Location: <strong>{currentProposal.location_text}</strong>
                   </p>
-                  <div className={s.actionRow} style={{ marginTop: "1rem" }}>
-                    <button className="btn btn-ghost" onClick={() => handleRespondProposal(false)} disabled={submitting}>
-                      Suggest Edit
-                    </button>
-                    <button className="btn btn-primary btn-pill" onClick={() => handleRespondProposal(true)} disabled={submitting}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "1rem", width: "100%" }}>
+                    <button className="btn btn-primary btn-pill" style={{ width: "100%" }} onClick={() => handleRespondProposal(true)} disabled={submitting}>
                       Approve Date
+                    </button>
+                    <button className="btn btn-ghost" style={{ width: "100%" }} onClick={() => handleRespondProposal(false)} disabled={submitting}>
+                      Suggest Edit
                     </button>
                   </div>
                 </div>

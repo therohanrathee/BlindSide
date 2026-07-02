@@ -643,11 +643,10 @@
 }
 
 .proposalBox {
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.015);
-  margin-top: 0.25rem;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .proposalForm {
@@ -669,10 +668,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  background: var(--bg-surface-hover);
 }
 
 .actionRow {
