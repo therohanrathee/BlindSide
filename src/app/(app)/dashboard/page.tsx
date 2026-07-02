@@ -1000,6 +1000,7 @@ export default function DashboardPage() {
 
     setPartnerProfile({
       firstName: partnerName,
+      rawFirstName: partner?.first_name || "",
       age: partnerAge,
       university: partnerUni,
       hobbies: partnerHobbies,
@@ -2701,7 +2702,11 @@ export default function DashboardPage() {
               <div className={s.chatHeader} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div className={s.chatStatusIndicator}>
                   <span className={s.chatStatusDot} />
-                  <span className={s.chatStatusText}>Blind Chat Active</span>
+                  <span className={s.chatStatusText}>
+                    {partnerSharesName && partnerProfile?.rawFirstName
+                      ? `Chat with ${partnerProfile.rawFirstName}`
+                      : "Blind Chat Active"}
+                  </span>
                 </div>
                 <button 
                   type="button"
