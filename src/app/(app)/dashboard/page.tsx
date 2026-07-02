@@ -1718,9 +1718,15 @@ export default function DashboardPage() {
             <span className={s.walletLabel}>Balance</span>
             <span className={s.walletVal}>₹{walletBalance}</span>
           </div>
-          <button className={s.signOutBtn} onClick={handleSignOut}>
-            Sign Out
-          </button>
+          {dashboardState === 3 ? (
+            <button type="button" className={s.signOutBtn} onClick={() => setDashboardState(0)}>
+              My Profile
+            </button>
+          ) : (
+            <button type="button" className={s.signOutBtn} onClick={handleSignOut}>
+              Sign Out
+            </button>
+          )}
         </div>
       </header>
 
