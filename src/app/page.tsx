@@ -81,6 +81,8 @@ export default function LandingPage() {
 
   // IntersectionObserver for step reveal (once visible, stays visible)
   useEffect(() => {
+    if (checkingAuth) return;
+
     const observers: IntersectionObserver[] = [];
 
     stepRefs.current.forEach((step, i) => {
@@ -103,7 +105,7 @@ export default function LandingPage() {
     });
 
     return () => observers.forEach((o) => o.disconnect());
-  }, []);
+  }, [checkingAuth]);
 
   // Auto-advancing simulated chat (triggers when step 3 becomes visible)
   useEffect(() => {
