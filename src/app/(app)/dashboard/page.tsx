@@ -315,6 +315,45 @@ export default function DashboardPage() {
   const [editDragStart, setEditDragStart] = useState({ x: 0, y: 0 });
   const [editPhotoLoading, setEditPhotoLoading] = useState(false);
   const [showMobileInfoDrawer, setShowMobileInfoDrawer] = useState(false);
+  const [sheetState, setSheetState] = useState<"collapsed" | "expanded">("collapsed");
+  const [sheetStartY, setSheetStartY] = useState(0);
+  const [sheetCurrentY, setSheetCurrentY] = useState(0);
+  const [sheetIsDragging, setSheetIsDragging] = useState(false);
+  const [sheetDragOffset, setSheetDragOffset] = useState(0);
+
+  const handleSheetTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setSheetStartY(touch.clientY);
+    setSheetCurrentY(touch.clientY);
+    setSheetIsDragging(true);
+    setSheetDragOffset(0);
+  };
+
+  const handleSheetTouchMove = (e: React.TouchEvent) => {
+    if (!sheetIsDragging) return;
+    const touch = e.touches[0];
+    const diff = touch.clientY - sheetStartY;
+    setSheetDragOffset(diff);
+    setSheetCurrentY(touch.clientY);
+  };
+
+  const handleSheetTouchEnd = () => {
+    setSheetIsDragging(false);
+    
+    // Snappy bottom sheet gesture physics:
+    if (sheetDragOffset > 80) {
+      if (sheetState === "expanded") {
+        setSheetState("collapsed");
+      } else {
+        setShowMobileInfoDrawer(false);
+      }
+    } else if (sheetDragOffset < -50) {
+      if (sheetState === "collapsed") {
+        setSheetState("expanded");
+      }
+    }
+    setSheetDragOffset(0);
+  };
 
   // State 1: Search Preferences
   const [prefSlide, setPrefSlide] = useState(1);
@@ -2930,8 +2969,32 @@ export default function DashboardPage() {
 
             {/* Mobile Info Drawer Overlay */}
             {showMobileInfoDrawer && (
-              <div className={s.mobileInfoDrawerOverlay}>
-                <div className={s.mobileInfoDrawerContent}>
+              <div 
+                className={s.mobileInfoDrawerOverlay}
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) setShowMobileInfoDrawer(false);
+                }}
+              >
+                <div 
+                  className={s.mobileInfoDrawerContent}
+                  style={{
+                    height: sheetState === "expanded" ? "92vh" : "55vh",
+                    transform: sheetIsDragging && sheetDragOffset > 0 ? `translateY(${sheetDragOffset}px)` : "none",
+                    transition: sheetIsDragging ? "none" : "height 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                    paddingTop: sheetState === "expanded" ? "max(1.25rem, env(safe-area-inset-top, 1.25rem))" : "0px"
+                  }}
+                >
+                  {/* Drag Handle Wrapper */}
+                  <div 
+                    className={s.dragHandleWrapper}
+                    onTouchStart={handleSheetTouchStart}
+                    onTouchMove={handleSheetTouchMove}
+                    onTouchEnd={handleSheetTouchEnd}
+                    style={{ cursor: "grab" }}
+                  >
+                    <div className={s.dragHandleBar} />
+                  </div>
+
                   <div className={s.mobileInfoDrawerHeader}>
                     <h3>Details & Planning</h3>
                     <button type="button" className={s.closeDrawerBtn} onClick={() => setShowMobileInfoDrawer(false)}>×</button>
@@ -2992,7 +3055,7 @@ export default function DashboardPage() {
                   <button 
                     type="button" 
                     className={`${s.chatInfoBtn} ${s.mobileOnly}`} 
-                    onClick={() => setShowMobileInfoDrawer(true)}
+                    onClick={() => { setSheetState("collapsed"); setShowMobileInfoDrawer(true); }}
                     aria-label="View match info"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

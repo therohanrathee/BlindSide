@@ -2662,11 +2662,40 @@
   border-top: 1px solid var(--border);
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
-  max-height: 85vh;
+  max-height: 95vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
   animation: drawerSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.dragHandleWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.75rem 0 0.25rem;
+  touch-action: none;
+  cursor: grab;
+}
+
+.dragHandleWrapper:active {
+  cursor: grabbing;
+}
+
+.dragHandleBar {
+  width: 36px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--border);
+  opacity: 0.5;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+.dragHandleWrapper:hover .dragHandleBar {
+  opacity: 0.8;
+  background-color: var(--text-secondary);
 }
 
 .mobileInfoDrawerHeader {
