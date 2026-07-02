@@ -431,13 +431,13 @@ interface WizardResult {
   gender: "male" | "female" | "nonbinary";
   heightCm: number;
   heightUnit: "ft" | "cm";
-  weightKg: number;
+  weightKg: number | null;
   dietary: string;
   drinking: string;
   smoking: string;
   fitness: string;
   hobbies: string[];
-  photoUrl: string;
+  photoUrl: string | null;
 }
 
 interface Props {
@@ -493,7 +493,7 @@ export default function AboutYouWizard({
 
   /* --- profile photo state --- */
   const [photoDataUrl, setPhotoDataUrl] = useState("");
-  const [photoUrl, setPhotoUrl] = useState(initialPhotoUrl);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(initialPhotoUrl || null);
   const [scale, setScale] = useState(1.0);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -516,8 +516,8 @@ export default function AboutYouWizard({
   /* --- height --- */
   const [heightVal, setHeightVal] = useState(initialHeightCm ?? DEFAULT_CM);
 
-  /* --- weight --- */
   const [weightVal, setWeightVal] = useState(initialWeightKg ?? DEFAULT_KG);
+  const [weightSkipped, setWeightSkipped] = useState(initialWeightKg === undefined || initialWeightKg === null);
 
   /* --- lifestyle details --- */
   const [dietary, setDietary] = useState(initialDietary);
@@ -786,6 +786,7 @@ export default function AboutYouWizard({
     const frac = (clientX - r.left) / r.width;
     const clamped = Math.max(0, Math.min(1, frac));
     setWeightVal(Math.round(MIN_KG + clamped * (MAX_KG - MIN_KG)));
+    setWeightSkipped(false);
   }, []);
 
   const onHeightMouseMove = useCallback((e: React.MouseEvent) => { if (!heightLocked) updateHeight(e.clientY); }, [heightLocked, updateHeight]);
@@ -814,13 +815,13 @@ export default function AboutYouWizard({
       gender: gender as "male" | "female" | "nonbinary",
       heightCm: heightVal,
       heightUnit: "ft",
-      weightKg: weightVal,
+      weightKg: weightSkipped ? null : weightVal,
       dietary,
       drinking,
       smoking,
       fitness,
       hobbies: selectedHobbies,
-      photoUrl,
+      photoUrl: photoUrl || null,
     });
   };
 
@@ -903,23 +904,41 @@ export default function AboutYouWizard({
             <p className={a.subHint}>This will be revealed to your matches 4 hours before your date.</p>
 
             {!photoDataUrl ? (
-              <label className={a.fileInputLabel}>
-                <div className={a.uploadIcon}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
+              <>
+                <label className={a.fileInputLabel}>
+                  <div className={a.uploadIcon}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  </div>
+                  <div className={a.uploadText}>Upload Profile Picture</div>
+                  <div className={a.uploadSubtext}>JPG or PNG, max 10MB</div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                  />
+                </label>
+                <div className={a.navRow} style={{ display: "flex", justifyContent: "space-between", width: "100%", marginTop: "1rem" }}>
+                  <button className={a.navBack} onClick={goBack} disabled={photoLoading}>← Back</button>
+                  <button 
+                    type="button"
+                    className="btn btn-ghost" 
+                    onClick={() => {
+                      setPhotoUrl(null);
+                      setPhotoDataUrl("");
+                      goForward();
+                    }} 
+                    disabled={photoLoading}
+                    style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-muted)", padding: "0.5rem 1rem" }}
+                  >
+                    Skip →
+                  </button>
                 </div>
-                <div className={a.uploadText}>Upload Profile Picture</div>
-                <div className={a.uploadSubtext}>JPG or PNG, max 10MB</div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  style={{ display: "none" }}
-                />
-              </label>
+              </>
             ) : (
               <>
                 <div 
@@ -1015,11 +1034,25 @@ export default function AboutYouWizard({
                     Use Photo →
                   </button>
                 </div>
+
+                <div className={a.navRow} style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <button className={a.navBack} onClick={goBack} disabled={photoLoading}>← Back</button>
+                  <button 
+                    type="button"
+                    className="btn btn-ghost" 
+                    onClick={() => {
+                      setPhotoUrl(null);
+                      setPhotoDataUrl("");
+                      goForward();
+                    }} 
+                    disabled={photoLoading}
+                    style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-muted)" }}
+                  >
+                    Skip →
+                  </button>
+                </div>
               </>
             )}
-            <div className={a.navRow}>
-              <button className={a.navBack} onClick={goBack} disabled={photoLoading}>← Back</button>
-            </div>
           </div>
         );
 
@@ -1258,11 +1291,32 @@ export default function AboutYouWizard({
               </div>
             </div>
 
-            <div className={a.navRow}>
+            <div className={a.navRow} style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
               <button className={a.navBack} onClick={goBackToHeight}>← Back</button>
-              <button className={a.confirmBtn} onClick={goForward} style={{ marginTop: 0 }}>
-                Looks good! ✓
-              </button>
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <button 
+                  type="button"
+                  className="btn btn-ghost" 
+                  onClick={() => {
+                    setWeightSkipped(true);
+                    goForward();
+                  }}
+                  style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-muted)", padding: "0.5rem 1rem" }}
+                >
+                  Skip →
+                </button>
+                <button 
+                  type="button"
+                  className={a.confirmBtn} 
+                  onClick={() => {
+                    setWeightSkipped(false);
+                    goForward();
+                  }} 
+                  style={{ marginTop: 0 }}
+                >
+                  Looks good! ✓
+                </button>
+              </div>
             </div>
           </div>
         );

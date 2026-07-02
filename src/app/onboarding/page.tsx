@@ -670,10 +670,10 @@ function OnboardingContent() {
   const handleWizardComplete = async (result: {
     firstName: string; lastName: string; dob: string;
     gender: "male" | "female" | "nonbinary";
-    heightCm: number; heightUnit: "ft" | "cm"; weightKg: number;
+    heightCm: number; heightUnit: "ft" | "cm"; weightKg?: number | null;
     dietary: string; drinking: string; smoking: string; fitness: string;
     hobbies: string[];
-    photoUrl: string;
+    photoUrl?: string | null;
   }) => {
     setFirstName(result.firstName);
     setLastName(result.lastName);
@@ -681,7 +681,7 @@ function OnboardingContent() {
     setGender(result.gender as any);
     setHeightCm(result.heightCm.toString());
     setHeightUnit(result.heightUnit);
-    setWeight(result.weightKg.toString());
+    setWeight(result.weightKg ? result.weightKg.toString() : "");
     setDietary(result.dietary);
     setDrinking(result.drinking);
     setSmoking(result.smoking);
@@ -699,7 +699,7 @@ function OnboardingContent() {
           gender: result.gender,
           height_cm: result.heightCm,
           height_unit_pref: result.heightUnit,
-          weight_kg: result.weightKg,
+          weight_kg: result.weightKg !== undefined && result.weightKg !== null ? result.weightKg : null,
         })
         .eq("id", userId);
 
@@ -714,7 +714,7 @@ function OnboardingContent() {
           smoking: result.smoking,
           fitness: result.fitness,
           hobbies: result.hobbies,
-          photo_url: result.photoUrl,
+          photo_url: result.photoUrl || null,
         }, { onConflict: "user_id" });
 
       if (profileError) throw profileError;

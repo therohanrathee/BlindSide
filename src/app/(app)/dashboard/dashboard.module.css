@@ -2136,30 +2136,108 @@
 }
 
 /* Modal photo crop viewport */
-.cropViewport {
-  width: 100%;
-  height: 220px;
-  background: #000;
+.cropWrapper {
   position: relative;
+  width: 280px;
+  height: 280px;
   overflow: hidden;
+  border: 2px solid var(--border);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
+  background: #000;
   cursor: grab;
+  user-select: none;
+  touch-action: none;
+  margin: 0 auto;
 }
 
-.cropViewport:active {
+.cropWrapper:active {
   cursor: grabbing;
 }
 
-.cropCircleMask {
+.cropImage {
   position: absolute;
-  inset: 0;
-  border-radius: var(--radius-lg);
-  border: 2px dashed rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+  top: 0;
+  left: 0;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Circular overlay mask */
+.circleCutout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px rgba(14, 17, 23, 0.75);
+  border: 2px solid var(--accent-primary);
   pointer-events: none;
   z-index: 10;
-  margin: 10px;
+}
+
+/* Rule of Thirds Guidelines inside circle */
+.guideLineH1 {
+  position: absolute;
+  top: 33.33%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.guideLineH2 {
+  position: absolute;
+  top: 66.66%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.guideLineV1 {
+  position: absolute;
+  left: 33.33%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.guideLineV2 {
+  position: absolute;
+  left: 66.66%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Zoom slider row */
+.zoomSliderContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.zoomIcon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.zoomSlider {
+  flex: 1;
+  max-width: 200px;
 }
 
 /* Modal Actions */

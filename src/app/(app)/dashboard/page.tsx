@@ -1626,6 +1626,8 @@ export default function DashboardPage() {
       if (profilesError) throw profilesError;
 
       // 4. Update local component state
+      setEditPhotoFile(null);
+      setEditPhotoDataUrl("");
       setMyFirstName(editFirstName.trim());
       setMyLastName(editLastName.trim());
       setMyDob(editDob);
@@ -3130,10 +3132,10 @@ export default function DashboardPage() {
                     />
                     
                     {editPhotoDataUrl && (
-                      <div style={{ marginTop: "0.5rem" }}>
+                      <div style={{ marginTop: "0.75rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
                         <div 
                           ref={editContainerRef}
-                          className={s.cropViewport}
+                          className={s.cropWrapper}
                           onMouseDown={handleEditMouseDown}
                           onMouseMove={handleEditMouseMove}
                           onMouseUp={handleEditMouseUp}
@@ -3145,33 +3147,61 @@ export default function DashboardPage() {
                           <img
                             ref={editImgRef}
                             src={editPhotoDataUrl}
+                            className={s.cropImage}
                             alt="Crop source"
                             style={{
-                              position: "absolute",
                               transform: `translate(${editOffset.x}px, ${editOffset.y}px) scale(${editScale})`,
-                              transformOrigin: "top left",
+                              transformOrigin: "0 0",
+                              width: "100%",
+                              height: "auto",
                               userSelect: "none",
                               pointerEvents: "none",
                             }}
+                            onLoad={(e) => {
+                              const img = e.currentTarget;
+                              const w = img.naturalWidth;
+                              const h = img.naturalHeight;
+                              const sh = 280 * (h / w);
+                              setEditOffset({
+                                x: 0,
+                                y: h > w ? (280 - sh) / 2 : 0
+                              });
+                            }}
                           />
-                          <div className={s.cropCircleMask} />
+                          {/* Thirds Guidelines */}
+                          <div className={s.guideLineH1} />
+                          <div className={s.guideLineH2} />
+                          <div className={s.guideLineV1} />
+                          <div className={s.guideLineV2} />
+                          {/* Circular Cutout Mask */}
+                          <div className={s.circleCutout} />
                         </div>
 
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.5rem" }}>
-                          <span className={s.editFieldLabel} style={{ flexShrink: 0 }}>Zoom</span>
+                        <div className={s.zoomSliderContainer} style={{ width: "100%", maxWidth: "280px" }}>
+                          <svg className={s.zoomIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            <line x1="8" y1="11" x2="14" y2="11" />
+                          </svg>
                           <input
                             type="range"
                             min="1"
                             max="3"
-                            step="0.01"
+                            step="0.05"
                             value={editScale}
                             onChange={(e) => {
                               const nextScale = parseFloat(e.target.value);
                               setEditScale(nextScale);
                               setEditOffset(clampEditOffset(editOffset.x, editOffset.y, nextScale));
                             }}
-                            className={s.rangeSlider}
+                            className={s.zoomSlider}
                           />
+                          <svg className={s.zoomIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            <line x1="11" y1="8" x2="11" y2="14" />
+                            <line x1="8" y1="11" x2="14" y2="11" />
+                          </svg>
                         </div>
                       </div>
                     )}
