@@ -951,7 +951,7 @@ export default function DashboardPage() {
       if (isNameShared) {
         partnerName = `${partner.first_name || ""} ${partner.last_name || ""}`.trim() || "Your Blind Date";
       } else {
-        partnerName = partner.first_name || "Your Blind Date";
+        partnerName = "Your Blind Date";
       }
       if (partner.date_of_birth) {
         const dob = new Date(partner.date_of_birth);

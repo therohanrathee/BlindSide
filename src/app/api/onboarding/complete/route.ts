@@ -68,20 +68,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Insert or update public.profiles
-    const profileInsert: any = {
-      user_id: userId,
-      hobbies: hobbies || [],
-      dietary: dietary || "no_preference",
-      drinking: drinking || "sober",
-      smoking: smoking || "non_smoker",
-      fitness: fitness || "not_active",
-      updated_at: new Date().toISOString(),
-    };
+
 
     const { error: profileError } = await supabase
       .from("profiles")
-      .upsert(profileInsert, { onConflict: "user_id" });
+      .update({
+        hobbies: hobbies || [],
+        dietary: dietary || "no_preference",
+        drinking: drinking || "sober",
+        smoking: smoking || "non_smoker",
+        fitness: fitness || "not_active",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
 
     if (profileError) {
       console.error("Failed to upsert profile record in complete route:", profileError);
