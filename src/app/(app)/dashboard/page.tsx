@@ -366,7 +366,13 @@ export default function DashboardPage() {
         setSheetState("expanded");
       }
     }
-    setSheetDragOffset(0);
+  };
+
+  const handleBodyScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (sheetState === "collapsed" && e.currentTarget.scrollTop > 2) {
+      e.currentTarget.scrollTop = 0;
+      setSheetState("expanded");
+    }
   };
 
   // State 1: Search Preferences
@@ -3010,7 +3016,7 @@ export default function DashboardPage() {
                     <h3>Details & Planning</h3>
                     <button type="button" className={s.closeDrawerBtn} onClick={() => setShowMobileInfoDrawer(false)}>×</button>
                   </div>
-                  <div className={s.mobileInfoDrawerBody}>
+                  <div className={s.mobileInfoDrawerBody} onScroll={handleBodyScroll}>
                     {renderLeftColumnContent()}
                   </div>
                 </div>
