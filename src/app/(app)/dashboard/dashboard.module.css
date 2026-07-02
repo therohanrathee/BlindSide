@@ -2937,6 +2937,11 @@
     box-shadow: none !important;
     background: var(--bg-primary) !important;
   }
+
+  .select,
+  .input {
+    font-size: 16px !important;
+  }
 }
 
 /* Primary Meet Button & States */

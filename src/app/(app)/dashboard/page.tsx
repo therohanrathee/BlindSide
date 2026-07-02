@@ -2488,6 +2488,11 @@ export default function DashboardPage() {
                       className={s.input}
                       value={newMessageText}
                       onChange={(e) => setNewMessageText(e.target.value)}
+                      enterKeyHint="send"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="none"
+                      spellCheck={false}
                     />
                     <button type="submit" className={s.sendBtn} disabled={!newMessageText.trim()}>
                       <SendIcon />
