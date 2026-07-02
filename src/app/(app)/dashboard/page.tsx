@@ -290,6 +290,7 @@ export default function DashboardPage() {
 
   // Profile Edit Modal States
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editModalSection, setEditModalSection] = useState<"overview" | "identity" | "stats" | "lifestyle" | "hobbies">("overview");
   const [editFirstName, setEditFirstName] = useState("");
   const [editLastName, setEditLastName] = useState("");
   const [editDob, setEditDob] = useState("");
@@ -1444,6 +1445,7 @@ export default function DashboardPage() {
     setEditScale(1.0);
     setEditOffset({ x: 0, y: 0 });
     setIsEditingProfile(true);
+    setEditModalSection("overview");
     setActionError("");
   };
 
@@ -2896,255 +2898,588 @@ export default function DashboardPage() {
         <div className={s.editOverlayModal}>
           <div className={s.editModalContent}>
             <div className={s.modalHeader}>
-              <h2 className={s.modalTitle}>Edit Profile Details</h2>
-              <button className={s.closeModalBtn} onClick={() => setIsEditingProfile(false)}>×</button>
+              <h2 className={s.modalTitle}>
+                {editModalSection === "overview" && "Edit Profile Details"}
+                {editModalSection === "identity" && "Edit Identity & Photo"}
+                {editModalSection === "stats" && "Edit Physical Stats"}
+                {editModalSection === "lifestyle" && "Edit Lifestyle Traits"}
+                {editModalSection === "hobbies" && "Edit Hobbies"}
+              </h2>
+              {editModalSection !== "overview" ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setEditModalSection("overview")}
+                  style={{ fontSize: "11px", fontWeight: "750" }}
+                >
+                  ← Overview
+                </button>
+              ) : (
+                <button className={s.closeModalBtn} onClick={() => setIsEditingProfile(false)}>×</button>
+              )}
             </div>
 
             {actionError && <div className={s.errorAlert}>{actionError}</div>}
 
-            {/* Form Scrollable Content */}
+            {/* Scrollable Modal Content */}
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", overflowY: "auto", paddingRight: "4px" }}>
               
-              {/* Profile Image Cropper */}
-              <div className={s.editFieldGroup}>
-                <span className={s.editFieldLabel}>Profile Image</span>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleEditPhotoChange} 
-                  style={{ fontSize: "12px" }}
-                />
-                
-                {editPhotoDataUrl && (
-                  <div style={{ marginTop: "0.5rem" }}>
-                    <div 
-                      ref={editContainerRef}
-                      className={s.cropViewport}
-                      onMouseDown={handleEditMouseDown}
-                      onMouseMove={handleEditMouseMove}
-                      onMouseUp={handleEditMouseUp}
-                      onMouseLeave={handleEditMouseUp}
-                      onTouchStart={handleEditTouchStart}
-                      onTouchMove={handleEditTouchMove}
-                      onTouchEnd={handleEditMouseUp}
-                    >
-                      <img
-                        ref={editImgRef}
-                        src={editPhotoDataUrl}
-                        alt="Crop source"
-                        style={{
-                          position: "absolute",
-                          transform: `translate(${editOffset.x}px, ${editOffset.y}px) scale(${editScale})`,
-                          transformOrigin: "top left",
-                          userSelect: "none",
-                          pointerEvents: "none",
-                        }}
-                      />
-                      <div className={s.cropCircleMask} />
+              {/* ==================== OVERVIEW STATE ==================== */}
+              {editModalSection === "overview" && (
+                <div className={s.modalTransitionWrapper}>
+                  <p className={s.subHint}>Click on any of the cards below to modify your profile settings.</p>
+                  
+                  <div className={s.infographicGrid}>
+                    
+                    {/* Identity Tile */}
+                    <div className={s.infoTile} onClick={() => setEditModalSection("identity")}>
+                      <div className={s.infoTileHeader}>
+                        <span className={s.infoTileTitle}>Identity & Photo</span>
+                        <span className={s.infoTileEditIcon}>✏️ Edit</span>
+                      </div>
+                      <div className={s.infoTileContent} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "1rem" }}>
+                        <div className={s.profilePhotoContainer} style={{ width: "50px", height: "50px", margin: 0, flexShrink: 0 }}>
+                          {editPhotoDataUrl ? (
+                            <img src={editPhotoDataUrl} alt="Avatar Preview" className={s.profilePhotoImg} />
+                          ) : myPhotoSignedUrl ? (
+                            <img src={myPhotoSignedUrl} alt="Avatar" className={s.profilePhotoImg} />
+                          ) : (
+                            <div className={s.profilePhotoPlaceholder} style={{ fontSize: "20px" }}>👤</div>
+                          )}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontWeight: 800, fontSize: "13px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {editFirstName} {editLastName || ""}
+                          </div>
+                          <div style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px" }}>
+                            🎂 {editDob ? `${new Date().getFullYear() - new Date(editDob).getFullYear()} yrs` : "No Birthday"} • {editGender === "male" ? "Male ♂️" : editGender === "female" ? "Female ♀️" : "Non-binary ⚧️"}
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.5rem" }}>
-                      <span className={s.editFieldLabel} style={{ flexShrink: 0 }}>Zoom</span>
+                    {/* Stats Tile */}
+                    <div className={s.infoTile} onClick={() => setEditModalSection("stats")}>
+                      <div className={s.infoTileHeader}>
+                        <span className={s.infoTileTitle}>Physical Stats</span>
+                        <span className={s.infoTileEditIcon}>✏️ Edit</span>
+                      </div>
+                      <div className={s.infoTileContent}>
+                        <div style={{ fontSize: "11px", display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ color: "var(--text-muted)" }}>Height</span>
+                          <span style={{ fontWeight: 700 }}>{cmToFtIn(editHeightCm).ft}′{cmToFtIn(editHeightCm).inches}″ ({editHeightCm} cm)</span>
+                        </div>
+                        <div style={{ fontSize: "11px", display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ color: "var(--text-muted)" }}>Weight</span>
+                          <span style={{ fontWeight: 700 }}>{editWeightKg} kg</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Lifestyle Tile */}
+                    <div className={s.infoTile} onClick={() => setEditModalSection("lifestyle")}>
+                      <div className={s.infoTileHeader}>
+                        <span className={s.infoTileTitle}>Lifestyle Traits</span>
+                        <span className={s.infoTileEditIcon}>✏️ Edit</span>
+                      </div>
+                      <div className={s.infoTileContent} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
+                        <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
+                          🥦 {editDietary === "veg" ? "Veg" : editDietary === "non_veg" ? "Non-Veg" : editDietary === "vegan" ? "Vegan" : editDietary === "eggitarian" ? "Eggy" : "Diet"}
+                        </div>
+                        <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
+                          🍻 {editDrinking === "sober" ? "Sober" : editDrinking === "socially" ? "Socially" : editDrinking === "frequently" ? "Frequent" : editDrinking === "regularly" ? "Regular" : "Drinking"}
+                        </div>
+                        <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
+                          🚬 {editSmoking === "non_smoker" ? "Non-Smoker" : editSmoking === "occasionally" ? "Occasionally" : editSmoking === "regularly" ? "Regularly" : "Smoking"}
+                        </div>
+                        <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
+                          🏋️‍♂️ {editFitness === "not_active" ? "Inactive" : editFitness === "active" ? "Active" : editFitness === "gym_freak" ? "Gym Freak" : "Fitness"}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Hobbies Tile */}
+                    <div className={s.infoTile} onClick={() => setEditModalSection("hobbies")}>
+                      <div className={s.infoTileHeader}>
+                        <span className={s.infoTileTitle}>Hobbies & vibe</span>
+                        <span className={s.infoTileEditIcon}>✏️ Edit</span>
+                      </div>
+                      <div className={s.infoTileContent} style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem" }}>
+                        {editHobbies.map((hob) => {
+                          const hObj = HOBBIES_LIST.find((x) => x.name === hob);
+                          return (
+                            <span key={hob} style={{ fontSize: "9px", background: "var(--bg-surface)", padding: "2px 5px", borderRadius: "4px", border: "1px solid var(--border)", display: "inline-flex", alignItems: "center", gap: "2px" }}>
+                              {hObj?.emoji || "✨"} {hob}
+                            </span>
+                          );
+                        })}
+                        {editHobbies.length === 0 && (
+                          <span style={{ fontSize: "10px", color: "var(--text-muted)", fontStyle: "italic" }}>No hobbies</span>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Master Modal Save Actions */}
+                  <div className={s.modalActions} style={{ marginTop: "2rem" }}>
+                    <button 
+                      type="button"
+                      className="btn btn-ghost" 
+                      onClick={() => setIsEditingProfile(false)}
+                      disabled={submitting}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="button"
+                      className="btn btn-primary btn-pill" 
+                      onClick={handleSaveProfileChanges}
+                      disabled={submitting || editPhotoLoading}
+                    >
+                      {submitting ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ==================== IDENTITY STATE ==================== */}
+              {editModalSection === "identity" && (
+                <div className={s.modalTransitionWrapper} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                  <h2 className={s.subTitle}>What should we call you?</h2>
+                  <p className={s.subHint}>Enter your basic identity details.</p>
+
+                  <div className={s.inlineFormGrid}>
+                    <div className={s.editFieldGroup}>
+                      <label className={s.editFieldLabel}>First Name</label>
                       <input
-                        type="range"
-                        min="1"
-                        max="3"
-                        step="0.01"
-                        value={editScale}
-                        onChange={(e) => {
-                          const nextScale = parseFloat(e.target.value);
-                          setEditScale(nextScale);
-                          setEditOffset(clampEditOffset(editOffset.x, editOffset.y, nextScale));
-                        }}
-                        style={{ flex: 1 }}
+                        type="text"
+                        className={s.editInputText}
+                        value={editFirstName}
+                        onChange={(e) => setEditFirstName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className={s.editFieldGroup}>
+                      <label className={s.editFieldLabel}>Last Name (Optional)</label>
+                      <input
+                        type="text"
+                        className={s.editInputText}
+                        value={editLastName}
+                        onChange={(e) => setEditLastName(e.target.value)}
                       />
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* First & Last Name */}
-              <div className={s.inlineFormGrid}>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>First Name</label>
-                  <input
-                    type="text"
-                    className={s.editInputText}
-                    value={editFirstName}
-                    onChange={(e) => setEditFirstName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>Last Name (Optional)</label>
-                  <input
-                    type="text"
-                    className={s.editInputText}
-                    value={editLastName}
-                    onChange={(e) => setEditLastName(e.target.value)}
-                  />
-                </div>
-              </div>
+                  <div className={s.editFieldGroup}>
+                    <label className={s.editFieldLabel}>Birthday</label>
+                    <input
+                      type="date"
+                      className={s.editInputText}
+                      value={editDob}
+                      onChange={(e) => setEditDob(e.target.value)}
+                    />
+                  </div>
 
-              {/* DOB & Gender */}
-              <div className={s.inlineFormGrid}>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>Date of Birth</label>
-                  <input
-                    type="date"
-                    className={s.editInputText}
-                    value={editDob}
-                    onChange={(e) => setEditDob(e.target.value)}
-                  />
-                </div>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>Gender</label>
-                  <select
-                    className={s.editSelect}
-                    value={editGender}
-                    onChange={(e) => setEditGender(e.target.value)}
-                  >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                  </select>
-                </div>
-              </div>
+                  {/* Gender SVG Selection Grid */}
+                  <div className={s.editFieldGroup} style={{ marginTop: "0.5rem" }}>
+                    <label className={s.editFieldLabel}>How do you identify?</label>
+                    <div className={s.genderGrid}>
+                      {[
+                        { key: "male", label: "Male", Svg: MaleSVG },
+                        { key: "female", label: "Female", Svg: FemaleSVG },
+                        { key: "nonbinary", label: "Non-binary", Svg: NonBinarySVG },
+                      ].map((g) => {
+                        const active = editGender === g.key;
+                        const fill = active ? "url(#accentGradGender)" : "var(--text-muted)";
+                        return (
+                          <button
+                            key={g.key}
+                            type="button"
+                            className={`${s.genderCardBtn} ${active ? s.genderCardActive : ""}`}
+                            onClick={() => setEditGender(g.key)}
+                          >
+                            <g.Svg fill={fill} />
+                            <span>{g.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-              {/* Height & Weight */}
-              <div className={s.inlineFormGrid}>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>Height (cm): {editHeightCm} cm ({cmToFtIn(editHeightCm).ft}′{cmToFtIn(editHeightCm).inches}″)</label>
-                  <input
-                    type="range"
-                    min="120"
-                    max="220"
-                    step="1"
-                    value={editHeightCm}
-                    onChange={(e) => setEditHeightCm(parseInt(e.target.value))}
-                  />
-                </div>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>Weight (kg): {editWeightKg} kg</label>
-                  <input
-                    type="range"
-                    min="40"
-                    max="150"
-                    step="1"
-                    value={editWeightKg}
-                    onChange={(e) => setEditWeightKg(parseInt(e.target.value))}
-                  />
-                </div>
-              </div>
+                  {/* Avatar Upload & Pan/Zoom */}
+                  <div className={s.editFieldGroup} style={{ marginTop: "0.5rem" }}>
+                    <label className={s.editFieldLabel}>Profile Image</label>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleEditPhotoChange} 
+                      style={{ fontSize: "12px" }}
+                    />
+                    
+                    {editPhotoDataUrl && (
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <div 
+                          ref={editContainerRef}
+                          className={s.cropViewport}
+                          onMouseDown={handleEditMouseDown}
+                          onMouseMove={handleEditMouseMove}
+                          onMouseUp={handleEditMouseUp}
+                          onMouseLeave={handleEditMouseUp}
+                          onTouchStart={handleEditTouchStart}
+                          onTouchMove={handleEditTouchMove}
+                          onTouchEnd={handleEditMouseUp}
+                        >
+                          <img
+                            ref={editImgRef}
+                            src={editPhotoDataUrl}
+                            alt="Crop source"
+                            style={{
+                              position: "absolute",
+                              transform: `translate(${editOffset.x}px, ${editOffset.y}px) scale(${editScale})`,
+                              transformOrigin: "top left",
+                              userSelect: "none",
+                              pointerEvents: "none",
+                            }}
+                          />
+                          <div className={s.cropCircleMask} />
+                        </div>
 
-              {/* Dietary & Drinking */}
-              <div className={s.inlineFormGrid}>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>Dietary Option</label>
-                  <select
-                    className={s.editSelect}
-                    value={editDietary}
-                    onChange={(e) => setEditDietary(e.target.value)}
-                  >
-                    <option value="veg">Vegetarian 🥦</option>
-                    <option value="non_veg">Non-Vegetarian 🍗</option>
-                    <option value="vegan">Vegan 🌱</option>
-                    <option value="eggitarian">Eggitarian 🥚</option>
-                    <option value="no_preference">No Preference</option>
-                  </select>
-                </div>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>Drinking Habits</label>
-                  <select
-                    className={s.editSelect}
-                    value={editDrinking}
-                    onChange={(e) => setEditDrinking(e.target.value)}
-                  >
-                    <option value="sober">Sober 🚫</option>
-                    <option value="socially">Socially 🍻</option>
-                    <option value="frequently">Frequently 🍷</option>
-                    <option value="regularly">Regularly 🥃</option>
-                    <option value="no_preference">No Preference</option>
-                  </select>
-                </div>
-              </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.5rem" }}>
+                          <span className={s.editFieldLabel} style={{ flexShrink: 0 }}>Zoom</span>
+                          <input
+                            type="range"
+                            min="1"
+                            max="3"
+                            step="0.01"
+                            value={editScale}
+                            onChange={(e) => {
+                              const nextScale = parseFloat(e.target.value);
+                              setEditScale(nextScale);
+                              setEditOffset(clampEditOffset(editOffset.x, editOffset.y, nextScale));
+                            }}
+                            className={s.rangeSlider}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-              {/* Smoking & Fitness */}
-              <div className={s.inlineFormGrid}>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>Smoking Habits</label>
-                  <select
-                    className={s.editSelect}
-                    value={editSmoking}
-                    onChange={(e) => setEditSmoking(e.target.value)}
-                  >
-                    <option value="non_smoker">Non-Smoker 🚭</option>
-                    <option value="occasionally">Occasionally 🚬</option>
-                    <option value="regularly">Regularly 💨</option>
-                    <option value="no_preference">No Preference</option>
-                  </select>
+                  <div className={s.modalActions} style={{ marginTop: "1rem" }}>
+                    <button 
+                      type="button"
+                      className="btn btn-primary btn-pill" 
+                      style={{ width: "100%" }}
+                      onClick={() => setEditModalSection("overview")}
+                    >
+                      Apply & Back
+                    </button>
+                  </div>
                 </div>
-                <div className={s.editFieldGroup}>
-                  <label className={s.editFieldLabel}>Activity / Fitness</label>
-                  <select
-                    className={s.editSelect}
-                    value={editFitness}
-                    onChange={(e) => setEditFitness(e.target.value)}
-                  >
-                    <option value="not_active">Not Active 🛋️</option>
-                    <option value="active">Active 🏃‍♂️</option>
-                    <option value="gym_freak">Gym Freak 🏋️‍♂️</option>
-                    <option value="no_preference">No Preference</option>
-                  </select>
+              )}
+
+              {/* ==================== STATS STATE ==================== */}
+              {editModalSection === "stats" && (
+                <div className={s.modalTransitionWrapper} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                  <div>
+                    <h2 className={s.subTitle}>How tall are you?</h2>
+                    <div className={s.statsBadge}>
+                      {cmToFtIn(editHeightCm).ft}′{cmToFtIn(editHeightCm).inches}″ ({editHeightCm} cm)
+                    </div>
+                    <input
+                      type="range"
+                      min="120"
+                      max="220"
+                      step="1"
+                      value={editHeightCm}
+                      onChange={(e) => setEditHeightCm(parseInt(e.target.value))}
+                      className={s.rangeSlider}
+                    />
+                  </div>
+
+                  <div>
+                    <h2 className={s.subTitle}>What is your weight?</h2>
+                    <div className={s.statsBadge}>{editWeightKg} kg</div>
+                    <input
+                      type="range"
+                      min="40"
+                      max="150"
+                      step="1"
+                      value={editWeightKg}
+                      onChange={(e) => setEditWeightKg(parseInt(e.target.value))}
+                      className={s.rangeSlider}
+                    />
+                  </div>
+
+                  <div className={s.modalActions} style={{ marginTop: "1rem" }}>
+                    <button 
+                      type="button"
+                      className="btn btn-primary btn-pill" 
+                      style={{ width: "100%" }}
+                      onClick={() => setEditModalSection("overview")}
+                    >
+                      Apply & Back
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Hobbies Edit Selector */}
-              <div className={s.editFieldGroup}>
-                <label className={s.editFieldLabel}>
-                  Hobbies (Select exactly 3): <span style={{ color: editHobbies.length === 3 ? "var(--success)" : "var(--accent-primary)" }}>{editHobbies.length}/3 Selected</span>
-                </label>
-                <div className={s.hobbiesEditGrid}>
-                  {HOBBIES_LIST.map((hob) => {
-                    const active = editHobbies.includes(hob.name);
-                    return (
-                      <button
-                        key={hob.name}
-                        type="button"
-                        className={`${s.hobbyEditBtn} ${active ? s.hobbyEditBtnActive : ""}`}
-                        onClick={() => handleToggleEditHobby(hob.name)}
-                      >
-                        <span>{hob.emoji}</span>
-                        <span>{hob.name}</span>
-                      </button>
-                    );
-                  })}
+              {/* ==================== LIFESTYLE STATE ==================== */}
+              {editModalSection === "lifestyle" && (
+                <div className={s.modalTransitionWrapper} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                  
+                  {/* Dietary Preference Grid */}
+                  <div className={s.editFieldGroup}>
+                    <label className={s.editFieldLabel}>Dietary Preferences</label>
+                    <div className={s.capsuleGrid}>
+                      {[
+                        { key: "veg", label: "Vegetarian 🥦", Svg: VegSVG },
+                        { key: "non_veg", label: "Non-Veg 🍗", Svg: NonVegSVG },
+                        { key: "vegan", label: "Vegan 🌱", Svg: VeganSVG },
+                        { key: "eggitarian", label: "Eggy 🥚", Svg: EggetarianSVG },
+                        { key: "no_preference", label: "No Preference", Svg: SoberSVG },
+                      ].map((d) => {
+                        const active = editDietary === d.key;
+                        const fill = active ? "url(#accentGrad)" : "currentColor";
+                        return (
+                          <button
+                            key={d.key}
+                            type="button"
+                            className={`${s.capsuleBtn} ${active ? s.capsuleBtnActive : ""}`}
+                            onClick={() => setEditDietary(d.key)}
+                          >
+                            <d.Svg fill={fill} />
+                            <span>{d.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Drinking Habits Grid */}
+                  <div className={s.editFieldGroup}>
+                    <label className={s.editFieldLabel}>Drinking Habits</label>
+                    <div className={s.capsuleGrid}>
+                      {[
+                        { key: "sober", label: "Sober 🚫", Svg: SoberSVG },
+                        { key: "socially", label: "Socially 🍻", Svg: DrinkSociallySVG },
+                        { key: "frequently", label: "Frequently 🍷", Svg: DrinkOccasionallySVG },
+                        { key: "regularly", label: "Regularly 🥃", Svg: DrinkRegularlySVG },
+                        { key: "no_preference", label: "No Preference", Svg: SoberSVG },
+                      ].map((dr) => {
+                        const active = editDrinking === dr.key;
+                        const fill = active ? "url(#accentGrad)" : "currentColor";
+                        return (
+                          <button
+                            key={dr.key}
+                            type="button"
+                            className={`${s.capsuleBtn} ${active ? s.capsuleBtnActive : ""}`}
+                            onClick={() => setEditDrinking(dr.key)}
+                          >
+                            <dr.Svg fill={fill} />
+                            <span>{dr.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Smoking Habits Grid */}
+                  <div className={s.editFieldGroup}>
+                    <label className={s.editFieldLabel}>Smoking Habits</label>
+                    <div className={s.capsuleGrid}>
+                      {[
+                        { key: "non_smoker", label: "Non-Smoker 🚭", Svg: NonSmokingSVG },
+                        { key: "occasionally", label: "Occasionally 🚬", Svg: SmokeOccasionallySVG },
+                        { key: "regularly", label: "Regularly 💨", Svg: SmokeRegularlySVG },
+                        { key: "no_preference", label: "No Preference", Svg: SoberSVG },
+                      ].map((sm) => {
+                        const active = editSmoking === sm.key;
+                        const fill = active ? "url(#accentGrad)" : "currentColor";
+                        return (
+                          <button
+                            key={sm.key}
+                            type="button"
+                            className={`${s.capsuleBtn} ${active ? s.capsuleBtnActive : ""}`}
+                            onClick={() => setEditSmoking(sm.key)}
+                          >
+                            <sm.Svg fill={fill} />
+                            <span>{sm.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Fitness Habits Grid */}
+                  <div className={s.editFieldGroup}>
+                    <label className={s.editFieldLabel}>Fitness Activity</label>
+                    <div className={s.capsuleGrid}>
+                      {[
+                        { key: "not_active", label: "Not Active 🛋️", Svg: FitnessRelaxedSVG },
+                        { key: "active", label: "Active 🏃‍♂️", Svg: FitnessCasualSVG },
+                        { key: "gym_freak", label: "Gym Freak 🏋️‍♂️", Svg: FitnessGymRatSVG },
+                        { key: "no_preference", label: "No Preference", Svg: SoberSVG },
+                      ].map((fit) => {
+                        const active = editFitness === fit.key;
+                        const fill = active ? "url(#accentGrad)" : "currentColor";
+                        return (
+                          <button
+                            key={fit.key}
+                            type="button"
+                            className={`${s.capsuleBtn} ${active ? s.capsuleBtnActive : ""}`}
+                            onClick={() => setEditFitness(fit.key)}
+                          >
+                            <fit.Svg fill={fill} />
+                            <span>{fit.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className={s.modalActions} style={{ marginTop: "1rem" }}>
+                    <button 
+                      type="button"
+                      className="btn btn-primary btn-pill" 
+                      style={{ width: "100%" }}
+                      onClick={() => setEditModalSection("overview")}
+                    >
+                      Apply & Back
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
-            </div>
+              {/* ==================== HOBBIES STATE ==================== */}
+              {editModalSection === "hobbies" && (
+                <div className={s.modalTransitionWrapper} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <h2 className={s.subTitle}>Choose your vibe</h2>
+                  <p className={s.subHint}>Pick exactly 3 hobbies that represent you best.</p>
 
-            {/* Modal Footer Actions */}
-            <div className={s.modalActions}>
-              <button 
-                type="button"
-                className="btn btn-ghost" 
-                onClick={() => setIsEditingProfile(false)}
-                disabled={submitting}
-              >
-                Cancel
-              </button>
-              <button 
-                type="button"
-                className="btn btn-primary btn-pill" 
-                onClick={handleSaveProfileChanges}
-                disabled={submitting || editPhotoLoading}
-              >
-                {submitting ? "Saving..." : "Save Changes"}
-              </button>
+                  <div className={s.hobbiesEditGrid}>
+                    {HOBBIES_LIST.map((hob) => {
+                      const active = editHobbies.includes(hob.name);
+                      const isMax = editHobbies.length >= 3 && !active;
+                      return (
+                        <button
+                          key={hob.name}
+                          type="button"
+                          className={`${s.hobbyEditBtn} ${active ? s.hobbyEditBtnActive : ""} ${isMax ? s.hobbyEditDisabled : ""}`}
+                          onClick={() => handleToggleEditHobby(hob.name)}
+                          disabled={isMax}
+                        >
+                          <span>{hob.emoji}</span>
+                          <span>{hob.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className={s.modalActions} style={{ marginTop: "1.5rem" }}>
+                    <button 
+                      type="button"
+                      className="btn btn-primary btn-pill" 
+                      style={{ width: "100%" }}
+                      onClick={() => setEditModalSection("overview")}
+                      disabled={editHobbies.length !== 3}
+                    >
+                      Apply & Back ({editHobbies.length}/3)
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+/* ── Missing SVG silhouettes for Edit Profile Modal ────────── */
+
+function NonBinarySVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 80 120" fill={fill} className={s.genderIcon}>
+      <circle cx="40" cy="18" r="13"/>
+      <path d="M25 46 Q25 34 33 34 L47 34 Q55 34 55 46 L53 82 Q52 87 47 87 L33 87 Q28 87 27 82 Z"/>
+      <rect x="28" y="89" width="10" height="28" rx="5"/>
+      <rect x="42" y="89" width="10" height="28" rx="5"/>
+      <circle cx="40" cy="56" r="8" fill="none" stroke={fill} strokeWidth="2.5"/>
+      <line x1="40" y1="48" x2="40" y2="42" stroke={fill} strokeWidth="2.5"/>
+      <line x1="36" y1="62" x2="33" y2="67" stroke={fill} strokeWidth="2.5"/>
+      <line x1="44" y1="62" x2="47" y2="67" stroke={fill} strokeWidth="2.5"/>
+    </svg>
+  );
+}
+
+function EggetarianSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3C8.5 3 5.5 8 5.5 13a6.5 6.5 0 0 0 13 0c0-5-3-10-6.5-10z" />
+      <circle cx="12" cy="13" r="3" fill={fill} />
+    </svg>
+  );
+}
+
+function DrinkOccasionallySVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 4h12v6c0 3.3-2.7 6-6 6s-6-2.7-6-6V4z" />
+      <line x1="12" y1="16" x2="12" y2="20" />
+      <line x1="9" y1="20" x2="15" y2="20" />
+    </svg>
+  );
+}
+
+function DrinkRegularlySVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 8h5v11H6V8z" />
+      <path d="M7.5 8V5.5h2V8" />
+      <path d="M7 5.5h3v-2H7z" />
+      <path d="M7.5 12h2" />
+      <path d="M14 9h6v4c0 1.5-1 2.5-2.5 2.5S15 14.5 15 13V9z" />
+      <path d="M17.5 15.5v4.5" />
+      <path d="M15.5 20h4" />
+    </svg>
+  );
+}
+
+function FitnessRelaxedSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 13V9c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v4" />
+      <path d="M2 13h20v3c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2v-3z" />
+      <path d="M6 18v2M18 18v2" />
+      <path d="M12 7v6" />
+    </svg>
+  );
+}
+
+function FitnessCasualSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="5.5" cy="15.5" r="3.5" />
+      <circle cx="18.5" cy="15.5" r="3.5" />
+      <path d="M5.5 15.5l5-6.5H16l2.5 6.5" />
+      <path d="M10.5 9L12.5 15.5" />
+      <path d="M15 9.5l1.5-2h1.5" />
+      <path d="M9.5 9H12" />
+    </svg>
+  );
+}
+
+function FitnessGymRatSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="9" width="2" height="6" rx="0.5" />
+      <rect x="3" y="7" width="2" height="10" rx="1" />
+      <rect x="19" y="7" width="2" height="10" rx="1" />
+      <rect x="21" y="9" width="2" height="6" rx="0.5" />
+      <line x1="5" y1="12" x2="19" y2="12" strokeWidth="3" />
+    </svg>
   );
 }

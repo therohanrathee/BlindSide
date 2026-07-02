@@ -2221,4 +2221,216 @@
   margin-top: 4px;
 }
 
+/* Infographic profile cards */
+.infographicGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 580px) {
+  .infographicGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.infoTile {
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.infoTile:hover {
+  background: var(--bg-surface);
+  border-color: var(--accent-primary);
+  box-shadow: 0 8px 24px rgba(232, 58, 114, 0.08);
+  transform: translateY(-2px);
+}
+
+.infoTileHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.infoTileTitle {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.infoTileEditIcon {
+  font-size: 10px;
+  color: var(--accent-primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.infoTileContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Gender Card Grid in Edit Modal */
+.genderGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+.genderCardBtn {
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.genderCardBtn:hover {
+  background: var(--bg-surface);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+}
+
+.genderCardActive {
+  background: var(--bg-surface);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 15px rgba(232, 58, 114, 0.2);
+}
+
+.genderCardBtn span {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.genderCardActive span {
+  color: var(--accent-primary);
+}
+
+.genderIcon {
+  width: 32px;
+  height: 48px;
+  transition: transform 0.3s;
+}
+
+.genderCardActive .genderIcon {
+  transform: scale(1.1);
+}
+
+/* Infographic stats values */
+.statsBadge {
+  background: var(--accent-gradient);
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 800;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  display: inline-block;
+  margin: 0.5rem auto 1rem auto;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(232, 58, 114, 0.2);
+}
+
+.rangeSlider {
+  width: 100%;
+  accent-color: var(--accent-primary);
+}
+
+/* Capsule grid for dietary & lifestyle */
+.capsuleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 480px) {
+  .capsuleGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.capsuleBtn {
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0.6rem 1rem;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.capsuleBtn:hover {
+  background: var(--bg-surface);
+  border-color: var(--accent-primary);
+}
+
+.capsuleBtnActive {
+  background: var(--bg-surface);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(232, 58, 114, 0.15);
+}
+
+.capsuleBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Onboarding style titles in modal editing view */
+.subTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.subHint {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+/* Anim for morph layout transitions */
+.modalTransitionWrapper {
+  animation: editSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes editSlideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 
