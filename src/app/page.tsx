@@ -64,17 +64,6 @@ export default function LandingPage() {
     };
     checkUser();
   }, [router]);
-
-  if (checkingAuth) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#0e1117" }}>
-        <div style={{ width: "32px", height: "32px", borderRadius: "50%", border: "3px solid rgba(232, 58, 114, 0.15)", borderTopColor: "#e83a72", animation: "spin 0.8s linear infinite" }} />
-        <style>{`
-          @keyframes spin { to { transform: rotate(360deg); } }
-        `}</style>
-      </div>
-    );
-  }
   const [envelopeOpen, setEnvelopeOpen] = useState(false);
   const [chatStage, setChatStage] = useState(0);
 
@@ -152,6 +141,16 @@ export default function LandingPage() {
       desc: "If both parties agree to meet, plan your date in-app. Exactly four hours before your date, we email both of you your match\u2019s photograph and confirmed location details.",
     },
   ];
+  if (checkingAuth) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#0e1117" }}>
+        <div style={{ width: "32px", height: "32px", borderRadius: "50%", border: "3px solid rgba(232, 58, 114, 0.15)", borderTopColor: "#e83a72", animation: "spin 0.8s linear infinite" }} />
+        <style>{`
+          @keyframes spin { to { transform: rotate(360deg); } }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div className={s.landing}>
