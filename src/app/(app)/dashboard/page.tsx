@@ -318,10 +318,28 @@ export default function DashboardPage() {
   const [sheetState, setSheetState] = useState<"collapsed" | "expanded">("collapsed");
   
   const sheetRef = useRef<HTMLDivElement>(null);
+  const leftColRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef(0);
   const startTranslateRef = useRef(0);
   const isDraggingRef = useRef(false);
   const currentTranslateRef = useRef(0);
+
+  // Toggle `inert` on the desktop-only left column so iOS Safari
+  // doesn't count its hidden inputs for keyboard accessory bar navigation.
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 768px)");
+    const sync = () => {
+      if (!leftColRef.current) return;
+      if (mql.matches) {
+        leftColRef.current.setAttribute("inert", "");
+      } else {
+        leftColRef.current.removeAttribute("inert");
+      }
+    };
+    sync();
+    mql.addEventListener("change", sync);
+    return () => mql.removeEventListener("change", sync);
+  }, [dashboardState]);
 
   const handleSheetTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
@@ -2246,7 +2264,7 @@ export default function DashboardPage() {
 
             {/* Left Column: Profile Card (state 0) or Planning/Sharing (state 3) */}
             {dashboardState === 3 ? (
-              <div className={`${s.leftColumn} ${s.desktopOnly}`}>
+              <div ref={leftColRef} className={`${s.leftColumn} ${s.desktopOnly}`}>
                 {renderLeftColumnContent()}
               </div>
             ) : (
