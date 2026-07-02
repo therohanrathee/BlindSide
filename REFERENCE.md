@@ -2,7 +2,7 @@
 
 > **Single source of truth.** This document describes every detail of how BlindSide works — product logic, user flows, database schema, API surface, design tokens, and business rules. Updated alongside code changes.
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-02
 
 ---
 
@@ -1120,6 +1120,24 @@ As of **July 1, 2026**, the following features are fully implemented, verified, 
 10. **AWS SES & SNS suppression webhook Integration**
     - Integrated with AWS SES SDK to handle transaction emails.
     - Webhook endpoint at `/api/webhooks/aws-sns` to receive bounce and complaint notifications, logging them in `bounced_emails` to block bad registrations.
+
+11. **Edit Profile Photo Cropper & Immediate Canvas Rendering**
+    - Moved the `<canvas>` rendering and JPEG compression script inside the Edit Profile Identity sub-step.
+    - Saves cropped photo as `editCroppedBlob` in local state immediately upon clicking "Apply & Back", avoiding DOM reference errors when elements unmount before final save.
+
+12. **Match-Consented Storage Read Policy**
+    - Drafted database migration `017_fix_storage_read_policy.sql` which enforces that User A can select/read User B's profile photo from storage if and only if they are matched and User B has enabled their `shares_photo` toggle.
+
+13. **Master Dashboard Grid Centering & Text-Only Genders**
+    - Standardized Age, Height, and Gender display columns on the profile homepage to use horizontal center alignment (`align-items: center` and `justify-content: center`).
+    - Removed gender logo SVGs and emojis from the UI, rendering gender information strictly as clean text.
+
+14. **Header Wallet Balance & Outside-Dismissible Transactions Dropdown**
+    - Restricted the header wallet balance button to display only on the master profile homepage (`dashboardState === 0`).
+    - Configured the balance trigger to open a transactions popover showing their ledger records (newest on top). Uses a mouse-click listener to dismiss the popover when clicking outside.
+
+15. **Landing Page Scroll-Reveal Observer Mount Fix**
+    - Updated the IntersectionObserver effect on the landing page `/` to depend on `checkingAuth` state, ensuring reveal animations are properly initialized on step cards after the page loads.
 
 ### 16.2 Developer Instructions for AI Coding Agents
 
