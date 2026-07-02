@@ -1422,6 +1422,65 @@ export default function DashboardPage() {
     setSubmitting(false);
   };
 
+  const handleEditConfirmedDate = async () => {
+    if (!activeMatch || !currentProposal) return;
+    setSubmitting(true);
+    try {
+      // 1. Delete confirmed date
+      await supabase
+        .from("confirmed_dates")
+        .delete()
+        .eq("match_id", activeMatch.id);
+
+      // 2. Change proposal status from "approved" to "superseded"
+      await supabase
+        .from("date_proposals")
+        .update({ status: "superseded" })
+        .eq("id", currentProposal.id);
+
+      // 3. Update matches status back to "active"
+      await supabase
+        .from("matches")
+        .update({ status: "active" })
+        .eq("id", activeMatch.id);
+
+      // 4. Send system message
+      await supabase.from("messages").insert({
+        match_id: activeMatch.id,
+        sender_id: null,
+        type: "system",
+        content: `🔄 Confirmed date was edited. Date planning unlocked.`,
+      });
+
+      // 5. Reload proposal status
+      await loadDateProposal(activeMatch.id, userId!);
+      await loadMessages(activeMatch.id);
+    } catch (err) {
+      console.error("Failed to edit confirmed date:", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAddToCalendar = () => {
+    if (!currentProposal) return;
+    const dateStr = currentProposal.proposed_date;
+    const timeStr = currentProposal.proposed_time;
+    const localDate = new Date(`${dateStr}T${timeStr}`);
+    if (isNaN(localDate.getTime())) return;
+    
+    const formatGCalDate = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    const startGCal = formatGCalDate(localDate);
+    const endGCal = formatGCalDate(new Date(localDate.getTime() + 60 * 60 * 1000));
+    
+    const title = encodeURIComponent("BlindSide Date");
+    const location = encodeURIComponent(currentProposal.location_text);
+    const details = encodeURIComponent("Your BlindSide Date is confirmed! Details & photographs will be revealed 4 hours before the meeting via email.");
+    
+    const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startGCal}/${endGCal}&details=${details}&location=${location}`;
+    window.open(gcalUrl, "_blank");
+  };
+
   // Feedback submit (State 4)
   const handleSubmitFeedback = async () => {
     if (!activeMatch) return;
@@ -1787,7 +1846,7 @@ export default function DashboardPage() {
             {userWantsMeet ? (
               <span>✓ Agreed to Meet</span>
             ) : (
-              <span>🤝 Agree to Meet</span>
+              <span>Agree to Meet</span>
             )}
           </button>
           
@@ -1876,23 +1935,43 @@ export default function DashboardPage() {
 
               {proposalStatus === "confirmed" && (
                 <div className={s.proposalMessage} style={{ borderColor: "var(--success)" }}>
-                  <h3 className={s.boxTitle} style={{ color: "var(--success)" }}>🎉 Date Locked!</h3>
+                  <h3 className={s.boxTitle} style={{ color: "var(--success)" }}>Date Locked!</h3>
                   <p className={s.sectionText}>
                     Meeting confirmed: <strong>{currentProposal.proposed_date}</strong> at <strong>{currentProposal.proposed_time.slice(0, 5)}</strong>.
                     <br />
                     Location: <strong>{currentProposal.location_text}</strong>
                   </p>
-                  <a
-                    href={currentProposal.google_maps_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={s.mapsLink}
-                  >
-                    📍 View on Google Maps
-                  </a>
-                  <p className={s.revealNotice}>
-                    🕵️ Check your email T-4 hours before the date to reveal their photo and details!
-                  </p>
+                  
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "1rem" }}>
+                    <a
+                      href={currentProposal.google_maps_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={s.mapsLink}
+                      style={{ width: "100%", textAlign: "center", display: "block" }}
+                    >
+                      📍 View on Google Maps
+                    </a>
+
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-pill btn-sm"
+                      onClick={handleAddToCalendar}
+                      style={{ width: "100%" }}
+                    >
+                      Add to Calendar
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      onClick={handleEditConfirmedDate}
+                      style={{ width: "100%", fontSize: "11px", color: "var(--text-secondary)" }}
+                      disabled={submitting}
+                    >
+                      Edit Date Details
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
