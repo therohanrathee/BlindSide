@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import s from "./page.module.css";
 import EyeLogo from "@/components/EyeLogo";
 import JourneyPath from "@/components/JourneyPath";
@@ -44,8 +46,35 @@ function KeyIcon() {
 }
 
 export default function LandingPage() {
+  const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [visibleSteps, setVisibleSteps] = useState<Set<number>>(new Set());
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkUser = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        router.push("/dashboard");
+      } else {
+        setCheckingAuth(false);
+      }
+    };
+    checkUser();
+  }, [router]);
+
+  if (checkingAuth) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#0e1117" }}>
+        <div style={{ width: "32px", height: "32px", borderRadius: "50%", border: "3px solid rgba(232, 58, 114, 0.15)", borderTopColor: "#e83a72", animation: "spin 0.8s linear infinite" }} />
+        <style>{`
+          @keyframes spin { to { transform: rotate(360deg); } }
+        `}</style>
+      </div>
+    );
+  }
   const [envelopeOpen, setEnvelopeOpen] = useState(false);
   const [chatStage, setChatStage] = useState(0);
 

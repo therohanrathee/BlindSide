@@ -225,6 +225,36 @@ function SmokeNoPrefSVG({ fill }: { fill: string }) {
   );
 }
 
+const HOBBIES_LIST = [
+  { name: "Reading",      emoji: "📚" },
+  { name: "Gaming",       emoji: "🎮" },
+  { name: "Fitness",      emoji: "💪" },
+  { name: "Travel",       emoji: "✈️" },
+  { name: "Cooking",      emoji: "🍳" },
+  { name: "Music",        emoji: "🎵" },
+  { name: "Photography",  emoji: "📷" },
+  { name: "Hiking",       emoji: "🥾" },
+  { name: "Art",          emoji: "🎨" },
+  { name: "Dancing",      emoji: "💃" },
+  { name: "Movies",       emoji: "🎬" },
+  { name: "Sports",       emoji: "⚽" },
+  { name: "Yoga",         emoji: "🧘" },
+  { name: "Coffee",       emoji: "☕" },
+  { name: "Nightlife",    emoji: "🌃" },
+  { name: "Pets",         emoji: "🐾" },
+  { name: "Volunteering", emoji: "🤝" },
+  { name: "Tech",         emoji: "💻" },
+  { name: "Fashion",      emoji: "👗" },
+  { name: "Foodie",       emoji: "🍕" },
+  { name: "Writing",      emoji: "✍️" },
+  { name: "Gardening",    emoji: "🌱" },
+  { name: "Board Games",  emoji: "🎲" },
+  { name: "Anime",        emoji: "🎌" },
+  { name: "Singing",      emoji: "🎤" },
+  { name: "Cycling",      emoji: "🚴" },
+  { name: "Astronomy",    emoji: "🔭" },
+];
+
 export default function DashboardPage() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -237,10 +267,47 @@ export default function DashboardPage() {
   const [isFirstMatch, setIsFirstMatch] = useState(true);
 
   // Match State Machine
-  const [dashboardState, setDashboardState] = useState<1 | 2 | 3 | 4>(1);
+  const [dashboardState, setDashboardState] = useState<0 | 1 | 2 | 3 | 4>(0);
   const [activeRequest, setActiveRequest] = useState<any | null>(null);
   const [activeMatch, setActiveMatch] = useState<any | null>(null);
   const [partnerProfile, setPartnerProfile] = useState<any | null>(null);
+
+  // Master Dashboard States (State 0)
+  const [myFirstName, setMyFirstName] = useState("");
+  const [myLastName, setMyLastName] = useState("");
+  const [myDob, setMyDob] = useState("");
+  const [myGender, setMyGender] = useState("male");
+  const [myHeightCm, setMyHeightCm] = useState(170);
+  const [myWeightKg, setMyWeightKg] = useState(65);
+  const [myPhotoUrl, setMyPhotoUrl] = useState("");
+  const [myPhotoSignedUrl, setMyPhotoSignedUrl] = useState("");
+  const [myDietary, setMyDietary] = useState("no_preference");
+  const [myDrinking, setMyDrinking] = useState("sober");
+  const [mySmoking, setMySmoking] = useState("non_smoker");
+  const [myFitness, setMyFitness] = useState("not_active");
+  const [myHobbies, setMyHobbies] = useState<string[]>([]);
+  const [matchStatus, setMatchStatus] = useState<"none" | "searching" | "matched" | "feedback" | "unpaid">("none");
+
+  // Profile Edit Modal States
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editDob, setEditDob] = useState("");
+  const [editGender, setEditGender] = useState("male");
+  const [editHeightCm, setEditHeightCm] = useState(170);
+  const [editWeightKg, setEditWeightKg] = useState(65);
+  const [editDietary, setEditDietary] = useState("no_preference");
+  const [editDrinking, setEditDrinking] = useState("sober");
+  const [editSmoking, setEditSmoking] = useState("non_smoker");
+  const [editFitness, setEditFitness] = useState("not_active");
+  const [editHobbies, setEditHobbies] = useState<string[]>([]);
+  const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
+  const [editPhotoDataUrl, setEditPhotoDataUrl] = useState("");
+  const [editScale, setEditScale] = useState(1.0);
+  const [editOffset, setEditOffset] = useState({ x: 0, y: 0 });
+  const [editIsDragging, setEditIsDragging] = useState(false);
+  const [editDragStart, setEditDragStart] = useState({ x: 0, y: 0 });
+  const [editPhotoLoading, setEditPhotoLoading] = useState(false);
 
   // State 1: Search Preferences
   const [prefSlide, setPrefSlide] = useState(1);
@@ -265,6 +332,8 @@ export default function DashboardPage() {
   // Range Slider Refs and constants
   const heightRef = useRef<HTMLDivElement>(null);
   const ageRef = useRef<HTMLDivElement>(null);
+  const editImgRef = useRef<HTMLImageElement>(null);
+  const editContainerRef = useRef<HTMLDivElement>(null);
 
   const MIN_CM = 122;
   const MAX_CM = 213;
@@ -558,7 +627,7 @@ export default function DashboardPage() {
       // Load User info
       const { data: userRecord } = await supabase
         .from("users")
-        .select("first_name, last_name, is_onboarding_complete, university_id, universities(name)")
+        .select("first_name, last_name, is_onboarding_complete, university_id, universities(name), date_of_birth, gender, height_cm, weight_kg")
         .eq("id", session.user.id)
         .single();
 
@@ -570,6 +639,39 @@ export default function DashboardPage() {
       const fullName = `${userRecord.first_name || ""} ${userRecord.last_name || ""}`.trim();
       setUserName(fullName || "User");
       setUniversityName((userRecord.universities as any)?.name || "Campus");
+
+      // Load Profile
+      const { data: profileRecord } = await supabase
+        .from("profiles")
+        .select("photo_url, dietary, drinking, smoking, fitness, hobbies")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (userRecord) {
+        setMyFirstName(userRecord.first_name || "");
+        setMyLastName(userRecord.last_name || "");
+        setMyDob(userRecord.date_of_birth || "");
+        setMyGender(userRecord.gender || "male");
+        setMyHeightCm(userRecord.height_cm || 170);
+        setMyWeightKg(userRecord.weight_kg || 65);
+      }
+      if (profileRecord) {
+        setMyPhotoUrl(profileRecord.photo_url || "");
+        setMyDietary(profileRecord.dietary || "no_preference");
+        setMyDrinking(profileRecord.drinking || "sober");
+        setMySmoking(profileRecord.smoking || "non_smoker");
+        setMyFitness(profileRecord.fitness || "not_active");
+        setMyHobbies(profileRecord.hobbies || []);
+
+        if (profileRecord.photo_url) {
+          const { data: signedData } = await supabase.storage
+            .from("photos")
+            .createSignedUrl(profileRecord.photo_url, 3600 * 24);
+          if (signedData?.signedUrl) {
+            setMyPhotoSignedUrl(signedData.signedUrl);
+          }
+        }
+      }
 
       // Load Wallet
       const { data: wallet } = await supabase
@@ -685,10 +787,9 @@ export default function DashboardPage() {
       if (completedMatch) {
         // Date timer passed or manually completed, need feedback
         setActiveMatch(completedMatch);
-        setDashboardState(4);
+        setMatchStatus("feedback");
       } else {
-        setDashboardState(1);
-        setPrefSlide(1);
+        setMatchStatus("none");
       }
       return;
     }
@@ -697,8 +798,7 @@ export default function DashboardPage() {
     setRequestId(request.id);
 
     if (request.status === "unpaid") {
-      setDashboardState(1);
-      setPrefSlide(7); // Go directly to checkout slide
+      setMatchStatus("unpaid");
       // Pre-fill fields from request
       setPrefGender(request.pref_gender);
       setPrefAgeMin(Math.max(18, Math.min(30, request.pref_age_min)));
@@ -710,7 +810,7 @@ export default function DashboardPage() {
       setPrefDrinking(request.pref_drinking);
       setPrefSmoking(request.pref_smoking);
     } else if (request.status === "active") {
-      setDashboardState(2);
+      setMatchStatus("searching");
       startSearchingCountdown(request.expires_at);
     } else if (request.status === "matched") {
       // Find the associated match details
@@ -725,12 +825,12 @@ export default function DashboardPage() {
         const isChatExpired = new Date(match.chat_expires_at).getTime() < Date.now();
         if (isChatExpired) {
           setActiveMatch(match);
-          setDashboardState(4);
+          setMatchStatus("feedback");
           return;
         }
 
         setActiveMatch(match);
-        setDashboardState(3);
+        setMatchStatus("matched");
 
         const isUserA = match.user_a_id === uid;
         setUserWantsMeet(isUserA ? match.user_a_wants_meet : match.user_b_wants_meet);
@@ -749,7 +849,7 @@ export default function DashboardPage() {
         // Load proposal
         await loadDateProposal(match.id, uid);
       } else {
-        setDashboardState(2);
+        setMatchStatus("searching");
         startSearchingCountdown(request.expires_at);
       }
     }
@@ -956,7 +1056,7 @@ export default function DashboardPage() {
       const data = await res.json();
       if (res.ok) {
         setWalletBalance(data.newBalance);
-        setDashboardState(2);
+        setDashboardState(0);
         await refreshMatchStatus(userId!);
       } else {
         setActionError(data.message || "Payment processing failed.");
@@ -1030,7 +1130,7 @@ export default function DashboardPage() {
             const verifyData = await verifyRes.json();
             if (verifyRes.ok) {
               setWalletBalance(verifyData.newBalance);
-              setDashboardState(2);
+              setDashboardState(0);
               await refreshMatchStatus(userId!);
             } else {
               setActionError(verifyData.message || "Payment verification failed.");
@@ -1301,6 +1401,244 @@ export default function DashboardPage() {
     }
   };
 
+  // ==================================================
+  // PROFILE EDITING HELPER METHODS
+  // ==================================================
+  const handleStartEditing = () => {
+    setEditFirstName(myFirstName);
+    setEditLastName(myLastName);
+    setEditDob(myDob);
+    setEditGender(myGender);
+    setEditHeightCm(myHeightCm);
+    setEditWeightKg(myWeightKg);
+    setEditDietary(myDietary);
+    setEditDrinking(myDrinking);
+    setEditSmoking(mySmoking);
+    setEditFitness(myFitness);
+    setEditHobbies(myHobbies);
+
+    // Reset photo crop
+    setEditPhotoFile(null);
+    setEditPhotoDataUrl("");
+    setEditScale(1.0);
+    setEditOffset({ x: 0, y: 0 });
+    setIsEditingProfile(true);
+    setActionError("");
+  };
+
+  const handleToggleEditHobby = (hobbyName: string) => {
+    if (editHobbies.includes(hobbyName)) {
+      setEditHobbies(editHobbies.filter((h) => h !== hobbyName));
+    } else {
+      if (editHobbies.length >= 3) {
+        // limit to exactly 3
+        return;
+      }
+      setEditHobbies([...editHobbies, hobbyName]);
+    }
+  };
+
+  const handleEditPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setEditPhotoFile(file);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setEditPhotoDataUrl(reader.result as string);
+      setEditScale(1.0);
+      setEditOffset({ x: 0, y: 0 });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Drag constraints helper
+  const clampEditOffset = (x: number, y: number, currentScale: number) => {
+    if (!editImgRef.current) return { x, y };
+    const w = editImgRef.current.naturalWidth;
+    const h = editImgRef.current.naturalHeight;
+
+    const cropRadius = 130; // radius of circle in crop box
+    const viewportCenter = 140; // 280 / 2
+
+    const renderW = 280 * currentScale;
+    const renderH = 280 * currentScale * (h / w);
+
+    const minX = viewportCenter - renderW + cropRadius;
+    const maxX = viewportCenter - cropRadius;
+    const minY = viewportCenter - renderH + cropRadius;
+    const maxY = viewportCenter - cropRadius;
+
+    return {
+      x: Math.max(minX, Math.min(maxX, x)),
+      y: Math.max(minY, Math.min(maxY, y)),
+    };
+  };
+
+  const handleEditMouseDown = (e: React.MouseEvent) => {
+    if (!editPhotoDataUrl) return;
+    setEditIsDragging(true);
+    setEditDragStart({
+      x: e.clientX - editOffset.x,
+      y: e.clientY - editOffset.y,
+    });
+  };
+
+  const handleEditMouseMove = (e: React.MouseEvent) => {
+    if (!editIsDragging) return;
+    const newX = e.clientX - editDragStart.x;
+    const newY = e.clientY - editDragStart.y;
+    const clamped = clampEditOffset(newX, newY, editScale);
+    setEditOffset(clamped);
+  };
+
+  const handleEditMouseUp = () => {
+    setEditIsDragging(false);
+  };
+
+  const handleEditTouchStart = (e: React.TouchEvent) => {
+    if (!editPhotoDataUrl || e.touches.length === 0) return;
+    setEditIsDragging(true);
+    setEditDragStart({
+      x: e.touches[0].clientX - editOffset.x,
+      y: e.touches[0].clientY - editOffset.y,
+    });
+  };
+
+  const handleEditTouchMove = (e: React.TouchEvent) => {
+    if (!editIsDragging || e.touches.length === 0) return;
+    const newX = e.touches[0].clientX - editDragStart.x;
+    const newY = e.touches[0].clientY - editDragStart.y;
+    const clamped = clampEditOffset(newX, newY, editScale);
+    setEditOffset(clamped);
+  };
+
+  const handleSaveProfileChanges = async () => {
+    if (!editFirstName.trim()) {
+      setActionError("First Name is required.");
+      return;
+    }
+    if (editHobbies.length !== 3) {
+      setActionError("Please select exactly 3 hobbies.");
+      return;
+    }
+
+    setSubmitting(true);
+    setActionError("");
+
+    try {
+      let finalPhotoUrl = myPhotoUrl;
+
+      // 1. Process and upload profile image if a new one is selected
+      if (editPhotoFile && editImgRef.current) {
+        setEditPhotoLoading(true);
+        const img = editImgRef.current;
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 500;
+        canvas.height = 500;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Failed to create canvas context");
+
+        const ratio = 500 / 280;
+        const destX = editOffset.x * ratio;
+        const destY = editOffset.y * ratio;
+        const destW = 500 * editScale;
+        const destH = 500 * editScale * (h / w);
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, destX, destY, destW, destH);
+
+        const uploadBlob = await new Promise<Blob | null>((resolve) => {
+          canvas.toBlob((b) => resolve(b), "image/jpeg", 0.8);
+        });
+
+        if (!uploadBlob) throw new Error("Failed to crop image.");
+
+        const filename = `${Date.now()}_profile.jpg`;
+        const filePath = `${userId}/${filename}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("photos")
+          .upload(filePath, uploadBlob, {
+            contentType: "image/jpeg",
+            upsert: true,
+          });
+
+        if (uploadError) throw uploadError;
+        finalPhotoUrl = filePath;
+      }
+
+      // 2. Update users table details
+      const { error: usersError } = await supabase
+        .from("users")
+        .update({
+          first_name: editFirstName.trim(),
+          last_name: editLastName.trim() || null,
+          date_of_birth: editDob || null,
+          gender: editGender,
+          height_cm: editHeightCm,
+          weight_kg: editWeightKg,
+        })
+        .eq("id", userId!);
+
+      if (usersError) throw usersError;
+
+      // 3. Update profiles table details
+      const { error: profilesError } = await supabase
+        .from("profiles")
+        .update({
+          photo_url: finalPhotoUrl,
+          dietary: editDietary,
+          drinking: editDrinking,
+          smoking: editSmoking,
+          fitness: editFitness,
+          hobbies: editHobbies,
+        })
+        .eq("user_id", userId!);
+
+      if (profilesError) throw profilesError;
+
+      // 4. Update local component state
+      setMyFirstName(editFirstName.trim());
+      setMyLastName(editLastName.trim());
+      setMyDob(editDob);
+      setMyGender(editGender);
+      setMyHeightCm(editHeightCm);
+      setMyWeightKg(editWeightKg);
+      setMyPhotoUrl(finalPhotoUrl);
+      setMyDietary(editDietary);
+      setMyDrinking(editDrinking);
+      setMySmoking(editSmoking);
+      setMyFitness(editFitness);
+      setMyHobbies(editHobbies);
+      
+      const fullName = `${editFirstName.trim()} ${editLastName.trim()}`.trim();
+      setUserName(fullName || "User");
+
+      // Regenerate signed url
+      if (finalPhotoUrl) {
+        const { data: signedData } = await supabase.storage
+          .from("photos")
+          .createSignedUrl(finalPhotoUrl, 3600 * 24);
+        if (signedData?.signedUrl) {
+          setMyPhotoSignedUrl(signedData.signedUrl);
+        }
+      }
+
+      setIsEditingProfile(false);
+    } catch (err: any) {
+      console.error("Failed to save profile changes:", err);
+      setActionError(err.message || "Failed to save changes. Please try again.");
+    } finally {
+      setSubmitting(false);
+      setEditPhotoLoading(false);
+    }
+  };
+
   const handleResetMatch = async () => {
     const confirmed = window.confirm(
       "Are you sure you want to cancel your search?\n\nYour current search will be canceled. You will have to initiate a new search, and the fee you paid will be fully refunded to your wallet."
@@ -1366,6 +1704,274 @@ export default function DashboardPage() {
       </header>
 
       <main className={s.mainContainer}>
+        {/* ==================================================
+            STATE 0: MASTER PROFILE DASHBOARD (PROFILE HOMEPAGE)
+            ================================================== */}
+        {dashboardState === 0 && (
+          <div className={s.masterGrid}>
+            {/* Left Column: Profile Card */}
+            <div className={s.profileMasterCard}>
+              <button className={s.editProfileBtn} onClick={handleStartEditing}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "2px" }}>
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z" />
+                </svg>
+                Edit Profile
+              </button>
+
+              <div className={s.profilePhotoWrapper}>
+                <div className={s.profilePhotoContainer}>
+                  {myPhotoSignedUrl ? (
+                    <img src={myPhotoSignedUrl} alt="Avatar" className={s.profilePhotoImg} />
+                  ) : (
+                    <div className={s.profilePhotoPlaceholder}>👤</div>
+                  )}
+                </div>
+                <h2 className={s.profileNameTitle}>
+                  {myFirstName} {myLastName}
+                </h2>
+                <div className={s.profileUniText}>
+                  🏫 {universityName}
+                </div>
+              </div>
+
+              {/* Bio Details */}
+              <div className={s.infoGrid}>
+                <div className={s.infoCol}>
+                  <span className={s.infoLabel}>Gender</span>
+                  <span className={s.infoVal}>
+                    {myGender === "male" ? "Male ♂️" : myGender === "female" ? "Female ♀️" : "Everyone ⚧️"}
+                  </span>
+                </div>
+                <div className={s.infoCol}>
+                  <span className={s.infoLabel}>Age</span>
+                  <span className={s.infoVal}>
+                    {myDob ? new Date().getFullYear() - new Date(myDob).getFullYear() : "—"}
+                  </span>
+                </div>
+                <div className={s.infoCol}>
+                  <span className={s.infoLabel}>Height</span>
+                  <span className={s.infoVal}>
+                    {myHeightCm ? `${cmToFtIn(myHeightCm).ft}′${cmToFtIn(myHeightCm).inches}″` : "—"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Hobbies */}
+              <div className={s.editFieldGroup}>
+                <span className={s.infoLabel} style={{ textAlign: "center", marginBottom: "4px" }}>My Hobbies</span>
+                <div className={s.hobbiesPillContainer}>
+                  {myHobbies.map((hob) => {
+                    const hObj = HOBBIES_LIST.find((x) => x.name === hob);
+                    return (
+                      <div key={hob} className={s.hobbyPill}>
+                        <span>{hObj?.emoji || "✨"}</span>
+                        <span>{hob}</span>
+                      </div>
+                    );
+                  })}
+                  {myHobbies.length === 0 && (
+                    <span style={{ fontSize: "11px", color: "var(--text-muted)", fontStyle: "italic" }}>No hobbies selected</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Lifestyle Summary */}
+              <div className={s.editFieldGroup}>
+                <span className={s.infoLabel} style={{ textAlign: "center", marginBottom: "4px" }}>Lifestyle Traits</span>
+                <div className={s.lifestyleGrid}>
+                  <div className={s.lifestyleItemCard}>
+                    <span className={s.lifestyleItemLabel}>Dietary</span>
+                    <span className={s.lifestyleItemVal}>
+                      {myDietary === "veg" ? "Veg 🥦" : myDietary === "non_veg" ? "Non-Veg 🍗" : myDietary === "vegan" ? "Vegan 🌱" : myDietary === "eggitarian" ? "Eggitarian 🥚" : "No Preference"}
+                    </span>
+                  </div>
+                  <div className={s.lifestyleItemCard}>
+                    <span className={s.lifestyleItemLabel}>Drinking</span>
+                    <span className={s.lifestyleItemVal}>
+                      {myDrinking === "sober" ? "Sober 🚫" : myDrinking === "socially" ? "Socially 🍻" : myDrinking === "frequently" ? "Frequently 🍷" : myDrinking === "regularly" ? "Regularly 🥃" : "No Preference"}
+                    </span>
+                  </div>
+                  <div className={s.lifestyleItemCard}>
+                    <span className={s.lifestyleItemLabel}>Smoking</span>
+                    <span className={s.lifestyleItemVal}>
+                      {mySmoking === "non_smoker" ? "Non-Smoker 🚭" : mySmoking === "occasionally" ? "Occasionally 🚬" : mySmoking === "regularly" ? "Regularly 💨" : "No Preference"}
+                    </span>
+                  </div>
+                  <div className={s.lifestyleItemCard}>
+                    <span className={s.lifestyleItemLabel}>Activity</span>
+                    <span className={s.lifestyleItemVal}>
+                      {myFitness === "not_active" ? "Not Active 🛋️" : myFitness === "active" ? "Active 🏃‍♂️" : myFitness === "gym_freak" ? "Gym Freak 🏋️‍♂️" : "No Preference"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Dynamic Match Status Card */}
+            <div className={`${s.matchPortalCard}`}>
+              {/* Glow backgrounds depending on state */}
+              {matchStatus === "searching" && <div className={`${s.portalGlowBg} ${s.portalSearchingGlow}`} />}
+              {matchStatus === "matched" && <div className={`${s.portalGlowBg} ${s.portalMatchedGlow}`} />}
+              {matchStatus !== "searching" && matchStatus !== "matched" && <div className={s.portalGlowBg} />}
+
+              {matchStatus === "none" && (
+                <>
+                  <div className={s.portalRadarCenter} style={{ background: "rgba(232, 58, 114, 0.1)", color: "var(--accent-primary)", width: "64px", height: "64px" }}>
+                    <HeartIcon />
+                  </div>
+                  <h1 className={s.portalTitle}>BlindSide Match Center</h1>
+                  <p className={s.portalDesc}>
+                    Match anonymously with university students. Our compatibility engine pairs you based on values, heights, and interests.
+                  </p>
+                  <button
+                    className="btn btn-primary btn-pill btn-glow"
+                    onClick={() => {
+                      setDashboardState(1);
+                      setPrefSlide(1);
+                    }}
+                  >
+                    ⚡ Find a Match
+                  </button>
+                </>
+              )}
+
+              {matchStatus === "unpaid" && (
+                <>
+                  <div className={s.portalRadarCenter} style={{ background: "rgba(232, 58, 114, 0.1)", color: "var(--accent-primary)", width: "64px", height: "64px" }}>
+                    <HeartIcon />
+                  </div>
+                  <h1 className={s.portalTitle}>Draft Search Ready</h1>
+                  <p className={s.portalDesc}>
+                    You have saved filters ready to go. Activate your search to begin looking for mutual matches.
+                  </p>
+                  <button
+                    className="btn btn-primary btn-pill btn-glow"
+                    onClick={() => {
+                      setDashboardState(1);
+                      setPrefSlide(7);
+                    }}
+                  >
+                    🔑 Activate Match Search
+                  </button>
+                </>
+              )}
+
+              {matchStatus === "searching" && (
+                <>
+                  <div className={s.portalPulsingRadar}>
+                    <div className={s.portalRadarWave} />
+                    <div className={`${s.portalRadarWave} ${s.portalRadarWave2}`} />
+                    <div className={s.portalRadarCenter}>
+                      <HeartIcon />
+                    </div>
+                  </div>
+                  <h1 className={s.portalTitle}>Campus Search Active</h1>
+                  <p className={s.portalDesc} style={{ marginBottom: "0.25rem" }}>
+                    Scanning {universityName} pool for compatible orbits...
+                  </p>
+                  
+                  {/* Digital Live Clock Timer */}
+                  <div className={s.portalTimerText}>
+                    {countdownText}
+                  </div>
+
+                  <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => {
+                        // Let them view filters they configured
+                        setDashboardState(1);
+                        setPrefSlide(6);
+                      }}
+                    >
+                      View Filters
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={handleResetMatch}
+                      disabled={submitting}
+                    >
+                      Cancel Search
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {matchStatus === "matched" && (
+                <>
+                  <div className={s.portalRadarCenter} style={{ background: "rgba(142, 68, 173, 0.1)", color: "#9b59b6", width: "64px", height: "64px", boxShadow: "0 0 20px rgba(155, 89, 182, 0.3)" }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                  </div>
+                  <h1 className={s.portalTitle}>Campus Match Found!</h1>
+                  <p className={s.portalDesc}>
+                    You have successfully locked orbits with another student. Introduce yourself in the secure chatroom.
+                  </p>
+
+                  {/* Partner Overview Badge */}
+                  {partnerProfile && (
+                    <div className={s.partnerMatchCard}>
+                      <div className={s.partnerAvatarFrame}>
+                        {partnerProfile.photoUrl ? (
+                          <img src={partnerProfile.photoUrl} alt="Partner" />
+                        ) : (
+                          <span className={s.partnerAvatarSilhouette}>👤</span>
+                        )}
+                      </div>
+                      <div className={s.partnerSummary}>
+                        <span className={s.partnerNameText}>
+                          {partnerProfile.firstName}, {partnerProfile.age}
+                        </span>
+                        <span className={s.partnerUniText}>
+                          🎓 {partnerProfile.university}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    className="btn btn-primary btn-pill btn-glow"
+                    style={{ background: "var(--accent-gradient)", border: "none" }}
+                    onClick={() => {
+                      setDashboardState(3);
+                    }}
+                  >
+                    💬 Enter Chat & Planner
+                  </button>
+                </>
+              )}
+
+              {matchStatus === "feedback" && (
+                <>
+                  <div className={s.portalRadarCenter} style={{ background: "rgba(241, 196, 15, 0.1)", color: "#f1c40f", width: "64px", height: "64px" }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                      <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                  </div>
+                  <h1 className={s.portalTitle}>Date Feedback Required</h1>
+                  <p className={s.portalDesc}>
+                    Your match countdown timer has ended. Please rate your blind date experience to unlock future campus searches!
+                  </p>
+                  <button
+                    className="btn btn-primary btn-pill"
+                    onClick={() => {
+                      setDashboardState(4);
+                    }}
+                  >
+                    📝 Share Feedback
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ==================================================
             STATE 1: PREFERENCES SLIDES
             ================================================== */}
@@ -1434,7 +2040,9 @@ export default function DashboardPage() {
                       </div>
 
                       <div className={s.slideFooter}>
-                        <div />
+                        <button type="button" className="btn btn-ghost" onClick={() => setDashboardState(0)}>
+                          ← Dashboard
+                        </button>
                         <button className="btn btn-secondary btn-pill" onClick={() => changePrefSlide(2)}>
                           Next →
                         </button>
@@ -1810,7 +2418,9 @@ export default function DashboardPage() {
                         <button className="btn btn-ghost" onClick={() => changePrefSlide(6)}>
                           ← Edit Filters
                         </button>
-                        <div />
+                        <button className="btn btn-ghost" onClick={() => setDashboardState(0)}>
+                          Dashboard
+                        </button>
                       </div>
                     </div>
                   )}
@@ -2070,11 +2680,19 @@ export default function DashboardPage() {
 
             {/* Right Column: Chat Box */}
             <div className={s.chatWindowCard}>
-              <div className={s.chatHeader}>
+              <div className={s.chatHeader} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div className={s.chatStatusIndicator}>
                   <span className={s.chatStatusDot} />
                   <span className={s.chatStatusText}>Blind Chat Active</span>
                 </div>
+                <button 
+                  type="button"
+                  className="btn btn-ghost btn-sm" 
+                  onClick={() => setDashboardState(0)}
+                  style={{ fontSize: "11px", fontWeight: "700" }}
+                >
+                  ← Dashboard
+                </button>
               </div>
               <div className={s.messagesArea}>
                 {chatMessages.length === 0 ? (
@@ -2217,17 +2835,286 @@ export default function DashboardPage() {
               />
             </div>
 
-            <button
-              className="btn btn-primary btn-pill"
-              style={{ width: "100%", marginTop: "1rem" }}
-              onClick={handleSubmitFeedback}
-              disabled={submitting}
-            >
-              {submitting ? "Saving Review..." : "Submit Review ✓"}
-            </button>
+            <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                style={{ flex: 1 }}
+                onClick={() => setDashboardState(0)}
+                disabled={submitting}
+              >
+                ← Back
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary btn-pill"
+                style={{ flex: 2 }}
+                onClick={handleSubmitFeedback}
+                disabled={submitting}
+              >
+                {submitting ? "Saving Review..." : "Submit Review ✓"}
+              </button>
+            </div>
           </div>
         )}
       </main>
+
+      {/* ==================================================
+          EDIT PROFILE MODAL OVERLAY (STATE 0 VIEW ONLY)
+          ================================================== */}
+      {isEditingProfile && (
+        <div className={s.editOverlayModal}>
+          <div className={s.editModalContent}>
+            <div className={s.modalHeader}>
+              <h2 className={s.modalTitle}>Edit Profile Details</h2>
+              <button className={s.closeModalBtn} onClick={() => setIsEditingProfile(false)}>×</button>
+            </div>
+
+            {actionError && <div className={s.errorAlert}>{actionError}</div>}
+
+            {/* Form Scrollable Content */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", overflowY: "auto", paddingRight: "4px" }}>
+              
+              {/* Profile Image Cropper */}
+              <div className={s.editFieldGroup}>
+                <span className={s.editFieldLabel}>Profile Image</span>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleEditPhotoChange} 
+                  style={{ fontSize: "12px" }}
+                />
+                
+                {editPhotoDataUrl && (
+                  <div style={{ marginTop: "0.5rem" }}>
+                    <div 
+                      ref={editContainerRef}
+                      className={s.cropViewport}
+                      onMouseDown={handleEditMouseDown}
+                      onMouseMove={handleEditMouseMove}
+                      onMouseUp={handleEditMouseUp}
+                      onMouseLeave={handleEditMouseUp}
+                      onTouchStart={handleEditTouchStart}
+                      onTouchMove={handleEditTouchMove}
+                      onTouchEnd={handleEditMouseUp}
+                    >
+                      <img
+                        ref={editImgRef}
+                        src={editPhotoDataUrl}
+                        alt="Crop source"
+                        style={{
+                          position: "absolute",
+                          transform: `translate(${editOffset.x}px, ${editOffset.y}px) scale(${editScale})`,
+                          transformOrigin: "top left",
+                          userSelect: "none",
+                          pointerEvents: "none",
+                        }}
+                      />
+                      <div className={s.cropCircleMask} />
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.5rem" }}>
+                      <span className={s.editFieldLabel} style={{ flexShrink: 0 }}>Zoom</span>
+                      <input
+                        type="range"
+                        min="1"
+                        max="3"
+                        step="0.01"
+                        value={editScale}
+                        onChange={(e) => {
+                          const nextScale = parseFloat(e.target.value);
+                          setEditScale(nextScale);
+                          setEditOffset(clampEditOffset(editOffset.x, editOffset.y, nextScale));
+                        }}
+                        style={{ flex: 1 }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* First & Last Name */}
+              <div className={s.inlineFormGrid}>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>First Name</label>
+                  <input
+                    type="text"
+                    className={s.editInputText}
+                    value={editFirstName}
+                    onChange={(e) => setEditFirstName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>Last Name (Optional)</label>
+                  <input
+                    type="text"
+                    className={s.editInputText}
+                    value={editLastName}
+                    onChange={(e) => setEditLastName(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* DOB & Gender */}
+              <div className={s.inlineFormGrid}>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>Date of Birth</label>
+                  <input
+                    type="date"
+                    className={s.editInputText}
+                    value={editDob}
+                    onChange={(e) => setEditDob(e.target.value)}
+                  />
+                </div>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>Gender</label>
+                  <select
+                    className={s.editSelect}
+                    value={editGender}
+                    onChange={(e) => setEditGender(e.target.value)}
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Height & Weight */}
+              <div className={s.inlineFormGrid}>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>Height (cm): {editHeightCm} cm ({cmToFtIn(editHeightCm).ft}′{cmToFtIn(editHeightCm).inches}″)</label>
+                  <input
+                    type="range"
+                    min="120"
+                    max="220"
+                    step="1"
+                    value={editHeightCm}
+                    onChange={(e) => setEditHeightCm(parseInt(e.target.value))}
+                  />
+                </div>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>Weight (kg): {editWeightKg} kg</label>
+                  <input
+                    type="range"
+                    min="40"
+                    max="150"
+                    step="1"
+                    value={editWeightKg}
+                    onChange={(e) => setEditWeightKg(parseInt(e.target.value))}
+                  />
+                </div>
+              </div>
+
+              {/* Dietary & Drinking */}
+              <div className={s.inlineFormGrid}>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>Dietary Option</label>
+                  <select
+                    className={s.editSelect}
+                    value={editDietary}
+                    onChange={(e) => setEditDietary(e.target.value)}
+                  >
+                    <option value="veg">Vegetarian 🥦</option>
+                    <option value="non_veg">Non-Vegetarian 🍗</option>
+                    <option value="vegan">Vegan 🌱</option>
+                    <option value="eggitarian">Eggitarian 🥚</option>
+                    <option value="no_preference">No Preference</option>
+                  </select>
+                </div>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>Drinking Habits</label>
+                  <select
+                    className={s.editSelect}
+                    value={editDrinking}
+                    onChange={(e) => setEditDrinking(e.target.value)}
+                  >
+                    <option value="sober">Sober 🚫</option>
+                    <option value="socially">Socially 🍻</option>
+                    <option value="frequently">Frequently 🍷</option>
+                    <option value="regularly">Regularly 🥃</option>
+                    <option value="no_preference">No Preference</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Smoking & Fitness */}
+              <div className={s.inlineFormGrid}>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>Smoking Habits</label>
+                  <select
+                    className={s.editSelect}
+                    value={editSmoking}
+                    onChange={(e) => setEditSmoking(e.target.value)}
+                  >
+                    <option value="non_smoker">Non-Smoker 🚭</option>
+                    <option value="occasionally">Occasionally 🚬</option>
+                    <option value="regularly">Regularly 💨</option>
+                    <option value="no_preference">No Preference</option>
+                  </select>
+                </div>
+                <div className={s.editFieldGroup}>
+                  <label className={s.editFieldLabel}>Activity / Fitness</label>
+                  <select
+                    className={s.editSelect}
+                    value={editFitness}
+                    onChange={(e) => setEditFitness(e.target.value)}
+                  >
+                    <option value="not_active">Not Active 🛋️</option>
+                    <option value="active">Active 🏃‍♂️</option>
+                    <option value="gym_freak">Gym Freak 🏋️‍♂️</option>
+                    <option value="no_preference">No Preference</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Hobbies Edit Selector */}
+              <div className={s.editFieldGroup}>
+                <label className={s.editFieldLabel}>
+                  Hobbies (Select exactly 3): <span style={{ color: editHobbies.length === 3 ? "var(--success)" : "var(--accent-primary)" }}>{editHobbies.length}/3 Selected</span>
+                </label>
+                <div className={s.hobbiesEditGrid}>
+                  {HOBBIES_LIST.map((hob) => {
+                    const active = editHobbies.includes(hob.name);
+                    return (
+                      <button
+                        key={hob.name}
+                        type="button"
+                        className={`${s.hobbyEditBtn} ${active ? s.hobbyEditBtnActive : ""}`}
+                        onClick={() => handleToggleEditHobby(hob.name)}
+                      >
+                        <span>{hob.emoji}</span>
+                        <span>{hob.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className={s.modalActions}>
+              <button 
+                type="button"
+                className="btn btn-ghost" 
+                onClick={() => setIsEditingProfile(false)}
+                disabled={submitting}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button"
+                className="btn btn-primary btn-pill" 
+                onClick={handleSaveProfileChanges}
+                disabled={submitting || editPhotoLoading}
+              >
+                {submitting ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1613,3 +1613,600 @@
   100% { width: 8px;  height: 240px; border-radius: 4px; }
 }
 
+/* ==================================================
+   STATE 0: MASTER PROFILE DASHBOARD & EDITOR STYLES
+   ================================================== */
+.masterGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .masterGrid {
+    grid-template-columns: 1.1fr 1.4fr;
+  }
+}
+
+.profileMasterCard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.profilePhotoWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.profilePhotoContainer {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid var(--border);
+  background: var(--bg-surface-hover);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.3s ease;
+}
+
+.profilePhotoContainer:hover {
+  border-color: var(--accent-primary);
+}
+
+.profilePhotoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profilePhotoPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--text-muted);
+}
+
+.profileNameTitle {
+  font-size: var(--text-lg);
+  font-weight: 850;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.profileUniText {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: -0.5rem;
+}
+
+.editProfileBtn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.editProfileBtn:hover {
+  background: var(--border);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.infoCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.infoLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.infoVal {
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.hobbiesPillContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.hobbyPill {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lifestyleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.lifestyleItemCard {
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lifestyleItemLabel {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.lifestyleItemVal {
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--text-primary);
+}
+
+/* Match Portal card */
+.matchPortalCard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 380px;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.portalGlowBg {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsla(340, 82%, 55%, 0.12) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.portalSearchingGlow {
+  background: radial-gradient(circle, hsla(255, 65%, 60%, 0.12) 0%, transparent 70%) !important;
+}
+
+.portalMatchedGlow {
+  background: radial-gradient(circle, hsla(142, 70%, 50%, 0.1) 0%, transparent 70%) !important;
+}
+
+.portalTitle {
+  font-size: var(--text-lg);
+  font-weight: 900;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+  z-index: 1;
+}
+
+.portalDesc {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 280px;
+  z-index: 1;
+}
+
+.portalBtn {
+  min-width: 200px;
+  padding: 0.9rem 1.75rem !important;
+  font-size: var(--text-sm) !important;
+  font-weight: 750 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 15px rgba(232, 58, 114, 0.2);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  z-index: 1;
+}
+
+.portalBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(232, 58, 114, 0.35);
+}
+
+.portalPulsingRadar {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem 0;
+  z-index: 1;
+}
+
+.portalRadarWave {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsla(255, 65%, 60%, 0.08) 30%, transparent 70%);
+  border: 1px solid rgba(124, 92, 232, 0.2);
+  animation: radarWavePulse 4s infinite linear;
+}
+
+.portalRadarWave2 {
+  animation-delay: 2s;
+}
+
+.portalRadarCenter {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 0 20px rgba(124, 92, 232, 0.5);
+  animation: gentleScale 2.5s ease-in-out infinite;
+}
+
+@keyframes radarWavePulse {
+  0%   { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes gentleScale {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+
+.portalTimerText {
+  font-size: var(--text-md);
+  font-weight: 850;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-xl);
+  margin-top: -0.5rem;
+  z-index: 1;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 10px rgba(124, 92, 232, 0.2);
+}
+
+.partnerMatchCard {
+  width: 100%;
+  max-width: 320px;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
+  z-index: 1;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.partnerMatchCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-hover);
+}
+
+.partnerAvatarFrame {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 2px solid var(--accent-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(124, 92, 232, 0.15);
+}
+
+.partnerAvatarFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.partnerAvatarSilhouette {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+
+.partnerSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.partnerNameText {
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.partnerUniText {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Edit modal */
+.editOverlayModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 16, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  padding: var(--space-md);
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.editModalContent {
+  width: 100%;
+  max-width: 580px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.modalTitle {
+  font-size: var(--text-md);
+  font-weight: 850;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.closeModalBtn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+.closeModalBtn:hover {
+  color: var(--text-primary);
+}
+
+.editFieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.editFieldLabel {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.editInputText {
+  width: 100%;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  transition: all 0.2s;
+}
+
+.editInputText:focus {
+  border-color: var(--accent-primary);
+  background: var(--bg-surface);
+}
+
+.inlineFormGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 480px) {
+  .inlineFormGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.editSelect {
+  width: 100%;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+/* Modal photo crop viewport */
+.cropViewport {
+  width: 100%;
+  height: 220px;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  cursor: grab;
+}
+
+.cropViewport:active {
+  cursor: grabbing;
+}
+
+.cropCircleMask {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 10;
+  margin: 10px;
+}
+
+/* Modal Actions */
+.modalActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+}
+
+/* Hobbies grid visual selector in Edit modal */
+.hobbiesEditGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xs);
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  background: var(--bg-surface-hover);
+}
+
+.hobbyEditBtn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  padding: 0.45rem 0.5rem;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.hobbyEditBtn:hover {
+  background: var(--border);
+  color: var(--text-primary);
+}
+
+.hobbyEditBtnActive {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 2px 6px rgba(232, 58, 114, 0.25);
+}
+
+.hobbiesEditLimitAlert {
+  font-size: 10px;
+  color: var(--accent-primary);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+
