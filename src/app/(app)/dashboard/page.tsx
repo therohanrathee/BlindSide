@@ -3336,7 +3336,7 @@ export default function DashboardPage() {
             {actionError && <div className={s.errorAlert}>{actionError}</div>}
 
             {/* Scrollable Modal Content */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" as const, msOverflowStyle: "none" as const }}>
+            <div className={s.editModalBody}>
               
               {/* ==================== OVERVIEW STATE ==================== */}
               {editModalSection === "overview" && (
