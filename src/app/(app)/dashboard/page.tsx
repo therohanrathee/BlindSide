@@ -2896,6 +2896,18 @@ export default function DashboardPage() {
           ================================================== */}
       {isEditingProfile && (
         <div className={s.editOverlayModal}>
+          <svg width="0" height="0" style={{ position: "absolute", visibility: "hidden" }}>
+            <defs>
+              <linearGradient id="accentGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="hsl(340,82%,55%)" />
+                <stop offset="100%" stopColor="hsl(255,65%,60%)" />
+              </linearGradient>
+              <linearGradient id="accentGradGender" x1="0" y1="0" x2="80" y2="120" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="hsl(340,82%,55%)" />
+                <stop offset="100%" stopColor="hsl(255,65%,60%)" />
+              </linearGradient>
+            </defs>
+          </svg>
           <div className={s.editModalContent}>
             <div className={s.modalHeader}>
               <h2 className={s.modalTitle}>
@@ -2984,16 +2996,16 @@ export default function DashboardPage() {
                       </div>
                       <div className={s.infoTileContent} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
-                          🥦 {editDietary === "veg" ? "Veg" : editDietary === "non_veg" ? "Non-Veg" : editDietary === "vegan" ? "Vegan" : editDietary === "eggitarian" ? "Eggy" : "Diet"}
+                          {editDietary === "veg" ? "Vegetarian" : editDietary === "non_veg" ? "Non-Vegetarian" : editDietary === "vegan" ? "Vegan" : editDietary === "eggitarian" ? "Eggetarian" : "Dietary Option"}
                         </div>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
-                          🍻 {editDrinking === "sober" ? "Sober" : editDrinking === "socially" ? "Socially" : editDrinking === "frequently" ? "Frequent" : editDrinking === "regularly" ? "Regular" : "Drinking"}
+                          {editDrinking === "sober" ? "Sober" : editDrinking === "socially" ? "Socially" : editDrinking === "frequently" ? "Frequently" : editDrinking === "regularly" ? "Regularly" : "Drinking"}
                         </div>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
-                          🚬 {editSmoking === "non_smoker" ? "Non-Smoker" : editSmoking === "occasionally" ? "Occasionally" : editSmoking === "regularly" ? "Regularly" : "Smoking"}
+                          {editSmoking === "non_smoker" ? "Non-Smoker" : editSmoking === "occasionally" ? "Occasionally" : editSmoking === "regularly" ? "Regularly" : "Smoking"}
                         </div>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
-                          🏋️‍♂️ {editFitness === "not_active" ? "Inactive" : editFitness === "active" ? "Active" : editFitness === "gym_freak" ? "Gym Freak" : "Fitness"}
+                          {editFitness === "not_active" ? "Not Active" : editFitness === "active" ? "Active" : editFitness === "gym_freak" ? "Gym Freak" : "Fitness"}
                         </div>
                       </div>
                     </div>
@@ -3233,11 +3245,10 @@ export default function DashboardPage() {
                     <label className={s.editFieldLabel}>Dietary Preferences</label>
                     <div className={s.capsuleGrid}>
                       {[
-                        { key: "veg", label: "Vegetarian 🥦", Svg: VegSVG },
-                        { key: "non_veg", label: "Non-Veg 🍗", Svg: NonVegSVG },
-                        { key: "vegan", label: "Vegan 🌱", Svg: VeganSVG },
-                        { key: "eggitarian", label: "Eggy 🥚", Svg: EggetarianSVG },
-                        { key: "no_preference", label: "No Preference", Svg: SoberSVG },
+                        { key: "veg", label: "Vegetarian", Svg: VegSVG },
+                        { key: "non_veg", label: "Non-Vegetarian", Svg: NonVegSVG },
+                        { key: "vegan", label: "Vegan", Svg: VeganSVG },
+                        { key: "eggitarian", label: "Eggetarian", Svg: EggetarianSVG },
                       ].map((d) => {
                         const active = editDietary === d.key;
                         const fill = active ? "url(#accentGrad)" : "currentColor";
@@ -3261,11 +3272,10 @@ export default function DashboardPage() {
                     <label className={s.editFieldLabel}>Drinking Habits</label>
                     <div className={s.capsuleGrid}>
                       {[
-                        { key: "sober", label: "Sober 🚫", Svg: SoberSVG },
-                        { key: "socially", label: "Socially 🍻", Svg: DrinkSociallySVG },
-                        { key: "frequently", label: "Frequently 🍷", Svg: DrinkOccasionallySVG },
-                        { key: "regularly", label: "Regularly 🥃", Svg: DrinkRegularlySVG },
-                        { key: "no_preference", label: "No Preference", Svg: SoberSVG },
+                        { key: "sober", label: "Sober", Svg: SoberSVG },
+                        { key: "socially", label: "Socially", Svg: DrinkSociallySVG },
+                        { key: "frequently", label: "Frequently", Svg: DrinkOccasionallySVG },
+                        { key: "regularly", label: "Regularly", Svg: DrinkRegularlySVG },
                       ].map((dr) => {
                         const active = editDrinking === dr.key;
                         const fill = active ? "url(#accentGrad)" : "currentColor";
@@ -3289,10 +3299,9 @@ export default function DashboardPage() {
                     <label className={s.editFieldLabel}>Smoking Habits</label>
                     <div className={s.capsuleGrid}>
                       {[
-                        { key: "non_smoker", label: "Non-Smoker 🚭", Svg: NonSmokingSVG },
-                        { key: "occasionally", label: "Occasionally 🚬", Svg: SmokeOccasionallySVG },
-                        { key: "regularly", label: "Regularly 💨", Svg: SmokeRegularlySVG },
-                        { key: "no_preference", label: "No Preference", Svg: SoberSVG },
+                        { key: "non_smoker", label: "Non-Smoker", Svg: NonSmokingSVG },
+                        { key: "occasionally", label: "Occasionally", Svg: SmokeOccasionallySVG },
+                        { key: "regularly", label: "Regularly", Svg: SmokeRegularlySVG },
                       ].map((sm) => {
                         const active = editSmoking === sm.key;
                         const fill = active ? "url(#accentGrad)" : "currentColor";
@@ -3316,10 +3325,9 @@ export default function DashboardPage() {
                     <label className={s.editFieldLabel}>Fitness Activity</label>
                     <div className={s.capsuleGrid}>
                       {[
-                        { key: "not_active", label: "Not Active 🛋️", Svg: FitnessRelaxedSVG },
-                        { key: "active", label: "Active 🏃‍♂️", Svg: FitnessCasualSVG },
-                        { key: "gym_freak", label: "Gym Freak 🏋️‍♂️", Svg: FitnessGymRatSVG },
-                        { key: "no_preference", label: "No Preference", Svg: SoberSVG },
+                        { key: "not_active", label: "Not Active", Svg: FitnessRelaxedSVG },
+                        { key: "active", label: "Active", Svg: FitnessCasualSVG },
+                        { key: "gym_freak", label: "Gym Freak", Svg: FitnessGymRatSVG },
                       ].map((fit) => {
                         const active = editFitness === fit.key;
                         const fill = active ? "url(#accentGrad)" : "currentColor";
