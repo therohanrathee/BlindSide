@@ -1811,19 +1811,19 @@ export default function DashboardPage() {
                   <div className={s.lifestyleItemCard}>
                     <span className={s.lifestyleItemLabel}>Drinking</span>
                     <span className={s.lifestyleItemVal}>
-                      {myDrinking === "sober" ? "Sober 🚫" : myDrinking === "socially" ? "Socially 🍻" : myDrinking === "frequently" ? "Frequently 🍷" : myDrinking === "regularly" ? "Regularly 🥃" : "No Preference"}
+                      {myDrinking === "sober" ? "Sober 🚫" : myDrinking === "occasionally" ? "Occasionally 🍻" : myDrinking === "socially" ? "Socially 🍻" : myDrinking === "regularly" ? "Regularly 🥃" : "No Preference"}
                     </span>
                   </div>
                   <div className={s.lifestyleItemCard}>
                     <span className={s.lifestyleItemLabel}>Smoking</span>
                     <span className={s.lifestyleItemVal}>
-                      {mySmoking === "non_smoker" ? "Non-Smoker 🚭" : mySmoking === "occasionally" ? "Occasionally 🚬" : mySmoking === "regularly" ? "Regularly 💨" : "No Preference"}
+                      {mySmoking === "non_smoker" ? "Non-Smoker 🚭" : mySmoking === "occasionally" ? "Occasionally 🚬" : mySmoking === "socially" ? "Socially 🚬" : mySmoking === "regularly" ? "Regularly 💨" : "No Preference"}
                     </span>
                   </div>
                   <div className={s.lifestyleItemCard}>
                     <span className={s.lifestyleItemLabel}>Activity</span>
                     <span className={s.lifestyleItemVal}>
-                      {myFitness === "not_active" ? "Not Active 🛋️" : myFitness === "active" ? "Active 🏃‍♂️" : myFitness === "gym_freak" ? "Gym Freak 🏋️‍♂️" : "No Preference"}
+                      {myFitness === "not_active" ? "Not Active 🛋️" : myFitness === "occasionally" ? "Occasionally 🏃" : myFitness === "active" ? "Active 🏃‍♂️" : myFitness === "gym_rat" ? "Gym Freak 🏋️‍♂️" : "No Preference"}
                     </span>
                   </div>
                 </div>
@@ -2999,13 +2999,13 @@ export default function DashboardPage() {
                           {editDietary === "veg" ? "Vegetarian" : editDietary === "nonveg" ? "Non-Vegetarian" : editDietary === "vegan" ? "Vegan" : editDietary === "eggitarian" ? "Eggetarian" : "Dietary Option"}
                         </div>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
-                          {editDrinking === "sober" ? "Sober" : editDrinking === "socially" ? "Socially" : editDrinking === "frequently" ? "Frequently" : editDrinking === "regularly" ? "Regularly" : "Drinking"}
+                          {editDrinking === "sober" ? "Sober" : editDrinking === "occasionally" ? "Occasionally" : editDrinking === "socially" ? "Socially" : editDrinking === "regularly" ? "Regularly" : "Drinking"}
                         </div>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
-                          {editSmoking === "non_smoker" ? "Non-Smoker" : editSmoking === "occasionally" ? "Occasionally" : editSmoking === "regularly" ? "Regularly" : "Smoking"}
+                          {editSmoking === "non_smoker" ? "Non-Smoker" : editSmoking === "occasionally" ? "Occasionally" : editSmoking === "socially" ? "Socially" : editSmoking === "regularly" ? "Regularly" : "Smoking"}
                         </div>
                         <div style={{ fontSize: "10px", background: "var(--bg-surface)", padding: "3px 6px", borderRadius: "6px", border: "1px solid var(--border)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "center" }}>
-                          {editFitness === "not_active" ? "Not Active" : editFitness === "active" ? "Active" : editFitness === "gym_freak" ? "Gym Freak" : "Fitness"}
+                          {editFitness === "not_active" ? "Not Active" : editFitness === "occasionally" ? "Occasionally" : editFitness === "active" ? "Active" : editFitness === "gym_rat" ? "Gym Freak" : "Fitness"}
                         </div>
                       </div>
                     </div>
@@ -3273,8 +3273,8 @@ export default function DashboardPage() {
                     <div className={s.capsuleGrid}>
                       {[
                         { key: "sober", label: "Sober", Svg: SoberSVG },
+                        { key: "occasionally", label: "Occasionally", Svg: DrinkOccasionallySVG },
                         { key: "socially", label: "Socially", Svg: DrinkSociallySVG },
-                        { key: "frequently", label: "Frequently", Svg: DrinkOccasionallySVG },
                         { key: "regularly", label: "Regularly", Svg: DrinkRegularlySVG },
                       ].map((dr) => {
                         const active = editDrinking === dr.key;
@@ -3301,6 +3301,7 @@ export default function DashboardPage() {
                       {[
                         { key: "non_smoker", label: "Non-Smoker", Svg: NonSmokingSVG },
                         { key: "occasionally", label: "Occasionally", Svg: SmokeOccasionallySVG },
+                        { key: "socially", label: "Socially", Svg: SmokeSociallySVG },
                         { key: "regularly", label: "Regularly", Svg: SmokeRegularlySVG },
                       ].map((sm) => {
                         const active = editSmoking === sm.key;
@@ -3326,8 +3327,9 @@ export default function DashboardPage() {
                     <div className={s.capsuleGrid}>
                       {[
                         { key: "not_active", label: "Not Active", Svg: FitnessRelaxedSVG },
-                        { key: "active", label: "Active", Svg: FitnessCasualSVG },
-                        { key: "gym_freak", label: "Gym Freak", Svg: FitnessGymRatSVG },
+                        { key: "occasionally", label: "Occasionally", Svg: FitnessCasualSVG },
+                        { key: "active", label: "Active", Svg: FitnessActiveSVG },
+                        { key: "gym_rat", label: "Gym Freak", Svg: FitnessGymRatSVG },
                       ].map((fit) => {
                         const active = editFitness === fit.key;
                         const fill = active ? "url(#accentGrad)" : "currentColor";
@@ -3488,6 +3490,30 @@ function FitnessGymRatSVG({ fill }: { fill: string }) {
       <rect x="19" y="7" width="2" height="10" rx="1" />
       <rect x="21" y="9" width="2" height="6" rx="0.5" />
       <line x1="5" y1="12" x2="19" y2="12" strokeWidth="3" />
+    </svg>
+  );
+}
+
+function FitnessActiveSVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="10" width="3" height="4" rx="1" />
+      <rect x="19" y="10" width="3" height="4" rx="1" />
+      <line x1="5" y1="12" x2="19" y2="12" strokeWidth="2.5" />
+      <line x1="5" y1="8" x2="5" y2="16" />
+      <line x1="19" y1="8" x2="19" y2="16" />
+    </svg>
+  );
+}
+
+function SmokeSociallySVG({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={fill} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 17l6-6 1 1-6 6z" />
+      <path d="M3.5 15.5l1 1" />
+      <path d="M22 17l-6-6-1 1 6 6z" />
+      <path d="M20.5 15.5l-1 1" />
+      <path d="M9 9c0-2 .5-2.5 1-4M15 9c0-2-.5-2.5-1-4" />
     </svg>
   );
 }
