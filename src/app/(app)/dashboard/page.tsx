@@ -1777,36 +1777,25 @@ export default function DashboardPage() {
         <div className={s.meetAndPlanCard}>
           <h2 className={s.sectionTitle}>Meet In-Person</h2>
           <p className={s.sectionText}>
-            Activate the toggle when you are ready to meet {partnerProfile.firstName}. Once both toggle ON, the date proposal form will unlock.
+            Ready to meet face-to-face? Once both of you agree, the date proposal scheduler will unlock.
           </p>
 
           <button
-            className={`${s.meetToggleBtn} ${userWantsMeet ? s.meetActive : ""}`}
+            className={`${s.primaryMeetBtn} ${userWantsMeet ? s.meetAgreed : ""}`}
             onClick={handleToggleMeet}
           >
             {userWantsMeet ? (
-              <span className={s.btnContent}>
-                <span className={s.checkIcon}>✓</span> Ready to Meet!
-              </span>
+              <span>✓ Agreed to Meet</span>
             ) : (
-              "Let's Meet!"
+              <span>🤝 Agree to Meet</span>
             )}
           </button>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginTop: "1rem", marginBottom: "0.25rem" }}>
-            <button
-              className={`${s.meetToggleBtn} ${userSharesName ? s.meetActive : ""}`}
-              onClick={handleShareName}
-            >
-              {userSharesName ? "✓ Name Shared" : "Share Name"}
-            </button>
-            <button
-              className={`${s.meetToggleBtn} ${userSharesPhoto ? s.meetActive : ""}`}
-              onClick={handleSharePhoto}
-            >
-              {userSharesPhoto ? "✓ Photo Shared" : "Share Photo"}
-            </button>
-          </div>
+          
+          {userWantsMeet && !partnerWantsMeet && (
+            <div className={s.meetWaitingAlert}>
+              Waiting for your match to also agree...
+            </div>
+          )}
 
           {/* Date Proposal Status */}
           {userWantsMeet && partnerWantsMeet && (
@@ -1908,6 +1897,34 @@ export default function DashboardPage() {
               )}
             </div>
           )}
+        </div>
+
+        {/* Profile Visibility settings */}
+        <div className={s.visibilitySettingsCard}>
+          <h2 className={s.sectionTitle}>Profile sharing</h2>
+          <p className={s.sectionText}>
+            Control what details you want to share with {partnerProfile.firstName} right now.
+          </p>
+          
+          <div className={s.privacyToggleRow} onClick={handleShareName}>
+            <div className={s.privacyInfo}>
+              <span className={s.privacyLabel}>Share my Name</span>
+              <span className={s.privacySub}>Reveal your first name in the chat header.</span>
+            </div>
+            <div className={`${s.switchTrack} ${userSharesName ? s.switchOn : ""}`}>
+              <div className={s.switchThumb} />
+            </div>
+          </div>
+
+          <div className={s.privacyToggleRow} onClick={handleSharePhoto}>
+            <div className={s.privacyInfo}>
+              <span className={s.privacyLabel}>Share my Photo</span>
+              <span className={s.privacySub}>Allow them to view your profile photo right now.</span>
+            </div>
+            <div className={`${s.switchTrack} ${userSharesPhoto ? s.switchOn : ""}`}>
+              <div className={s.switchThumb} />
+            </div>
+          </div>
         </div>
       </>
     );
