@@ -1775,7 +1775,13 @@ export default function DashboardPage() {
                 <div className={s.infoCol}>
                   <span className={s.infoLabel}>Gender</span>
                   <span className={s.infoVal}>
-                    {myGender === "male" ? "Male ♂️" : myGender === "female" ? "Female ♀️" : "Everyone ⚧️"}
+                    {myGender === "male" ? (
+                      <>Male <span style={{ display: "inline-block", transform: "translateY(-1.5px)" }}>♂️</span></>
+                    ) : myGender === "female" ? (
+                      <>Female <span style={{ display: "inline-block", transform: "translateY(-1.5px)" }}>♀️</span></>
+                    ) : (
+                      <>Everyone <span style={{ display: "inline-block", transform: "translateY(-1.5px)" }}>⚧️</span></>
+                    )}
                   </span>
                 </div>
                 <div className={s.infoCol}>
@@ -2976,8 +2982,14 @@ export default function DashboardPage() {
                           <div style={{ fontWeight: 800, fontSize: "13px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {editFirstName} {editLastName || ""}
                           </div>
-                          <div style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px" }}>
-                            🎂 {editDob ? `${new Date().getFullYear() - new Date(editDob).getFullYear()} yrs` : "No Birthday"} • {editGender === "male" ? "Male ♂️" : editGender === "female" ? "Female ♀️" : "Non-binary ⚧️"}
+                          <div style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px", display: "inline-flex", alignItems: "center", gap: "3px" }}>
+                            🎂 {editDob ? `${new Date().getFullYear() - new Date(editDob).getFullYear()} yrs` : "No Birthday"} • {editGender === "male" ? (
+                              <>Male <span style={{ display: "inline-block", transform: "translateY(-1px)" }}>♂️</span></>
+                            ) : editGender === "female" ? (
+                              <>Female <span style={{ display: "inline-block", transform: "translateY(-1px)" }}>♀️</span></>
+                            ) : (
+                              <>Non-binary <span style={{ display: "inline-block", transform: "translateY(-1px)" }}>⚧️</span></>
+                            )}
                           </div>
                         </div>
                       </div>

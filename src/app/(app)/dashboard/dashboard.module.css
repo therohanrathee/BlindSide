@@ -1762,6 +1762,9 @@
   font-size: var(--text-sm);
   font-weight: 800;
   color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .hobbiesPillContainer {
