@@ -333,8 +333,22 @@ export default function DashboardPage() {
     if (!sheetIsDragging) return;
     const touch = e.touches[0];
     const diff = touch.clientY - sheetStartY;
-    setSheetDragOffset(diff);
-    setSheetCurrentY(touch.clientY);
+    
+    // Check scroll position of body to coordinate with drag gesture
+    const bodyEl = e.currentTarget.querySelector(`.${s.mobileInfoDrawerBody}`);
+    const scrollTop = bodyEl ? bodyEl.scrollTop : 0;
+
+    if (sheetState === "collapsed") {
+      setSheetDragOffset(diff);
+      setSheetCurrentY(touch.clientY);
+    } else {
+      if (diff > 0 && scrollTop <= 0) {
+        setSheetDragOffset(diff);
+        setSheetCurrentY(touch.clientY);
+      } else {
+        setSheetDragOffset(0);
+      }
+    }
   };
 
   const handleSheetTouchEnd = () => {
@@ -2977,21 +2991,18 @@ export default function DashboardPage() {
               >
                 <div 
                   className={s.mobileInfoDrawerContent}
+                  onTouchStart={handleSheetTouchStart}
+                  onTouchMove={handleSheetTouchMove}
+                  onTouchEnd={handleSheetTouchEnd}
                   style={{
-                    height: sheetState === "expanded" ? "92vh" : "55vh",
+                    height: sheetState === "expanded" ? "92vh" : "70vh",
                     transform: sheetIsDragging && sheetDragOffset > 0 ? `translateY(${sheetDragOffset}px)` : "none",
                     transition: sheetIsDragging ? "none" : "height 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
                     paddingTop: sheetState === "expanded" ? "max(1.25rem, env(safe-area-inset-top, 1.25rem))" : "0px"
                   }}
                 >
-                  {/* Drag Handle Wrapper */}
-                  <div 
-                    className={s.dragHandleWrapper}
-                    onTouchStart={handleSheetTouchStart}
-                    onTouchMove={handleSheetTouchMove}
-                    onTouchEnd={handleSheetTouchEnd}
-                    style={{ cursor: "grab" }}
-                  >
+                  {/* Drag Handle Wrapper (Visual Grabber) */}
+                  <div className={s.dragHandleWrapper}>
                     <div className={s.dragHandleBar} />
                   </div>
 
