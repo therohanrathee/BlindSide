@@ -711,6 +711,7 @@ export default function DashboardPage() {
       await refreshMatchStatus(session.user.id);
       setLoading(false);
     }
+    loadDashboard();
   }, [supabase, router]);
 
   useEffect(() => {
