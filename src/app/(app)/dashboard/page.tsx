@@ -2196,318 +2196,461 @@ export default function DashboardPage() {
         {/* ==================================================
             STATE 0: MASTER PROFILE DASHBOARD (PROFILE HOMEPAGE)
             ================================================== */}
-        {dashboardState === 0 && (
-          <div className={s.masterGrid}>
-            {/* Left Column: Profile Card */}
-            <div className={s.profileMasterCard}>
-
-              {/* Mobile Dynamic Action Button */}
-              <div className={s.mobileOnly} style={{ width: "100%", marginBottom: "1rem" }}>
-                {matchStatus === "none" && (
-                  <button 
-                    className="btn btn-primary btn-pill btn-glow" 
-                    style={{ width: "100%" }}
-                    onClick={() => { setDashboardState(1); setPrefSlide(1); }}
-                  >
-                    ⚡ Find a Match
-                  </button>
-                )}
-                {matchStatus === "unpaid" && (
-                  <button 
-                    className="btn btn-primary btn-pill btn-glow" 
-                    style={{ width: "100%" }}
-                    onClick={() => { setDashboardState(1); setPrefSlide(7); }}
-                  >
-                    🔑 Activate Match Search
-                  </button>
-                )}
-                {matchStatus === "searching" && (
-                  <button 
-                    className="btn btn-primary btn-pill btn-glow" 
-                    style={{ width: "100%", background: "var(--bg-surface-hover)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
-                    onClick={() => { setDashboardState(1); setPrefSlide(7); }}
-                  >
-                    🔍 Searching: {countdownText}
-                  </button>
-                )}
-                {matchStatus === "matched" && (
-                  <button 
-                    className="btn btn-primary btn-pill btn-glow" 
-                    style={{ width: "100%" }}
-                    onClick={() => setDashboardState(3)}
-                  >
-                    💬 Enter Chat
-                  </button>
-                )}
-                {matchStatus === "feedback" && (
-                  <button 
-                    className="btn btn-primary btn-pill btn-glow" 
-                    style={{ width: "100%" }}
-                    onClick={() => setDashboardState(4)}
-                  >
-                    📝 Share Feedback
-                  </button>
-                )}
-              </div>
-
-              <div className={s.profilePhotoWrapper}>
-                <div className={s.profilePhotoContainer}>
-                  {myPhotoSignedUrl ? (
-                    <img src={myPhotoSignedUrl} alt="Avatar" className={s.profilePhotoImg} />
-                  ) : (
-                    <div className={s.profilePhotoPlaceholder}>👤</div>
-                  )}
-                </div>
-                <h2 className={s.profileNameTitle}>
-                  {myFirstName} {myLastName}
-                </h2>
-                <div className={s.profileUniText}>
-                  {universityName}
-                </div>
-              </div>
-
-              {/* Bio Details */}
-              <div className={s.infoGrid}>
-                <div className={s.infoCol}>
-                  <span className={s.infoLabel}>Gender</span>
-                  <span className={s.infoVal}>
-                    {myGender === "male" ? "Male" : myGender === "female" ? "Female" : "Everyone"}
-                  </span>
-                </div>
-                <div className={s.infoCol}>
-                  <span className={s.infoLabel}>Age</span>
-                  <span className={s.infoVal}>
-                    {myDob ? new Date().getFullYear() - new Date(myDob).getFullYear() : "—"}
-                  </span>
-                </div>
-                <div className={s.infoCol}>
-                  <span className={s.infoLabel}>Height</span>
-                  <span className={s.infoVal}>
-                    {myHeightCm ? `${cmToFtIn(myHeightCm).ft}′${cmToFtIn(myHeightCm).inches}″` : "—"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Hobbies */}
-              <div className={s.editFieldGroup}>
-                <span className={s.infoLabel} style={{ textAlign: "center", marginBottom: "4px" }}>My Hobbies</span>
-                <div className={s.hobbiesPillContainer}>
-                  {myHobbies.map((hob) => {
-                    const hObj = HOBBIES_LIST.find((x) => x.name === hob);
-                    return (
-                      <div key={hob} className={s.hobbyPill}>
-                        <span>{hObj?.emoji || "✨"}</span>
-                        <span>{hob}</span>
-                      </div>
-                    );
-                  })}
-                  {myHobbies.length === 0 && (
-                    <span style={{ fontSize: "11px", color: "var(--text-muted)", fontStyle: "italic" }}>No hobbies selected</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Lifestyle Summary */}
-              <div className={s.editFieldGroup}>
-                <span className={s.infoLabel} style={{ textAlign: "center", marginBottom: "4px" }}>Lifestyle Traits</span>
-                <div className={s.lifestyleGrid}>
-                  <div className={s.lifestyleItemCard}>
-                    <span className={s.lifestyleItemLabel}>Dietary</span>
-                    <span className={s.lifestyleItemVal}>
-                      {myDietary === "veg" ? "Veg 🥦" : myDietary === "nonveg" ? "Non-Veg 🍗" : myDietary === "vegan" ? "Vegan 🌱" : myDietary === "eggitarian" ? "Eggitarian 🥚" : "No Preference"}
-                    </span>
-                  </div>
-                  <div className={s.lifestyleItemCard}>
-                    <span className={s.lifestyleItemLabel}>Drinking</span>
-                    <span className={s.lifestyleItemVal}>
-                      {myDrinking === "sober" ? "Sober 🚫" : myDrinking === "occasionally" ? "Occasionally 🍻" : myDrinking === "socially" ? "Socially 🍻" : myDrinking === "regularly" ? "Regularly 🥃" : "No Preference"}
-                    </span>
-                  </div>
-                  <div className={s.lifestyleItemCard}>
-                    <span className={s.lifestyleItemLabel}>Smoking</span>
-                    <span className={s.lifestyleItemVal}>
-                      {mySmoking === "non_smoker" ? "Non-Smoker 🚭" : mySmoking === "occasionally" ? "Occasionally 🚬" : mySmoking === "socially" ? "Socially 🚬" : mySmoking === "regularly" ? "Regularly 💨" : "No Preference"}
-                    </span>
-                  </div>
-                  <div className={s.lifestyleItemCard}>
-                    <span className={s.lifestyleItemLabel}>Activity</span>
-                    <span className={s.lifestyleItemVal}>
-                      {myFitness === "not_active" ? "Not Active 🛋️" : myFitness === "occasionally" ? "Occasionally 🏃" : myFitness === "active" ? "Active 🏃‍♂️" : myFitness === "gym_rat" ? "Gym Freak 🏋️‍♂️" : "No Preference"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <button className={s.editProfileBtn} onClick={handleStartEditing}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "2px" }}>
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                  <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z" />
+        {(dashboardState === 0 || (dashboardState === 3 && partnerProfile)) && (
+          <div className={`${s.masterGrid} ${dashboardState === 3 ? s.masterGridMatched : ""}`}>
+            
+            {dashboardState === 3 && (
+              <>
+                <svg style={{ position: "absolute", width: 0, height: 0 }} width="0" height="0">
+                  <defs>
+                    <linearGradient id="compatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#e83a72" />
+                      <stop offset="100%" stopColor="#7c5ce8" />
+                    </linearGradient>
+                  </defs>
                 </svg>
-                Edit Profile
-              </button>
-            </div>
 
-            {/* Right Column: Dynamic Match Status Card */}
-            <div className={`${s.matchPortalCard} ${s.desktopOnly}`}>
-              {/* Glow backgrounds depending on state */}
-              {matchStatus === "searching" && <div className={`${s.portalGlowBg} ${s.portalSearchingGlow}`} />}
-              {matchStatus === "matched" && <div className={`${s.portalGlowBg} ${s.portalMatchedGlow}`} />}
-              {matchStatus !== "searching" && matchStatus !== "matched" && <div className={s.portalGlowBg} />}
-
-              {matchStatus === "none" && (
-                <>
-                  <div className={s.portalRadarCenter} style={{ background: "rgba(232, 58, 114, 0.1)", color: "var(--accent-primary)", width: "64px", height: "64px" }}>
-                    <HeartIcon />
-                  </div>
-                  <h1 className={s.portalTitle}>BlindSide Match Center</h1>
-                  <p className={s.portalDesc}>
-                    Match anonymously with university students. Our compatibility engine pairs you based on values, heights, and interests.
-                  </p>
-                  <button
-                    className="btn btn-primary btn-pill btn-glow"
-                    onClick={() => {
-                      setDashboardState(1);
-                      setPrefSlide(1);
+                {showMobileInfoDrawer && (
+                  <div 
+                    className={s.mobileInfoDrawerOverlay}
+                    onClick={(e) => {
+                      if (e.target === e.currentTarget) setShowMobileInfoDrawer(false);
                     }}
                   >
-                    ⚡ Find a Match
-                  </button>
-                </>
-              )}
-
-              {matchStatus === "unpaid" && (
-                <>
-                  <div className={s.portalRadarCenter} style={{ background: "rgba(232, 58, 114, 0.1)", color: "var(--accent-primary)", width: "64px", height: "64px" }}>
-                    <HeartIcon />
-                  </div>
-                  <h1 className={s.portalTitle}>Draft Search Ready</h1>
-                  <p className={s.portalDesc}>
-                    You have saved filters ready to go. Activate your search to begin looking for mutual matches.
-                  </p>
-                  <button
-                    className="btn btn-primary btn-pill btn-glow"
-                    onClick={() => {
-                      setDashboardState(1);
-                      setPrefSlide(7);
-                    }}
-                  >
-                    🔑 Activate Match Search
-                  </button>
-                </>
-              )}
-
-              {matchStatus === "searching" && (
-                <>
-                  <div className={s.portalPulsingRadar}>
-                    <div className={s.portalRadarWave} />
-                    <div className={`${s.portalRadarWave} ${s.portalRadarWave2}`} />
-                    <div className={s.portalRadarCenter}>
-                      <HeartIcon />
-                    </div>
-                  </div>
-                  <h1 className={s.portalTitle}>Campus Search Active</h1>
-                  <p className={s.portalDesc} style={{ marginBottom: "0.25rem" }}>
-                    Scanning {universityName} pool for compatible orbits...
-                  </p>
-                  
-                  {/* Digital Live Clock Timer */}
-                  <div className={s.portalTimerText}>
-                    {countdownText}
-                  </div>
-
-                  <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
-                    <button
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => {
-                        // Let them view filters they configured
-                        setDashboardState(1);
-                        setPrefSlide(6);
+                    <div 
+                      ref={sheetRef}
+                      className={s.mobileInfoDrawerContent}
+                      onTouchStart={handleSheetTouchStart}
+                      onTouchMove={handleSheetTouchMove}
+                      onTouchEnd={handleSheetTouchEnd}
+                      style={{
+                        transform: "translateY(var(--sheet-translate, 22vh))",
+                        paddingTop: sheetState === "expanded" ? "max(1.25rem, env(safe-area-inset-top, 1.25rem))" : "0px"
                       }}
                     >
-                      View Filters
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={handleResetMatch}
-                      disabled={submitting}
-                    >
-                      Cancel Search
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {matchStatus === "matched" && (
-                <>
-                  <div className={s.portalRadarCenter} style={{ background: "rgba(142, 68, 173, 0.1)", color: "#9b59b6", width: "64px", height: "64px", boxShadow: "0 0 20px rgba(155, 89, 182, 0.3)" }}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                  </div>
-                  <h1 className={s.portalTitle}>Campus Match Found!</h1>
-                  <p className={s.portalDesc}>
-                    You have successfully locked orbits with another student. Introduce yourself in the secure chatroom.
-                  </p>
-
-                  {/* Partner Overview Badge */}
-                  {partnerProfile && (
-                    <div className={s.partnerMatchCard}>
-                      <div className={s.partnerAvatarFrame}>
-                        {partnerProfile.photoUrl ? (
-                          <img src={partnerProfile.photoUrl} alt="Partner" />
-                        ) : (
-                          <span className={s.partnerAvatarSilhouette}>👤</span>
-                        )}
+                      <div className={s.dragHandleWrapper}>
+                        <div className={s.dragHandleBar} />
                       </div>
-                      <div className={s.partnerSummary}>
-                        <span className={s.partnerNameText}>
-                          {partnerProfile.firstName}, {partnerProfile.age}
-                        </span>
-                        <span className={s.partnerUniText}>
-                          🎓 {partnerProfile.university}
-                        </span>
+                      <div className={s.mobileInfoDrawerHeader}>
+                        <h3>Details & Planning</h3>
+                        <button type="button" className={s.closeDrawerBtn} onClick={() => setShowMobileInfoDrawer(false)}>×</button>
+                      </div>
+                      <div className={s.mobileInfoDrawerBody} onScroll={handleBodyScroll}>
+                        {renderLeftColumnContent()}
                       </div>
                     </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Left Column: Profile Card (state 0) or Planning/Sharing (state 3) */}
+            {dashboardState === 3 ? (
+              <div className={`${s.leftColumn} ${s.desktopOnly}`}>
+                {renderLeftColumnContent()}
+              </div>
+            ) : (
+              <div className={s.profileMasterCard}>
+                {/* Mobile Dynamic Action Button */}
+                <div className={s.mobileOnly} style={{ width: "100%", marginBottom: "1rem" }}>
+                  {matchStatus === "none" && (
+                    <button 
+                      className="btn btn-primary btn-pill btn-glow" 
+                      style={{ width: "100%" }}
+                      onClick={() => { setDashboardState(1); setPrefSlide(1); }}
+                    >
+                      ⚡ Find a Match
+                    </button>
+                  )}
+                  {matchStatus === "unpaid" && (
+                    <button 
+                      className="btn btn-primary btn-pill btn-glow" 
+                      style={{ width: "100%" }}
+                      onClick={() => { setDashboardState(1); setPrefSlide(7); }}
+                    >
+                      🔑 Activate Match Search
+                    </button>
+                  )}
+                  {matchStatus === "searching" && (
+                    <button 
+                      className="btn btn-primary btn-pill btn-glow" 
+                      style={{ width: "100%", background: "var(--bg-surface-hover)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                      onClick={() => { setDashboardState(1); setPrefSlide(7); }}
+                    >
+                      🔍 Searching: {countdownText}
+                    </button>
+                  )}
+                  {matchStatus === "matched" && (
+                    <button 
+                      className="btn btn-primary btn-pill btn-glow" 
+                      style={{ width: "100%" }}
+                      onClick={() => setDashboardState(3)}
+                    >
+                      💬 Enter Chat
+                    </button>
+                  )}
+                  {matchStatus === "feedback" && (
+                    <button 
+                      className="btn btn-primary btn-pill btn-glow" 
+                      style={{ width: "100%" }}
+                      onClick={() => setDashboardState(4)}
+                    >
+                      📝 Share Feedback
+                    </button>
+                  )}
+                </div>
+
+                <div className={s.profilePhotoWrapper}>
+                  <div className={s.profilePhotoContainer}>
+                    {myPhotoSignedUrl ? (
+                      <img src={myPhotoSignedUrl} alt="Avatar" className={s.profilePhotoImg} />
+                    ) : (
+                      <div className={s.profilePhotoPlaceholder}>👤</div>
+                    )}
+                  </div>
+                  <h2 className={s.profileNameTitle}>
+                    {myFirstName} {myLastName}
+                  </h2>
+                  <div className={s.profileUniText}>
+                    {universityName}
+                  </div>
+                </div>
+
+                {/* Bio Details */}
+                <div className={s.infoGrid}>
+                  <div className={s.infoCol}>
+                    <span className={s.infoLabel}>Gender</span>
+                    <span className={s.infoVal}>
+                      {myGender === "male" ? "Male" : myGender === "female" ? "Female" : "Everyone"}
+                    </span>
+                  </div>
+                  <div className={s.infoCol}>
+                    <span className={s.infoLabel}>Age</span>
+                    <span className={s.infoVal}>
+                      {myDob ? new Date().getFullYear() - new Date(myDob).getFullYear() : "—"}
+                    </span>
+                  </div>
+                  <div className={s.infoCol}>
+                    <span className={s.infoLabel}>Height</span>
+                    <span className={s.infoVal}>
+                      {myHeightCm ? `${cmToFtIn(myHeightCm).ft}′${cmToFtIn(myHeightCm).inches}″` : "—"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Hobbies */}
+                <div className={s.editFieldGroup}>
+                  <span className={s.infoLabel} style={{ textAlign: "center", marginBottom: "4px" }}>My Hobbies</span>
+                  <div className={s.hobbiesPillContainer}>
+                    {myHobbies.map((hob) => {
+                      const hObj = HOBBIES_LIST.find((x) => x.name === hob);
+                      return (
+                        <div key={hob} className={s.hobbyPill}>
+                          <span>{hObj?.emoji || "✨"}</span>
+                          <span>{hob}</span>
+                        </div>
+                      );
+                    })}
+                    {myHobbies.length === 0 && (
+                      <span style={{ fontSize: "11px", color: "var(--text-muted)", fontStyle: "italic" }}>No hobbies selected</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Lifestyle Summary */}
+                <div className={s.editFieldGroup}>
+                  <span className={s.infoLabel} style={{ textAlign: "center", marginBottom: "4px" }}>Lifestyle Traits</span>
+                  <div className={s.lifestyleGrid}>
+                    <div className={s.lifestyleItemCard}>
+                      <span className={s.lifestyleItemLabel}>Dietary</span>
+                      <span className={s.lifestyleItemVal}>
+                        {myDietary === "veg" ? "Veg 🥦" : myDietary === "nonveg" ? "Non-Veg 🍗" : myDietary === "vegan" ? "Vegan 🌱" : myDietary === "eggitarian" ? "Eggitarian 🥚" : "No Preference"}
+                      </span>
+                    </div>
+                    <div className={s.lifestyleItemCard}>
+                      <span className={s.lifestyleItemLabel}>Drinking</span>
+                      <span className={s.lifestyleItemVal}>
+                        {myDrinking === "sober" ? "Sober 🚫" : myDrinking === "occasionally" ? "Occasionally 🍻" : myDrinking === "socially" ? "Socially 🍻" : myDrinking === "regularly" ? "Regularly 🥃" : "No Preference"}
+                      </span>
+                    </div>
+                    <div className={s.lifestyleItemCard}>
+                      <span className={s.lifestyleItemLabel}>Smoking</span>
+                      <span className={s.lifestyleItemVal}>
+                        {mySmoking === "non_smoker" ? "Non-Smoker 🚭" : mySmoking === "occasionally" ? "Occasionally 🚬" : mySmoking === "socially" ? "Socially 🚬" : mySmoking === "regularly" ? "Regularly 💨" : "No Preference"}
+                      </span>
+                    </div>
+                    <div className={s.lifestyleItemCard}>
+                      <span className={s.lifestyleItemLabel}>Activity</span>
+                      <span className={s.lifestyleItemVal}>
+                        {myFitness === "not_active" ? "Not Active 🛋️" : myFitness === "occasionally" ? "Occasionally 🏃" : myFitness === "active" ? "Active 🏃‍♂️" : myFitness === "gym_rat" ? "Gym Freak 🏋️‍♂️" : "No Preference"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <button className={s.editProfileBtn} onClick={handleStartEditing}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "2px" }}>
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z" />
+                  </svg>
+                  Edit Profile
+                </button>
+              </div>
+            )}
+
+            {/* Right Column: Morphing match portal card / chat window card */}
+            <div className={`${s.rightColumnCard} ${dashboardState === 3 ? s.chatModeActive : s.portalModeActive} ${dashboardState !== 3 ? s.desktopOnly : ""}`}>
+              {dashboardState === 3 ? (
+                /* Chat window content */
+                <div className={s.chatWindowInner}>
+                  <div className={s.chatHeader}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", minWidth: 0 }}>
+                      <button 
+                        type="button"
+                        className={s.chatBackBtn}
+                        onClick={() => setDashboardState(0)}
+                        aria-label="Back to dashboard"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="19" y1="12" x2="5" y2="12" />
+                          <polyline points="12 19 5 12 12 5" />
+                        </svg>
+                      </button>
+
+                      <div className={s.chatHeaderAvatar}>
+                        {partnerProfile.photoUrl ? (
+                          <img src={partnerProfile.photoUrl} alt="Avatar" className={s.chatHeaderAvatarImg} />
+                        ) : (
+                          <span className={s.chatHeaderAvatarPlaceholder}>👤</span>
+                        )}
+                      </div>
+
+                      <span className={s.chatHeaderName}>
+                        {partnerSharesName && partnerProfile?.rawFirstName
+                          ? partnerProfile.rawFirstName
+                          : "Your Blind Date"}
+                      </span>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span className={s.chatHeaderTimer}>
+                        ⏱️ {chatCountdownText}
+                      </span>
+
+                      <button 
+                        type="button" 
+                        className={`${s.chatInfoBtn} ${s.mobileOnly}`} 
+                        onClick={() => { setSheetState("collapsed"); setShowMobileInfoDrawer(true); }}
+                        aria-label="View match info"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="16" x2="12" y2="12" />
+                          <line x1="12" y1="8" x2="12.01" y2="8" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className={s.messagesArea}>
+                    {chatMessages.length === 0 ? (
+                      <div className={s.chatEmpty}>
+                        💬 Start the conversation! No names, no pictures. Just dialogue.
+                      </div>
+                    ) : (
+                      chatMessages.map((m) => {
+                        const mine = m.sender_id === userId;
+                        const system = m.sender_id === null;
+                        if (system) {
+                          return (
+                            <div key={m.id} className={s.systemMsg}>
+                              {m.content}
+                            </div>
+                          );
+                        }
+                        return (
+                          <div key={m.id} className={`${s.messageBubble} ${mine ? s.myMsg : s.theirMsg}`}>
+                            <div className={s.msgText}>{m.content}</div>
+                            <div className={s.msgTime}>
+                              {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+
+                  <form onSubmit={handleSendMessage} className={s.chatInputRow}>
+                    <input
+                      type="text"
+                      placeholder="Type a blind message..."
+                      className={s.input}
+                      value={newMessageText}
+                      onChange={(e) => setNewMessageText(e.target.value)}
+                    />
+                    <button type="submit" className={s.sendBtn} disabled={!newMessageText.trim()}>
+                      <SendIcon />
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                /* Normal Match Search Portal cards content */
+                <>
+                  {matchStatus === "searching" && <div className={`${s.portalGlowBg} ${s.portalSearchingGlow}`} />}
+                  {matchStatus === "matched" && <div className={`${s.portalGlowBg} ${s.portalMatchedGlow}`} />}
+                  {matchStatus !== "searching" && matchStatus !== "matched" && <div className={s.portalGlowBg} />}
+
+                  {matchStatus === "none" && (
+                    <>
+                      <div className={s.portalRadarCenter} style={{ background: "rgba(232, 58, 114, 0.1)", color: "var(--accent-primary)", width: "64px", height: "64px" }}>
+                        <HeartIcon />
+                      </div>
+                      <h1 className={s.portalTitle}>BlindSide Match Center</h1>
+                      <p className={s.portalDesc}>
+                        Match anonymously with university students. Our compatibility engine pairs you based on values, heights, and interests.
+                      </p>
+                      <button
+                        className="btn btn-primary btn-pill btn-glow"
+                        onClick={() => {
+                          setDashboardState(1);
+                          setPrefSlide(1);
+                        }}
+                      >
+                        ⚡ Find a Match
+                      </button>
+                    </>
                   )}
 
-                  <button
-                    className="btn btn-primary btn-pill btn-glow"
-                    style={{ background: "var(--accent-gradient)", border: "none" }}
-                    onClick={() => {
-                      setDashboardState(3);
-                    }}
-                  >
-                    💬 Enter Chat & Planner
-                  </button>
-                </>
-              )}
+                  {matchStatus === "unpaid" && (
+                    <>
+                      <div className={s.portalRadarCenter} style={{ background: "rgba(232, 58, 114, 0.1)", color: "var(--accent-primary)", width: "64px", height: "64px" }}>
+                        <HeartIcon />
+                      </div>
+                      <h1 className={s.portalTitle}>Draft Search Ready</h1>
+                      <p className={s.portalDesc}>
+                        You have saved filters ready to go. Activate your search to begin looking for mutual matches.
+                      </p>
+                      <button
+                        className="btn btn-primary btn-pill btn-glow"
+                        onClick={() => {
+                          setDashboardState(1);
+                          setPrefSlide(7);
+                        }}
+                      >
+                        🔑 Activate Match Search
+                      </button>
+                    </>
+                  )}
 
-              {matchStatus === "feedback" && (
-                <>
-                  <div className={s.portalRadarCenter} style={{ background: "rgba(241, 196, 15, 0.1)", color: "#f1c40f", width: "64px", height: "64px" }}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <line x1="16" y1="13" x2="8" y2="13" />
-                      <line x1="16" y1="17" x2="8" y2="17" />
-                      <polyline points="10 9 9 9 8 9" />
-                    </svg>
-                  </div>
-                  <h1 className={s.portalTitle}>Date Feedback Required</h1>
-                  <p className={s.portalDesc}>
-                    Your match countdown timer has ended. Please rate your blind date experience to unlock future campus searches!
-                  </p>
-                  <button
-                    className="btn btn-primary btn-pill"
-                    onClick={() => {
-                      setDashboardState(4);
-                    }}
-                  >
-                    📝 Share Feedback
-                  </button>
+                  {matchStatus === "searching" && (
+                    <>
+                      <div className={s.portalPulsingRadar}>
+                        <div className={s.portalRadarWave} />
+                        <div className={`${s.portalRadarWave} ${s.portalRadarWave2}`} />
+                        <div className={s.portalRadarCenter}>
+                          <HeartIcon />
+                        </div>
+                      </div>
+                      <h1 className={s.portalTitle}>Campus Search Active</h1>
+                      <p className={s.portalDesc} style={{ marginBottom: "0.25rem" }}>
+                        Scanning {universityName} pool for compatible orbits...
+                      </p>
+                      <div className={s.portalTimerText}>
+                        {countdownText}
+                      </div>
+                      <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => {
+                            setDashboardState(1);
+                            setPrefSlide(6);
+                          }}
+                        >
+                          View Filters
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={handleResetMatch}
+                          disabled={submitting}
+                        >
+                          Cancel Search
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {matchStatus === "matched" && (
+                    <>
+                      <div className={s.portalRadarCenter} style={{ background: "rgba(142, 68, 173, 0.1)", color: "#9b59b6", width: "64px", height: "64px", boxShadow: "0 0 20px rgba(155, 89, 182, 0.3)" }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                      </div>
+                      <h1 className={s.portalTitle}>Campus Match Found!</h1>
+                      <p className={s.portalDesc}>
+                        You have successfully locked orbits with another student. Introduce yourself in the secure chatroom.
+                      </p>
+                      {partnerProfile && (
+                        <div className={s.partnerMatchCard}>
+                          <div className={s.partnerAvatarFrame}>
+                            {partnerProfile.photoUrl ? (
+                              <img src={partnerProfile.photoUrl} alt="Partner" />
+                            ) : (
+                              <span className={s.partnerAvatarSilhouette}>👤</span>
+                            )}
+                          </div>
+                          <div className={s.partnerSummary}>
+                            <span className={s.partnerNameText}>
+                              {partnerProfile.firstName}, {partnerProfile.age}
+                            </span>
+                            <span className={s.partnerUniText}>
+                              🎓 {partnerProfile.university}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      <button
+                        className="btn btn-primary btn-pill btn-glow"
+                        style={{ background: "var(--accent-gradient)", border: "none" }}
+                        onClick={() => {
+                          setDashboardState(3);
+                        }}
+                      >
+                        💬 Enter Chat & Planner
+                      </button>
+                    </>
+                  )}
+
+                  {matchStatus === "feedback" && (
+                    <>
+                      <div className={s.portalRadarCenter} style={{ background: "rgba(241, 196, 15, 0.1)", color: "#f1c40f", width: "64px", height: "64px" }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                          <polyline points="10 9 9 9 8 9" />
+                        </svg>
+                      </div>
+                      <h1 className={s.portalTitle}>Date Feedback Required</h1>
+                      <p className={s.portalDesc}>
+                        Your match countdown timer has ended. Please rate your blind date experience to unlock future campus searches!
+                      </p>
+                      <button
+                        className="btn btn-primary btn-pill"
+                        onClick={() => {
+                          setDashboardState(4);
+                        }}
+                      >
+                        📝 Share Feedback
+                      </button>
+                    </>
+                  )}
                 </>
               )}
             </div>
+
           </div>
         )}
 
@@ -3004,159 +3147,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ==================================================
-            STATE 3: MATCHED (CHAT AND PLANNING)
-            ================================================== */}
-        {dashboardState === 3 && partnerProfile && (
-          <div className={`${s.matchedWrapper} ${s.matchedWrapperMatched}`}>
-            {/* Global SVG defs for gradients */}
-            <svg style={{ position: "absolute", width: 0, height: 0 }} width="0" height="0">
-              <defs>
-                <linearGradient id="compatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#e83a72" />
-                  <stop offset="100%" stopColor="#7c5ce8" />
-                </linearGradient>
-              </defs>
-            </svg>
 
-            {/* Mobile Info Drawer Overlay */}
-            {showMobileInfoDrawer && (
-              <div 
-                className={s.mobileInfoDrawerOverlay}
-                onClick={(e) => {
-                  if (e.target === e.currentTarget) setShowMobileInfoDrawer(false);
-                }}
-              >
-                <div 
-                  ref={sheetRef}
-                  className={s.mobileInfoDrawerContent}
-                  onTouchStart={handleSheetTouchStart}
-                  onTouchMove={handleSheetTouchMove}
-                  onTouchEnd={handleSheetTouchEnd}
-                  style={{
-                    transform: "translateY(var(--sheet-translate, 22vh))",
-                    paddingTop: sheetState === "expanded" ? "max(1.25rem, env(safe-area-inset-top, 1.25rem))" : "0px"
-                  }}
-                >
-                  {/* Drag Handle Wrapper (Visual Grabber) */}
-                  <div className={s.dragHandleWrapper}>
-                    <div className={s.dragHandleBar} />
-                  </div>
-
-                  <div className={s.mobileInfoDrawerHeader}>
-                    <h3>Details & Planning</h3>
-                    <button type="button" className={s.closeDrawerBtn} onClick={() => setShowMobileInfoDrawer(false)}>×</button>
-                  </div>
-                  <div className={s.mobileInfoDrawerBody} onScroll={handleBodyScroll}>
-                    {renderLeftColumnContent()}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Left Column: Profile & Date Planning (Desktop Only) */}
-            <div className={`${s.leftColumn} ${s.desktopOnly}`}>
-              {renderLeftColumnContent()}
-            </div>
-
-            {/* Right Column: Chat Box */}
-            <div className={s.chatWindowCard}>
-              <div className={s.chatHeader}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", minWidth: 0 }}>
-                  {/* Back Arrow Button */}
-                  <button 
-                    type="button"
-                    className={s.chatBackBtn}
-                    onClick={() => setDashboardState(0)}
-                    aria-label="Back to dashboard"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="19" y1="12" x2="5" y2="12" />
-                      <polyline points="12 19 5 12 12 5" />
-                    </svg>
-                  </button>
-
-                  {/* Match Avatar */}
-                  <div className={s.chatHeaderAvatar}>
-                    {partnerProfile.photoUrl ? (
-                      <img src={partnerProfile.photoUrl} alt="Avatar" className={s.chatHeaderAvatarImg} />
-                    ) : (
-                      <span className={s.chatHeaderAvatarPlaceholder}>👤</span>
-                    )}
-                  </div>
-
-                  {/* Name */}
-                  <span className={s.chatHeaderName}>
-                    {partnerSharesName && partnerProfile?.rawFirstName
-                      ? partnerProfile.rawFirstName
-                      : "Your Blind Date"}
-                  </span>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  {/* Chat Timer on the right */}
-                  <span className={s.chatHeaderTimer}>
-                    ⏱️ {chatCountdownText}
-                  </span>
-
-                  {/* Info 'i' button on mobile only */}
-                  <button 
-                    type="button" 
-                    className={`${s.chatInfoBtn} ${s.mobileOnly}`} 
-                    onClick={() => { setSheetState("collapsed"); setShowMobileInfoDrawer(true); }}
-                    aria-label="View match info"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="16" x2="12" y2="12" />
-                      <line x1="12" y1="8" x2="12.01" y2="8" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div className={s.messagesArea}>
-                {chatMessages.length === 0 ? (
-                  <div className={s.chatEmpty}>
-                    💬 Start the conversation! No names, no pictures. Just dialogue.
-                  </div>
-                ) : (
-                  chatMessages.map((m) => {
-                    const mine = m.sender_id === userId;
-                    const system = m.sender_id === null;
-                    if (system) {
-                      return (
-                        <div key={m.id} className={s.systemMsg}>
-                          {m.content}
-                        </div>
-                      );
-                    }
-                    return (
-                      <div key={m.id} className={`${s.messageBubble} ${mine ? s.myMsg : s.theirMsg}`}>
-                        <div className={s.msgText}>{m.content}</div>
-                        <div className={s.msgTime}>
-                          {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-              <form onSubmit={handleSendMessage} className={s.chatInputRow}>
-                <input
-                  type="text"
-                  placeholder="Type a blind message..."
-                  className={s.input}
-                  value={newMessageText}
-                  onChange={(e) => setNewMessageText(e.target.value)}
-                />
-                <button type="submit" className={s.sendBtn} disabled={!newMessageText.trim()}>
-                  <SendIcon />
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
 
         {/* ==================================================
             STATE 4: POST-DATE FEEDBACK
