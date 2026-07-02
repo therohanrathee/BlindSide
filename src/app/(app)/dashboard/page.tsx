@@ -303,6 +303,8 @@ export default function DashboardPage() {
   const [editFitness, setEditFitness] = useState("not_active");
   const [editHobbies, setEditHobbies] = useState<string[]>([]);
   const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
+  const [editCroppedBlob, setEditCroppedBlob] = useState<Blob | null>(null);
+  const [editCroppedPreviewUrl, setEditCroppedPreviewUrl] = useState("");
   const [editPhotoDataUrl, setEditPhotoDataUrl] = useState("");
   const [editScale, setEditScale] = useState(1.0);
   const [editOffset, setEditOffset] = useState({ x: 0, y: 0 });
@@ -1475,6 +1477,39 @@ export default function DashboardPage() {
     reader.readAsDataURL(file);
   };
 
+  const handleApplyIdentityPhoto = async () => {
+    if (editPhotoFile && editImgRef.current) {
+      const img = editImgRef.current;
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 500;
+      canvas.height = 500;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        const ratio = 500 / 280;
+        const destX = editOffset.x * ratio;
+        const destY = editOffset.y * ratio;
+        const destW = 500 * editScale;
+        const destH = 500 * editScale * (h / w);
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, destX, destY, destW, destH);
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            setEditCroppedBlob(blob);
+            const previewUrl = URL.createObjectURL(blob);
+            setEditCroppedPreviewUrl(previewUrl);
+          }
+        }, "image/jpeg", 0.8);
+      }
+    }
+    setEditModalSection("overview");
+  };
+
   // Drag constraints helper
   const clampEditOffset = (x: number, y: number, currentScale: number) => {
     if (!editImgRef.current) return { x, y };
@@ -1553,40 +1588,14 @@ export default function DashboardPage() {
       let finalPhotoUrl = myPhotoUrl;
 
       // 1. Process and upload profile image if a new one is selected
-      if (editPhotoFile && editImgRef.current) {
+      if (editCroppedBlob) {
         setEditPhotoLoading(true);
-        const img = editImgRef.current;
-        const w = img.naturalWidth;
-        const h = img.naturalHeight;
-
-        const canvas = document.createElement("canvas");
-        canvas.width = 500;
-        canvas.height = 500;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Failed to create canvas context");
-
-        const ratio = 500 / 280;
-        const destX = editOffset.x * ratio;
-        const destY = editOffset.y * ratio;
-        const destW = 500 * editScale;
-        const destH = 500 * editScale * (h / w);
-
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(img, destX, destY, destW, destH);
-
-        const uploadBlob = await new Promise<Blob | null>((resolve) => {
-          canvas.toBlob((b) => resolve(b), "image/jpeg", 0.8);
-        });
-
-        if (!uploadBlob) throw new Error("Failed to crop image.");
-
         const filename = `${Date.now()}_profile.jpg`;
         const filePath = `${userId}/${filename}`;
 
         const { error: uploadError } = await supabase.storage
           .from("photos")
-          .upload(filePath, uploadBlob, {
+          .upload(filePath, editCroppedBlob, {
             contentType: "image/jpeg",
             upsert: true,
           });
@@ -1628,6 +1637,8 @@ export default function DashboardPage() {
       // 4. Update local component state
       setEditPhotoFile(null);
       setEditPhotoDataUrl("");
+      setEditCroppedBlob(null);
+      setEditCroppedPreviewUrl("");
       setMyFirstName(editFirstName.trim());
       setMyLastName(editLastName.trim());
       setMyDob(editDob);
@@ -2953,8 +2964,8 @@ export default function DashboardPage() {
                       </div>
                       <div className={s.infoTileContent} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "1rem" }}>
                         <div className={s.profilePhotoContainer} style={{ width: "50px", height: "50px", margin: 0, flexShrink: 0 }}>
-                          {editPhotoDataUrl ? (
-                            <img src={editPhotoDataUrl} alt="Avatar Preview" className={s.profilePhotoImg} />
+                          {editCroppedPreviewUrl ? (
+                            <img src={editCroppedPreviewUrl} alt="Avatar Preview" className={s.profilePhotoImg} />
                           ) : myPhotoSignedUrl ? (
                             <img src={myPhotoSignedUrl} alt="Avatar" className={s.profilePhotoImg} />
                           ) : (
@@ -3212,7 +3223,7 @@ export default function DashboardPage() {
                       type="button"
                       className="btn btn-primary btn-pill" 
                       style={{ width: "100%" }}
-                      onClick={() => setEditModalSection("overview")}
+                      onClick={handleApplyIdentityPhoto}
                     >
                       Apply & Back
                     </button>
