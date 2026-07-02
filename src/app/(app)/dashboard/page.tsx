@@ -1252,7 +1252,7 @@ export default function DashboardPage() {
     if (!activeMatch || !userId) return;
     const isUserA = activeMatch.user_a_id === userId;
     const updateObj: any = {};
-    const nextVal = true;
+    const nextVal = !userSharesPhoto;
 
     if (isUserA) updateObj.user_a_shares_photo = nextVal;
     else updateObj.user_b_shares_photo = nextVal;
@@ -1279,7 +1279,7 @@ export default function DashboardPage() {
     if (!activeMatch || !userId) return;
     const isUserA = activeMatch.user_a_id === userId;
     const updateObj: any = {};
-    const nextVal = true;
+    const nextVal = !userSharesName;
 
     if (isUserA) updateObj.user_a_shares_name = nextVal;
     else updateObj.user_b_shares_name = nextVal;
@@ -2582,14 +2582,12 @@ export default function DashboardPage() {
                   <button
                     className={`${s.meetToggleBtn} ${userSharesName ? s.meetActive : ""}`}
                     onClick={handleShareName}
-                    disabled={userSharesName}
                   >
                     {userSharesName ? "✓ Name Shared" : "Share Name"}
                   </button>
                   <button
                     className={`${s.meetToggleBtn} ${userSharesPhoto ? s.meetActive : ""}`}
                     onClick={handleSharePhoto}
-                    disabled={userSharesPhoto}
                   >
                     {userSharesPhoto ? "✓ Photo Shared" : "Share Photo"}
                   </button>
