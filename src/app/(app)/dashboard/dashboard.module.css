@@ -2662,12 +2662,16 @@
   border-top: 1px solid var(--border);
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
-  max-height: 95vh;
+  height: 92vh;
+  max-height: 92vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
-  animation: drawerSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
+  
+  /* Fluid swipe gesture positioning */
+  transform: translateY(var(--sheet-translate, 22vh));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dragHandleWrapper {

@@ -316,54 +316,83 @@ export default function DashboardPage() {
   const [editPhotoLoading, setEditPhotoLoading] = useState(false);
   const [showMobileInfoDrawer, setShowMobileInfoDrawer] = useState(false);
   const [sheetState, setSheetState] = useState<"collapsed" | "expanded">("collapsed");
-  const [sheetStartY, setSheetStartY] = useState(0);
-  const [sheetCurrentY, setSheetCurrentY] = useState(0);
-  const [sheetIsDragging, setSheetIsDragging] = useState(false);
-  const [sheetDragOffset, setSheetDragOffset] = useState(0);
+  
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const touchStartYRef = useRef(0);
+  const startTranslateRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const currentTranslateRef = useRef(0);
 
   const handleSheetTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
-    setSheetStartY(touch.clientY);
-    setSheetCurrentY(touch.clientY);
-    setSheetIsDragging(true);
-    setSheetDragOffset(0);
+    touchStartYRef.current = touch.clientY;
+    isDraggingRef.current = true;
+
+    const viewportHeight = window.innerHeight;
+    const collapsedTranslate = viewportHeight * 0.22; // displacement (92vh - 70vh = 22vh)
+
+    startTranslateRef.current = sheetState === "expanded" ? 0 : collapsedTranslate;
+    currentTranslateRef.current = startTranslateRef.current;
+
+    if (sheetRef.current) {
+      sheetRef.current.style.transition = "none";
+    }
   };
 
   const handleSheetTouchMove = (e: React.TouchEvent) => {
-    if (!sheetIsDragging) return;
+    if (!isDraggingRef.current || !sheetRef.current) return;
     const touch = e.touches[0];
-    const diff = touch.clientY - sheetStartY;
-    
-    // Check scroll position of body to coordinate with drag gesture
-    const bodyEl = e.currentTarget.querySelector(`.${s.mobileInfoDrawerBody}`);
+    const diff = touch.clientY - touchStartYRef.current;
+
+    const viewportHeight = window.innerHeight;
+    const collapsedTranslate = viewportHeight * 0.22;
+    const bodyEl = sheetRef.current.querySelector(`.${s.mobileInfoDrawerBody}`);
     const scrollTop = bodyEl ? bodyEl.scrollTop : 0;
 
-    if (sheetState === "collapsed") {
-      setSheetDragOffset(diff);
-      setSheetCurrentY(touch.clientY);
-    } else {
+    let currentTranslate = startTranslateRef.current + diff;
+    currentTranslate = Math.max(0, currentTranslate); // clamp above expanded state (0)
+
+    if (sheetState === "expanded") {
       if (diff > 0 && scrollTop <= 0) {
-        setSheetDragOffset(diff);
-        setSheetCurrentY(touch.clientY);
+        currentTranslateRef.current = currentTranslate;
+        sheetRef.current.style.setProperty("--sheet-translate", `${currentTranslate}px`);
       } else {
-        setSheetDragOffset(0);
+        currentTranslateRef.current = 0;
+        sheetRef.current.style.setProperty("--sheet-translate", "0px");
+        touchStartYRef.current = touch.clientY;
+        startTranslateRef.current = 0;
       }
+    } else {
+      currentTranslateRef.current = currentTranslate;
+      sheetRef.current.style.setProperty("--sheet-translate", `${currentTranslate}px`);
     }
   };
 
   const handleSheetTouchEnd = () => {
-    setSheetIsDragging(false);
-    
-    // Snappy bottom sheet gesture physics:
-    if (sheetDragOffset > 80) {
-      if (sheetState === "expanded") {
+    if (!isDraggingRef.current || !sheetRef.current) return;
+    isDraggingRef.current = false;
+
+    sheetRef.current.style.transition = "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)";
+
+    const viewportHeight = window.innerHeight;
+    const collapsedTranslate = viewportHeight * 0.22;
+    const releasedTranslate = currentTranslateRef.current;
+
+    if (sheetState === "expanded") {
+      if (releasedTranslate > collapsedTranslate / 2) {
         setSheetState("collapsed");
+        sheetRef.current.style.setProperty("--sheet-translate", "22vh");
       } else {
-        setShowMobileInfoDrawer(false);
+        sheetRef.current.style.setProperty("--sheet-translate", "0px");
       }
-    } else if (sheetDragOffset < -50) {
-      if (sheetState === "collapsed") {
+    } else {
+      if (releasedTranslate < collapsedTranslate / 2) {
         setSheetState("expanded");
+        sheetRef.current.style.setProperty("--sheet-translate", "0px");
+      } else if (releasedTranslate > collapsedTranslate + 80) {
+        setShowMobileInfoDrawer(false);
+      } else {
+        sheetRef.current.style.setProperty("--sheet-translate", "22vh");
       }
     }
   };
@@ -372,6 +401,9 @@ export default function DashboardPage() {
     if (sheetState === "collapsed" && e.currentTarget.scrollTop > 2) {
       e.currentTarget.scrollTop = 0;
       setSheetState("expanded");
+      if (sheetRef.current) {
+        sheetRef.current.style.setProperty("--sheet-translate", "0px");
+      }
     }
   };
 
@@ -2996,14 +3028,13 @@ export default function DashboardPage() {
                 }}
               >
                 <div 
+                  ref={sheetRef}
                   className={s.mobileInfoDrawerContent}
                   onTouchStart={handleSheetTouchStart}
                   onTouchMove={handleSheetTouchMove}
                   onTouchEnd={handleSheetTouchEnd}
                   style={{
-                    height: sheetState === "expanded" ? "92vh" : "70vh",
-                    transform: sheetIsDragging && sheetDragOffset > 0 ? `translateY(${sheetDragOffset}px)` : "none",
-                    transition: sheetIsDragging ? "none" : "height 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                    transform: "translateY(var(--sheet-translate, 22vh))",
                     paddingTop: sheetState === "expanded" ? "max(1.25rem, env(safe-area-inset-top, 1.25rem))" : "0px"
                   }}
                 >
