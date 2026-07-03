@@ -382,8 +382,8 @@
 .stepInfo {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s var(--ease-out-expo),
-              transform 0.8s var(--ease-out-expo);
+  transition: opacity 0.4s var(--ease-out-expo),
+              transform 0.4s var(--ease-out-expo);
   position: relative;
   z-index: 2;
 }
@@ -447,8 +447,8 @@
   justify-content: center;
   opacity: 0;
   transform: translateY(35px) scale(0.95);
-  transition: opacity 0.9s var(--ease-out-expo) 0.15s,
-              transform 0.9s var(--ease-out-expo) 0.15s;
+  transition: opacity 0.5s var(--ease-out-expo) 0.05s,
+              transform 0.5s var(--ease-out-expo) 0.05s;
   position: relative;
   z-index: 2;
 }
