@@ -33,7 +33,12 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Refresh token if needed
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // If user is logged in and trying to access the landing page, redirect to dashboard
+  if (user && request.nextUrl.pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
 
   return supabaseResponse;
 }
