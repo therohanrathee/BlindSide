@@ -49,16 +49,27 @@
   filter: blur(120px);
   opacity: 0.95;
   animation: gentlePulse 15s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+  transform: translateZ(0); /* Hardware acceleration */
 }
 
 @keyframes gentlePulse {
   0% {
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
     opacity: 0.8;
   }
   100% {
-    transform: translateY(40px) scale(1.08);
+    transform: translate3d(0, 40px, 0) scale(1.08);
     opacity: 1;
+  }
+}
+
+/* Mobile Performance Optimizations */
+@media (max-width: 768px) {
+  .aurora {
+    filter: blur(60px);
+    animation: none;
+    transform: translate3d(0, 0, 0);
   }
 }
 

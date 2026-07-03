@@ -148,14 +148,19 @@ export default function JourneyPath({
     // Delay initial calc slightly to let layout settle
     const timer = setTimeout(calculate, 200);
 
+    let resizeTimeout: NodeJS.Timeout;
     const ro = new ResizeObserver(() => {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = requestAnimationFrame(calculate);
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = requestAnimationFrame(calculate);
+      }, 150);
     });
     ro.observe(container);
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(resizeTimeout);
       ro.disconnect();
       cancelAnimationFrame(rafIdRef.current);
     };
