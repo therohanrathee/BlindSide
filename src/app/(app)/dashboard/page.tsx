@@ -2276,6 +2276,29 @@ export default function DashboardPage() {
 
   const handleEnablePush = async () => {
     setPushStatus("subscribing");
+
+    // Safari Fix: Request permission synchronously before any dynamic imports
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "default") {
+        try {
+          const perm = await Notification.requestPermission();
+          if (perm !== "granted") {
+            setPushStatus("error");
+            if (perm === "denied") setChatNotificationState("denied");
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to request permission:", e);
+          setPushStatus("error");
+          return;
+        }
+      } else if (Notification.permission === "denied") {
+        setChatNotificationState("denied");
+        setPushStatus("error");
+        return;
+      }
+    }
+
     try {
       const { subscribeToPushNotifications } = await import("@/lib/push");
       const success = await subscribeToPushNotifications();
@@ -2285,16 +2308,10 @@ export default function DashboardPage() {
         localStorage.setItem("blindside_push_muted", "false");
         setTimeout(() => setShowPushPrompt(false), 2000);
       } else {
-        if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "denied") {
-          setChatNotificationState("denied");
-        }
         setPushStatus("error");
       }
     } catch (err) {
       console.error(err);
-      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "denied") {
-        setChatNotificationState("denied");
-      }
       setPushStatus("error");
     }
   };
@@ -2313,8 +2330,6 @@ export default function DashboardPage() {
         }
       } catch (e) {}
     } else if (chatNotificationState === "muted" || chatNotificationState === "default") {
-      setChatNotificationState("granted");
-      localStorage.setItem("blindside_push_muted", "false");
       handleEnablePush();
     }
   };
