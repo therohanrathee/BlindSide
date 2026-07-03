@@ -710,8 +710,8 @@ export default function DashboardPage() {
 
   // Auto-scroll chat to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [chatMessages, dashboardState]);
 
   // Clean up timers on unmount
   useEffect(() => {
