@@ -136,7 +136,7 @@ function OnboardingContent() {
         // Load user status
         const { data: userData } = await supabase
           .from("users")
-          .select("first_name, last_name, date_of_birth, gender, height_cm, height_unit_pref, weight_kg, university_id, university_email, is_university_verified, is_onboarding_complete, email, phone")
+          .select("first_name, last_name, date_of_birth, gender, height_cm, height_unit_pref, weight_kg, university_id, university_email, is_university_verified, is_onboarding_complete, email")
           .eq("id", session.user.id)
           .single();
 
@@ -609,7 +609,6 @@ function OnboardingContent() {
         universityEmail: uniEmail,
         latitude: lat,
         longitude: lon,
-        phone: isPrimaryEmail ? secondaryId : primaryId,
         deviceOs: detectDeviceOS(),
         dietary,
         drinking,

@@ -92,10 +92,10 @@ export async function POST(request: NextRequest) {
 
     // 3. Log user onboarding details to public.onboarding_leads for lead gen
     try {
-      // Fetch personal email and phone from users table
+      // Fetch personal email from users table
       const { data: userRow } = await supabase
         .from("users")
-        .select("email, phone")
+        .select("email")
         .eq("id", userId)
         .single();
 
