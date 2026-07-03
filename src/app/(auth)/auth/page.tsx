@@ -13,7 +13,7 @@ export default function AuthPage() {
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [step, setStep] = useState<"identifier" | "password">("identifier");
+  const [step, setStep] = useState<"identifier" | "password" | "forgot_password" | "link_sent">("identifier");
   const [exists, setExists] = useState<boolean | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -104,6 +104,26 @@ export default function AuthPage() {
     }
   };
 
+  const handleForgotPassword = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: identifier.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to send reset link.");
+      setStep("link_sent");
+    } catch (err: any) {
+      setError(err.message || "Failed to send reset link.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles.authLayout}>
       <div className={styles.authBg} aria-hidden="true">
@@ -150,7 +170,7 @@ export default function AuthPage() {
               </button>
             </form>
           </>
-        ) : (
+        ) : step === "password" ? (
           <>
             <h1 className={styles.authTitle}>Welcome Back</h1>
             <p className={styles.authSubtitle}>
@@ -171,7 +191,16 @@ export default function AuthPage() {
               </div>
 
               <div className={styles.authField}>
-                <label htmlFor="auth-password">Password</label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                  <label htmlFor="auth-password" style={{ marginBottom: 0 }}>Password</label>
+                  <button 
+                    type="button" 
+                    className={`${styles.forgotPasswordBtn} ${error ? styles.hasError : ""}`}
+                    onClick={() => { setError(""); setStep("forgot_password"); }}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <input
                   type="password"
                   id="auth-password"
@@ -196,6 +225,79 @@ export default function AuthPage() {
                 type="button"
                 className="btn btn-ghost"
                 onClick={() => setStep("identifier")}
+                style={{ marginTop: "0.5rem" }}
+              >
+                ← Back
+              </button>
+            </form>
+          </>
+        ) : step === "link_sent" ? (
+          <>
+            <h1 className={styles.authTitle}>Check Your Inbox</h1>
+            <p className={styles.authSubtitle} style={{ marginBottom: "1rem" }}>
+              We've sent a magic link to <strong>{identifier}</strong>. Click the link to securely reset your password.
+            </p>
+
+            <div className={styles.authForm}>
+              <button
+                type="button"
+                className={styles.authSubmit}
+                onClick={() => {
+                  const ua = navigator.userAgent.toLowerCase();
+                  if (ua.includes("iphone") || ua.includes("ipad")) {
+                    window.location.href = "message://";
+                  } else if (ua.includes("android")) {
+                    window.location.href = "intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_EMAIL;end";
+                  } else {
+                    window.open("https://mail.google.com", "_blank");
+                  }
+                }}
+              >
+                Open Inbox →
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setStep("password")}
+                style={{ marginTop: "0.5rem" }}
+              >
+                ← Back to Login
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h1 className={styles.authTitle}>Reset Password</h1>
+            <p className={styles.authSubtitle}>
+              We'll send a magic link to your email to reset your password
+            </p>
+
+            {error && <div className={styles.authError} id="auth-error">{error}</div>}
+
+            <form className={styles.authForm} onSubmit={handleForgotPassword}>
+              <div className={styles.authField}>
+                <label>Personal Email</label>
+                <input
+                  type="email"
+                  value={identifier}
+                  disabled
+                  className={styles.disabledInput}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className={styles.authSubmit}
+                disabled={loading}
+              >
+                {loading ? "Sending..." : "Send Reset Link"}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => { setError(""); setStep("password"); }}
                 style={{ marginTop: "0.5rem" }}
               >
                 ← Back

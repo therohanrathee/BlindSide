@@ -225,6 +225,34 @@
   color: var(--error);
   font-size: var(--text-sm);
   text-align: center;
+  margin-bottom: var(--space-md);
+}
+
+.forgotPasswordBtn {
+  font-size: 12px;
+  padding: 0;
+  height: auto;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: color 0.3s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.forgotPasswordBtn:hover {
+  color: var(--text-primary);
+}
+
+.forgotPasswordBtn.hasError {
+  color: var(--accent-primary);
+  animation: popPulse 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popPulse {
+  0% { transform: scale(1); color: var(--text-secondary); }
+  50% { transform: scale(1.12); color: var(--accent-primary); }
+  100% { transform: scale(1); color: var(--accent-primary); }
 }
 
 @keyframes fadeInUp {
