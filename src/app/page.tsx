@@ -54,11 +54,19 @@ export default function LandingPage() {
   // Redirect if already logged in
   useEffect(() => {
     const checkUser = async () => {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        router.push("/dashboard");
-      } else {
+      try {
+        const supabase = createClient();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Session error:", error);
+        }
+        if (session?.user) {
+          router.push("/dashboard");
+        } else {
+          setCheckingAuth(false);
+        }
+      } catch (err) {
+        console.error("Failed to check auth session:", err);
         setCheckingAuth(false);
       }
     };

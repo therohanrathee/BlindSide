@@ -738,94 +738,117 @@ export default function DashboardPage() {
   // 1. Fetch User and Active Requests on Mount
   useEffect(() => {
     async function loadDashboard() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        window.location.href = "/auth";
-        return;
-      }
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+        }
+        
+        if (!session) {
+          window.location.href = "/auth";
+          return;
+        }
 
-      setUserId(session.user.id);
-      
-      // Load User info
-      const { data: userRecord } = await supabase
-        .from("users")
-        .select("first_name, last_name, is_onboarding_complete, university_id, universities(name), date_of_birth, gender, height_cm, weight_kg")
-        .eq("id", session.user.id)
-        .single();
+        setUserId(session.user.id);
+        
+        // Load User info
+        const { data: userRecord, error: userError } = await supabase
+          .from("users")
+          .select("first_name, last_name, is_onboarding_complete, university_id, universities(name), date_of_birth, gender, height_cm, weight_kg")
+          .eq("id", session.user.id)
+          .single();
 
-      if (!userRecord?.is_onboarding_complete) {
-        window.location.href = "/onboarding";
-        return;
-      }
+        if (userError) {
+          console.error("User fetch error:", userError);
+        }
 
-      const fullName = `${userRecord.first_name || ""} ${userRecord.last_name || ""}`.trim();
-      setUserName(fullName || "User");
-      setUniversityName((userRecord.universities as any)?.name || "Campus");
+        if (userRecord && !userRecord.is_onboarding_complete) {
+          window.location.href = "/onboarding";
+          return;
+        }
 
-      // Load Profile
-      const { data: profileRecord } = await supabase
-        .from("profiles")
-        .select("photo_url, dietary, drinking, smoking, fitness, hobbies")
-        .eq("user_id", session.user.id)
-        .single();
+        if (userRecord) {
+          const fullName = `${userRecord.first_name || ""} ${userRecord.last_name || ""}`.trim();
+          setUserName(fullName || "User");
+          setUniversityName((userRecord.universities as any)?.name || "Campus");
 
-      if (userRecord) {
-        setMyFirstName(userRecord.first_name || "");
-        setMyLastName(userRecord.last_name || "");
-        setMyDob(userRecord.date_of_birth || "");
-        setMyGender(userRecord.gender || "male");
-        setMyHeightCm(userRecord.height_cm || 170);
-        setMyWeightKg(userRecord.weight_kg || 65);
-      }
-      if (profileRecord) {
-        setMyPhotoUrl(profileRecord.photo_url || "");
-        setMyDietary(profileRecord.dietary || "no_preference");
-        setMyDrinking(profileRecord.drinking || "sober");
-        setMySmoking(profileRecord.smoking || "non_smoker");
-        setMyFitness(profileRecord.fitness || "not_active");
-        setMyHobbies(profileRecord.hobbies || []);
+          setMyFirstName(userRecord.first_name || "");
+          setMyLastName(userRecord.last_name || "");
+          setMyDob(userRecord.date_of_birth || "");
+          setMyGender(userRecord.gender || "male");
+          setMyHeightCm(userRecord.height_cm || 170);
+          setMyWeightKg(userRecord.weight_kg || 65);
+        }
 
-        if (profileRecord.photo_url) {
-          const { data: signedData } = await supabase.storage
-            .from("photos")
-            .createSignedUrl(profileRecord.photo_url, 3600 * 24);
-          if (signedData?.signedUrl) {
-            setMyPhotoSignedUrl(signedData.signedUrl);
+        // Load Profile
+        const { data: profileRecord, error: profileError } = await supabase
+          .from("profiles")
+          .select("photo_url, dietary, drinking, smoking, fitness, hobbies")
+          .eq("user_id", session.user.id)
+          .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("Profile fetch error:", profileError);
+        }
+
+        if (profileRecord) {
+          setMyPhotoUrl(profileRecord.photo_url || "");
+          setMyDietary(profileRecord.dietary || "no_preference");
+          setMyDrinking(profileRecord.drinking || "sober");
+          setMySmoking(profileRecord.smoking || "non_smoker");
+          setMyFitness(profileRecord.fitness || "not_active");
+          setMyHobbies(profileRecord.hobbies || []);
+
+          if (profileRecord.photo_url) {
+            const { data: signedData } = await supabase.storage
+              .from("photos")
+              .createSignedUrl(profileRecord.photo_url, 3600 * 24);
+            if (signedData?.signedUrl) {
+              setMyPhotoSignedUrl(signedData.signedUrl);
+            }
           }
         }
-      }
 
-      // Load Wallet & Transactions
-      const { data: wallet } = await supabase
-        .from("wallets")
-        .select("id, balance")
-        .eq("user_id", session.user.id)
-        .single();
-      if (wallet) {
-        setWalletBalance(parseFloat(wallet.balance as any));
-        const { data: txs } = await supabase
-          .from("wallet_transactions")
-          .select("*")
-          .eq("wallet_id", wallet.id)
-          .order("created_at", { ascending: false });
-        if (txs) {
-          setTransactions(txs);
+        // Load Wallet & Transactions
+        const { data: wallet, error: walletError } = await supabase
+          .from("wallets")
+          .select("id, balance")
+          .eq("user_id", session.user.id)
+          .single();
+          
+        if (walletError && walletError.code !== "PGRST116") {
+          console.error("Wallet fetch error:", walletError);
         }
+        
+        if (wallet) {
+          setWalletBalance(parseFloat(wallet.balance as any));
+          const { data: txs } = await supabase
+            .from("wallet_transactions")
+            .select("*")
+            .eq("wallet_id", wallet.id)
+            .order("created_at", { ascending: false });
+          if (txs) {
+            setTransactions(txs);
+          }
+        }
+
+        // Check if this is the user's first paid match search request
+        const { count: paidCount, error: countError } = await supabase
+          .from("match_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", session.user.id)
+          .not("status", "eq", "unpaid");
+
+        if (!countError && paidCount !== null) {
+          setIsFirstMatch(paidCount === 0);
+        }
+
+        await refreshMatchStatus(session.user.id);
+      } catch (err) {
+        console.error("Dashboard loading error:", err);
+      } finally {
+        setLoading(false);
       }
-
-      // Check if this is the user's first paid match search request
-      const { count: paidCount, error: countError } = await supabase
-        .from("match_requests")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", session.user.id)
-        .not("status", "eq", "unpaid");
-
-      if (!countError && paidCount !== null) {
-        setIsFirstMatch(paidCount === 0);
-      }
-
-      await refreshMatchStatus(session.user.id);
-      setLoading(false);
     }
     loadDashboard();
   }, [supabase, router]);
