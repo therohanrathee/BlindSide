@@ -187,6 +187,8 @@
 .select,
 .input {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 0.75rem 1rem;
   font-family: var(--font-sans);
   font-size: var(--text-sm);
@@ -195,6 +197,8 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   transition: border-color 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .select:focus,
