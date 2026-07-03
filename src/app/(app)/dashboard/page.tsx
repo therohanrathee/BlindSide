@@ -1364,9 +1364,10 @@ export default function DashboardPage() {
     const text = newMessageText.trim();
     setNewMessageText("");
 
-    // optimistic update
+    // optimistic update using a real UUID
+    const msgId = crypto.randomUUID();
     const tempMsg = {
-      id: Math.random().toString(),
+      id: msgId,
       sender_id: userId,
       content: text,
       created_at: new Date().toISOString(),
@@ -1374,6 +1375,7 @@ export default function DashboardPage() {
     setChatMessages([...chatMessages, tempMsg]);
 
     const { error } = await supabase.from("messages").insert({
+      id: msgId,
       match_id: activeMatch.id,
       sender_id: userId,
       content: text,
