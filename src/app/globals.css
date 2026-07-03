@@ -642,12 +642,14 @@ h6 { font-size: var(--text-lg); }
 }
 
 .animate-eye-pupil {
-  transform-origin: 12px 12px;
+  transform-origin: center;
+  transform-box: view-box;
   animation: eyeLookLeftRight 4.5s infinite ease-in-out;
 }
 
 .animate-eye-lid {
-  transform-origin: 12px 12px;
+  transform-origin: center;
+  transform-box: view-box;
   animation: eyeBlink 4.5s infinite ease-in-out;
 }
 

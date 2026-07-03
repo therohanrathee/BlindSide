@@ -163,11 +163,9 @@ export default function LandingPage() {
 
   return (
     <>
-      <div className={`${s.splashOverlay} ${!isPageLoading ? s.splashHidden : ""}`}>
-        <SplashLoader />
-      </div>
+      <SplashLoader className={!isPageLoading ? s.splashHidden : ""} />
 
-      <div className={s.landing}>
+      <div className={`${s.landing} ${isPageLoading ? s.noScroll : ""}`}>
         {/* Background Ambience */}
       <div className={s.ambientBg} aria-hidden="true">
         <div className={s.aurora} />
