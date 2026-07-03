@@ -1631,7 +1631,6 @@
 
 .rightColumnCard {
   width: 100%;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (min-width: 768px) {
@@ -1639,6 +1638,7 @@
     position: sticky;
     top: 6rem;
     align-self: start;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
@@ -2920,6 +2920,17 @@
 @media (max-width: 768px) {
   .desktopOnly {
     display: none !important;
+  }
+  .rightColumnCard.desktopOnly {
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
   }
   .mobileOnly {
     display: block !important;
