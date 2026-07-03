@@ -80,7 +80,7 @@ export default function LandingPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const [envelopeOpen, setEnvelopeOpen] = useState(false);
+  // Removed envelopeOpen state as it's no longer used
   const [chatStage, setChatStage] = useState(0);
 
   const journeyFlowRef = useRef<HTMLDivElement>(null);
@@ -151,13 +151,13 @@ export default function LandingPage() {
       num: "03",
       title: "Chat Blind",
       subtitle: "Focus on Dialogue",
-      desc: "A secure, text-only chat window opens for 48 hours. No photographs. No superficial reviews. We filter out contact details so you focus purely on the conversation.",
+      desc: "A secure chat window opens for 48 hours. You are in complete control of your privacy. Choose to reveal your name or photo only when you feel comfortable, or remain totally anonymous.",
     },
     {
       num: "04",
-      title: "The Reveal",
-      subtitle: "The Signature Moment",
-      desc: "If both parties agree to meet, plan your date in-app. Exactly four hours before your date, we email both of you your match\u2019s photograph and confirmed location details.",
+      title: "Plan the Date",
+      subtitle: "Seamless Coordination",
+      desc: "If the vibe is right, coordinate your meeting directly in-app. Once mutually confirmed, instantly add the event to your calendar and get directions via Google Maps.",
     },
   ];
 
@@ -196,7 +196,7 @@ export default function LandingPage() {
             <span className={s.heroTitleSecondary}>Meet in the light.</span>
           </h1>
           <p className={s.heroSubtitle}>
-            A verified blind-matching platform for university students. No photo grids, no shallow swiping. Converse blind for 48 hours, plan a meeting, and reveal your identities before you meet.
+            A verified blind-matching platform for university students. No superficial swiping. Converse anonymously, reveal your identity on your own terms, and seamlessly coordinate your first date in-app.
           </p>
 
           <div className={s.heroActions}>
@@ -336,39 +336,39 @@ export default function LandingPage() {
                   </div>
                 )}
 
-                {/* Step 4: Reveal Preview */}
+                {/* Step 4: Date Planning Preview */}
                 {i === 3 && (
-                  <div className={s.previewCardReveal}>
-                    <div className={s.revealTag}>T-4 Hours Before Date</div>
-
-                    <div
-                      className={`${s.envelope} ${envelopeOpen ? s.envelopeOpenState : ""}`}
-                      onMouseEnter={() => setEnvelopeOpen(true)}
-                      onMouseLeave={() => setEnvelopeOpen(false)}
-                      onClick={() => setEnvelopeOpen(!envelopeOpen)}
-                    >
-                      <div className={s.envelopeFlap} />
-                      <div className={s.envelopePaper}>
-                        <div className={s.paperHeader}>
-                          <span>Date Details Revealed</span>
-                        </div>
-
-                        <div className={s.avatarContainer}>
-                          <div className={s.blurredAvatar}>
-                            <div className={s.avatarAbstractGradient} />
-                          </div>
-                          <div className={s.avatarCheckIcon}>✓</div>
-                        </div>
-
-                        <h4 className={s.paperName}>Priya, 22</h4>
-                        <p className={s.paperLocation}>Café Dori, Dhan Mill</p>
-                        <span className={s.paperTime}>Today at 5:00 PM</span>
-                        <div className={s.paperMapLink}>Open in Google Maps</div>
-                      </div>
-                      <div className={s.envelopeFront} />
+                  <div className={s.previewCardDatePlanning}>
+                    <div className={s.dateHeader}>
+                      <span className={s.dateStatus}>✓ Mutual Agreement Reached</span>
+                      <h4>Date Confirmed</h4>
                     </div>
 
-                    <p className={s.envelopeHint}>Hover or tap the envelope to inspect your match details</p>
+                    <div className={s.dateDetailsBox}>
+                      <div className={s.dateDetailRow}>
+                        <div className={s.dateDetailIcon}>📍</div>
+                        <div className={s.dateDetailText}>
+                          <strong>Café Dori, Dhan Mill</strong>
+                          <span>100ft Road, Chhatarpur</span>
+                        </div>
+                      </div>
+                      <div className={s.dateDetailRow}>
+                        <div className={s.dateDetailIcon}>🕒</div>
+                        <div className={s.dateDetailText}>
+                          <strong>Friday, Oct 24</strong>
+                          <span>5:00 PM - 7:00 PM</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={s.dateActions}>
+                      <button className={s.btnCalendar}>
+                        📅 Add to Calendar
+                      </button>
+                      <button className={s.btnMaps}>
+                        🗺 Open in Maps
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -384,7 +384,7 @@ export default function LandingPage() {
             <div className={s.philosophyIcon}><ShieldIcon /></div>
             <h3 className={s.philosophyTitle}>Safety & Discretion</h3>
             <p className={s.philosophyDesc}>
-              No photos are shared in-app, protecting your identity. All communications are private and secure, and campus network filters block external or unverified accounts.
+              Your identity remains completely hidden by default. You have absolute control to reveal your name or photo only when you're ready. All communications are private and secure, and campus network filters block external or unverified accounts.
             </p>
           </div>
           <div className={s.philosophyColumn}>
@@ -430,7 +430,7 @@ export default function LandingPage() {
                 </div>
                 <div className={s.benefitText}>
                   <h4>Double-Blind Security</h4>
-                  <p>No photos or contact details are shared in-app, protecting your discretion at all times.</p>
+                  <p>You control your privacy. Identities and photos remain completely hidden by default, revealed only by mutual consent.</p>
                 </div>
               </div>
               <div className={s.benefitItem}>
@@ -466,7 +466,7 @@ export default function LandingPage() {
                 <span className={s.checkMark}>✓</span> 48-hour secure chat timer
               </li>
               <li>
-                <span className={s.checkMark}>✓</span> Envelope reveal sent via email 4h before
+                <span className={s.checkMark}>✓</span> In-app date coordination & calendar sync
               </li>
               <li>
                 <span className={s.checkMark}>✓</span> 7-day match guarantee or 100% refund
