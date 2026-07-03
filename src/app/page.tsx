@@ -45,8 +45,11 @@ function KeyIcon() {
   );
 }
 
+import SplashLoader from "@/components/SplashLoader";
+
 export default function LandingPage() {
   const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [visibleSteps, setVisibleSteps] = useState<Set<number>>(new Set());
 
@@ -60,10 +63,14 @@ export default function LandingPage() {
           console.error("Session error:", error);
         }
         if (session?.user) {
+          // Do not set checkingAuth to false here, keep the loader spinning until redirect happens
           router.push("/dashboard");
+        } else {
+          setCheckingAuth(false);
         }
       } catch (err) {
         console.error("Failed to check auth session:", err);
+        setCheckingAuth(false);
       }
     };
     checkUser();
@@ -148,6 +155,10 @@ export default function LandingPage() {
       desc: "If both parties agree to meet, plan your date in-app. Exactly four hours before your date, we email both of you your match\u2019s photograph and confirmed location details.",
     },
   ];
+
+  if (checkingAuth) {
+    return <SplashLoader text="Entering BlindSide..." />;
+  }
 
   return (
     <div className={s.landing}>
