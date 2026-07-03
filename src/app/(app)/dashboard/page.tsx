@@ -225,6 +225,92 @@ function SmokeNoPrefSVG({ fill }: { fill: string }) {
   );
 }
 
+function BellIcon({ color = "currentColor", size = 24 }: { color?: string, size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </svg>
+  );
+}
+
+function BellOffIcon({ color = "currentColor", size = 24 }: { color?: string, size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5" />
+      <path d="M17 17H3s3-2 3-9a4.67 4.67 0 0 1 .3-1.7" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      <path d="m2 2 20 20" />
+    </svg>
+  );
+}
+
+function PushGuidelinesModal({ onClose }: { onClose: () => void }) {
+  const [platform, setPlatform] = useState<string>("desktop");
+  const [browser, setBrowser] = useState<string>("unknown");
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    if (/android/i.test(ua)) setPlatform("android");
+    else if (/iPad|iPhone|iPod/.test(ua)) setPlatform("ios");
+    else setPlatform("desktop");
+
+    if (/Edg/.test(ua)) setBrowser("edge");
+    else if (/Chrome/.test(ua)) setBrowser("chrome");
+    else if (/Safari/.test(ua)) setBrowser("safari");
+    else if (/Firefox/.test(ua)) setBrowser("firefox");
+  }, []);
+
+  return (
+    <div className={s.editOverlayModal} style={{ zIndex: 9999 }}>
+      <div className={s.editModalContent} style={{ maxWidth: "450px", alignSelf: "center", justifySelf: "center", margin: "auto" }}>
+        <h2 className={s.modalTitle} style={{ marginBottom: "1rem" }}>Unblock Notifications</h2>
+        <p className={s.modalSubtitle} style={{ marginBottom: "1.5rem" }}>
+          You've blocked notifications in your browser. You need to manually enable them to get match alerts!
+        </p>
+        
+        <div style={{ background: "rgba(255,255,255,0.05)", padding: "1.5rem", borderRadius: "12px", textAlign: "left", marginBottom: "1.5rem" }}>
+          {platform === "ios" && (
+            <ol style={{ paddingLeft: "1.2rem", margin: 0, display: "flex", flexDirection: "column", gap: "0.8rem", color: "#ccc" }}>
+              <li>Tap the <strong>aA</strong> icon in your address bar at the top or bottom of the screen.</li>
+              <li>Tap <strong>Website Settings</strong>.</li>
+              <li>Toggle <strong>Notifications</strong> to Allow.</li>
+              <li>Refresh this page.</li>
+            </ol>
+          )}
+          {platform === "android" && (
+            <ol style={{ paddingLeft: "1.2rem", margin: 0, display: "flex", flexDirection: "column", gap: "0.8rem", color: "#ccc" }}>
+              <li>Tap the <strong>Lock icon 🔒</strong> or Settings icon in your address bar.</li>
+              <li>Tap <strong>Permissions</strong> or <strong>Site Settings</strong>.</li>
+              <li>Set <strong>Notifications</strong> to Allow.</li>
+              <li>Refresh this page.</li>
+            </ol>
+          )}
+          {platform === "desktop" && browser === "safari" && (
+            <ol style={{ paddingLeft: "1.2rem", margin: 0, display: "flex", flexDirection: "column", gap: "0.8rem", color: "#ccc" }}>
+              <li>Open Safari Preferences (<strong>⌘,</strong>).</li>
+              <li>Go to the <strong>Websites</strong> tab, then click <strong>Notifications</strong> on the left.</li>
+              <li>Find this website in the list and select <strong>Allow</strong>.</li>
+              <li>Refresh this page.</li>
+            </ol>
+          )}
+          {platform === "desktop" && browser !== "safari" && (
+            <ol style={{ paddingLeft: "1.2rem", margin: 0, display: "flex", flexDirection: "column", gap: "0.8rem", color: "#ccc" }}>
+              <li>Click the <strong>Lock or Tune icon 🔒</strong> next to the URL in your address bar.</li>
+              <li>Toggle <strong>Notifications</strong> on.</li>
+              <li>Refresh this page.</li>
+            </ol>
+          )}
+        </div>
+        
+        <button type="button" className="btn btn-primary btn-pill" style={{ width: "100%" }} onClick={onClose}>
+          Got it
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const HOBBIES_LIST = [
   { name: "Reading",      emoji: "📚" },
   { name: "Gaming",       emoji: "🎮" },
@@ -268,6 +354,25 @@ export default function DashboardPage() {
   const [showTransactions, setShowTransactions] = useState(false);
   const transactionCardRef = useRef<HTMLDivElement>(null);
   const [isFirstMatch, setIsFirstMatch] = useState(true);
+
+  // Push notifications
+  const [showPushPrompt, setShowPushPrompt] = useState(false);
+  const [pushStatus, setPushStatus] = useState<"idle" | "subscribing" | "success" | "error">("idle");
+  const [chatNotificationState, setChatNotificationState] = useState<"granted" | "denied" | "muted" | "default">("default");
+  const [showGuidelineModal, setShowGuidelineModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "denied") {
+        setChatNotificationState("denied");
+      } else if (Notification.permission === "granted") {
+        const isMuted = localStorage.getItem("blindside_push_muted");
+        setChatNotificationState(isMuted === "true" ? "muted" : "granted");
+      } else {
+        setChatNotificationState("default");
+      }
+    }
+  }, []);
 
   // Match State Machine
   const [dashboardState, setDashboardState] = useState<0 | 1 | 2 | 3 | 4>(0);
@@ -706,11 +811,13 @@ export default function DashboardPage() {
   // Timer Refs for clean interval management
   const searchingIntervalRef = useRef<any>(null);
   const chatIntervalRef = useRef<any>(null);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesAreaRef = useRef<HTMLDivElement | null>(null);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+    if (messagesAreaRef.current) {
+      messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
+    }
   }, [chatMessages, dashboardState]);
 
   // Clean up timers on unmount
@@ -1059,9 +1166,9 @@ export default function DashboardPage() {
     const expiry = new Date(expiryStr).getTime();
     
     // If the expiry is more than 30 days in the future, display infinite time for development
-    if (expiry - Date.now() > 30 * 24 * 60 * 60 * 1000) {
-      setChatCountdownText("∞ (No Expiry)");
-      return;
+    if (expiry - Date.now() > 10 * 365 * 24 * 60 * 60 * 1000) {
+        setChatCountdownText("∞");
+        return;
     }
 
     chatIntervalRef.current = setInterval(() => {
@@ -2154,6 +2261,55 @@ export default function DashboardPage() {
     window.location.href = "/auth";
   };
 
+  const handleClosePushPrompt = () => {
+    setShowPushPrompt(false);
+  };
+
+  const handleEnablePush = async () => {
+    setPushStatus("subscribing");
+    try {
+      const { subscribeToPushNotifications } = await import("@/lib/push");
+      const success = await subscribeToPushNotifications();
+      if (success) {
+        setPushStatus("success");
+        setChatNotificationState("granted");
+        localStorage.setItem("blindside_push_muted", "false");
+        setTimeout(() => setShowPushPrompt(false), 2000);
+      } else {
+        if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "denied") {
+          setChatNotificationState("denied");
+        }
+        setPushStatus("error");
+      }
+    } catch (err) {
+      console.error(err);
+      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "denied") {
+        setChatNotificationState("denied");
+      }
+      setPushStatus("error");
+    }
+  };
+
+  const handleToggleChatBell = async () => {
+    if (chatNotificationState === "denied") {
+      setShowGuidelineModal(true);
+    } else if (chatNotificationState === "granted") {
+      setChatNotificationState("muted");
+      localStorage.setItem("blindside_push_muted", "true");
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration) {
+          const subscription = await registration.pushManager.getSubscription();
+          if (subscription) await subscription.unsubscribe();
+        }
+      } catch (e) {}
+    } else if (chatNotificationState === "muted" || chatNotificationState === "default") {
+      setChatNotificationState("granted");
+      localStorage.setItem("blindside_push_muted", "false");
+      handleEnablePush();
+    }
+  };
+
   if (loading) {
     return <SplashLoader />;
   }
@@ -2482,6 +2638,20 @@ export default function DashboardPage() {
                     </div>
 
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <button
+                        type="button"
+                        className={s.chatInfoBtn}
+                        onClick={handleToggleChatBell}
+                        aria-label="Notification Settings"
+                        style={{ color: chatNotificationState === "denied" ? "red" : "currentColor" }}
+                      >
+                        {chatNotificationState === "granted" ? (
+                          <BellIcon size={20} />
+                        ) : (
+                          <BellOffIcon size={20} />
+                        )}
+                      </button>
+
                       <span className={s.chatHeaderTimer}>
                         ⏱️ {chatCountdownText}
                       </span>
@@ -2491,8 +2661,9 @@ export default function DashboardPage() {
                         className={`${s.chatInfoBtn} ${s.mobileOnly}`} 
                         onClick={() => { setSheetState("collapsed"); setShowMobileInfoDrawer(true); }}
                         aria-label="View match info"
+                        style={{ display: "flex" }}
                       >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block", transform: "translateY(1px)" }}>
                           <circle cx="12" cy="12" r="10" />
                           <line x1="12" y1="16" x2="12" y2="12" />
                           <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -2501,7 +2672,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   
-                  <div className={s.messagesArea}>
+                  <div className={s.messagesArea} ref={messagesAreaRef}>
                     {chatMessages.length === 0 ? (
                       <div className={s.chatEmpty}>
                         💬 Start the conversation! No names, no pictures. Just dialogue.
@@ -2527,7 +2698,6 @@ export default function DashboardPage() {
                         );
                       })
                     )}
-                    <div ref={messagesEndRef} />
                   </div>
 
                   <form onSubmit={handleSendMessage} className={s.chatInputRow}>
@@ -3861,6 +4031,26 @@ export default function DashboardPage() {
                 </div>
               )}
 
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showGuidelineModal && <PushGuidelinesModal onClose={() => setShowGuidelineModal(false)} />}
+      
+      {showPushPrompt && (
+        <div className={s.editOverlayModal} style={{ zIndex: 9999 }}>
+          <div className={s.editModalContent} style={{ maxWidth: "400px", alignSelf: "center", justifySelf: "center", margin: "auto", textAlign: "center" }}>
+            <div style={{ background: "rgba(232, 58, 114, 0.1)", color: "var(--accent-primary)", width: "64px", height: "64px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
+              <SearchIcon size={32} />
+            </div>
+            <h2 className={s.modalTitle}>Stay in the Loop</h2>
+            <p className={s.modalSubtitle}>Want to know immediately when we find a match? Enable notifications to get an instant alert!</p>
+            {pushStatus === "error" && <div style={{ color: "red", fontSize: "0.9rem", marginBottom: "1rem" }}>Oops! Notification access failed.</div>}
+            {pushStatus === "success" && <div style={{ color: "var(--accent-primary)", fontSize: "0.9rem", marginBottom: "1rem" }}>Perfect! We will notify you! 💖</div>}
+            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+              <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={handleClosePushPrompt} disabled={pushStatus === "subscribing" || pushStatus === "success"}>Not Now</button>
+              <button type="button" className="btn btn-primary btn-pill" style={{ flex: 1 }} onClick={handleEnablePush} disabled={pushStatus === "subscribing" || pushStatus === "success"}>{pushStatus === "subscribing" ? "Enabling..." : pushStatus === "success" ? "Enabled ✓" : "Enable"}</button>
             </div>
           </div>
         </div>
