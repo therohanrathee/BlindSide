@@ -2335,12 +2335,18 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-xs);
-  max-height: 180px;
+  max-height: 220px;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: var(--space-sm);
   background: var(--bg-surface-hover);
+}
+
+.hobbiesEditGrid::-webkit-scrollbar {
+  display: none;
 }
 
 .hobbyEditBtn {
@@ -2348,8 +2354,8 @@
   border: 1px solid var(--border);
   color: var(--text-secondary);
   border-radius: var(--radius-md);
-  padding: 0.45rem 0.5rem;
-  font-size: 11px;
+  padding: 0.4rem 0.35rem;
+  font-size: 10px;
   font-weight: 600;
   cursor: pointer;
   text-align: center;
@@ -2357,7 +2363,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .hobbyEditBtn:hover {
@@ -2967,6 +2976,33 @@
   .select,
   .input {
     font-size: 16px !important;
+  }
+
+  /* ── Edit Profile Modal: hide ALL scrollbars on mobile ── */
+  .editOverlayModal *::-webkit-scrollbar {
+    display: none !important;
+  }
+  .editOverlayModal * {
+    scrollbar-width: none !important;
+  }
+
+  .editModalContent {
+    padding: 1.5rem !important;
+    max-height: 92vh !important;
+    border-radius: 16px !important;
+  }
+
+  .hobbiesEditGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    max-height: none !important;
+    gap: 6px !important;
+    padding: 0.6rem !important;
+  }
+
+  .hobbyEditBtn {
+    padding: 0.45rem 0.4rem !important;
+    font-size: 11px !important;
+    gap: 4px !important;
   }
 }
 
