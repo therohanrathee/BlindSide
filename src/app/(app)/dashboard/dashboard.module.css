@@ -2608,7 +2608,7 @@
 .transactionDropdown {
   position: absolute;
   top: calc(100% + 8px);
-  right: -25px; /* Shifted further to the right to ensure left padding on small screens */
+  right: -40px; /* Shifted further to the right to ensure left padding on small screens */
   width: 280px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
