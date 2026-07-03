@@ -498,7 +498,7 @@
 .stepPreview .previewCardVerify,
 .stepPreview .previewCardMatch,
 .stepPreview .previewCardChat,
-.stepPreview .previewCardReveal {
+.stepPreview .previewCardDatePlanning {
   animation: none;
 }
 
@@ -833,18 +833,16 @@
 /* Step 4: Date Planning Preview */
 .previewCardDatePlanning {
   width: 100%;
-  max-width: 320px;
-  background: hsla(230, 20%, 16%, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  max-width: 360px;
+  background: hsla(230, 20%, 12%, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   animation: cardFadeIn 0.5s var(--ease-out-expo);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0;
 }
 
 .dateHeader {
@@ -853,23 +851,24 @@
   align-items: center;
   text-align: center;
   gap: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 1rem;
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: var(--space-lg);
 }
 
 .dateStatus {
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   font-weight: 700;
   color: var(--success);
-  background: rgba(46, 189, 110, 0.1);
-  padding: 0.3rem 0.6rem;
+  background: rgba(46, 189, 110, 0.08);
+  padding: 0.3rem 0.65rem;
   border-radius: var(--radius-pill);
 }
 
 .dateHeader h4 {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
@@ -878,83 +877,94 @@
 .dateDetailsBox {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
 
 .dateDetailRow {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.875rem;
+  padding: 0.625rem 0;
+}
+
+.dateDetailRow + .dateDetailRow {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .dateDetailIcon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
+  flex-shrink: 0;
 }
 
 .dateDetailText {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .dateDetailText strong {
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--text-primary);
   font-weight: 600;
 }
 
 .dateDetailText span {
-  font-size: 12px;
-  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
 }
 
 .dateActions {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 0.625rem;
 }
 
 .btnCalendar, .btnMaps {
-  width: 100%;
-  padding: 0.75rem;
+  flex: 1;
+  padding: 0.75rem 0.5rem;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition: all 0.3s var(--ease-out-expo);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   border: none;
+  white-space: nowrap;
 }
 
 .btnCalendar {
-  background: var(--accent-primary);
-  color: white;
-  box-shadow: 0 4px 15px rgba(232, 58, 114, 0.25);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .btnCalendar:hover {
-  background: var(--accent-primary-hover);
+  background: rgba(255, 255, 255, 0.08);
   transform: translateY(-2px);
 }
 
 .btnMaps {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .btnMaps:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   transform: translateY(-2px);
 }
 
@@ -1242,7 +1252,7 @@
 .planCta {
   padding: 1rem;
   width: 100%;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
   text-align: center;
   font-weight: 600;
   font-size: var(--text-sm);
@@ -1525,7 +1535,71 @@
   }
 
   .pricingCard {
-    padding: 2.5rem var(--space-lg);
+    padding: 2.5rem 1.5rem;
+    align-items: center; /* Center everything vertically */
+    text-align: center;
+  }
+
+  .cardLabel {
+    margin-bottom: 0.25rem;
+  }
+
+  .cardPlanTitle {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Compact centered price */
+  .priceBox {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.15rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  .priceCurrency {
+    margin-right: 0;
+  }
+  
+  .pricePer {
+    margin-left: 4px;
+  }
+
+  /* Make the promo text look like a badge */
+  .firstMatchPromo {
+    display: inline-block;
+    background: rgba(46, 189, 110, 0.1);
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-pill);
+    margin-bottom: 2rem;
+  }
+
+  /* Group features into a distinct card-within-card */
+  .planFeatures {
+    text-align: left; /* Keep bullets left-aligned for readability */
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .planFeatures li {
+    font-size: 13px;
+  }
+
+  /* Make the CTA button pop */
+  .planCta {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(232, 58, 114, 0.3);
+    font-size: 14px;
+    padding: 1.125rem;
+    border-radius: var(--radius-pill);
   }
 
   .footerInner {
@@ -1547,9 +1621,11 @@
 :global([data-theme="light"]) .previewCardVerify,
 :global([data-theme="light"]) .previewCardMatch,
 :global([data-theme="light"]) .previewCardChat {
-  background: var(--bg-surface);
-  border-color: var(--border);
-  box-shadow: var(--shadow-md);
+  background: hsla(0, 0%, 100%, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 }
 :global([data-theme="light"]) .fakeInputContainer {
   background: var(--bg-primary);
@@ -1591,30 +1667,32 @@
   background: var(--bg-primary);
   border-color: var(--border);
 }
-:global([data-theme="light"]) .envelope {
-  background: var(--bg-surface);
-  border-color: var(--border);
-  box-shadow: var(--shadow-md);
+:global([data-theme="light"]) .previewCardDatePlanning {
+  background: hsla(0, 0%, 100%, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 }
-:global([data-theme="light"]) .envelope::after {
-  border-bottom-color: hsl(230, 15%, 90%);
+:global([data-theme="light"]) .dateHeader {
+  border-color: rgba(0, 0, 0, 0.08);
 }
-:global([data-theme="light"]) .envelopeFlap {
-  background: hsl(230, 15%, 88%);
+:global([data-theme="light"]) .dateDetailsBox {
+  background: hsla(0, 0%, 100%, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
-:global([data-theme="light"]) .envelopeFront {
-  background: hsl(230, 15%, 93%);
+:global([data-theme="light"]) .dateDetailRow + .dateDetailRow {
+  border-color: rgba(0, 0, 0, 0.06);
 }
-:global([data-theme="light"]) .envelopeFront::before {
-  border-top-color: hsl(230, 15%, 89%);
+:global([data-theme="light"]) .dateDetailIcon {
+  background: hsla(0, 0%, 100%, 0.6);
+  border-color: rgba(0, 0, 0, 0.06);
 }
-:global([data-theme="light"]) .envelopeFront::after {
-  border-top-color: hsl(230, 15%, 90%);
-}
-:global([data-theme="light"]) .envelopePaper {
-  background: var(--bg-surface);
-  border-color: var(--border);
-  box-shadow: var(--shadow-sm);
+:global([data-theme="light"]) .btnCalendar,
+:global([data-theme="light"]) .btnMaps {
+  background: hsla(0, 0%, 100%, 0.5);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary);
 }
 :global([data-theme="light"]) .pricingCard {
   background: var(--bg-surface);
@@ -1671,9 +1749,11 @@
   :global(:root:not([data-theme="dark"])) .previewCardVerify,
   :global(:root:not([data-theme="dark"])) .previewCardMatch,
   :global(:root:not([data-theme="dark"])) .previewCardChat {
-    background: var(--bg-surface);
-    border-color: var(--border);
-    box-shadow: var(--shadow-md);
+    background: hsla(0, 0%, 100%, 0.15);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
   }
   :global(:root:not([data-theme="dark"])) .fakeInputContainer {
     background: var(--bg-primary);
@@ -1715,30 +1795,32 @@
     background: var(--bg-primary);
     border-color: var(--border);
   }
-  :global(:root:not([data-theme="dark"])) .envelope {
-    background: var(--bg-surface);
-    border-color: var(--border);
-    box-shadow: var(--shadow-md);
+  :global(:root:not([data-theme="dark"])) .previewCardDatePlanning {
+    background: hsla(0, 0%, 100%, 0.15);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
   }
-  :global(:root:not([data-theme="dark"])) .envelope::after {
-    border-bottom-color: hsl(230, 15%, 90%);
+  :global(:root:not([data-theme="dark"])) .dateHeader {
+    border-color: rgba(0, 0, 0, 0.08);
   }
-  :global(:root:not([data-theme="dark"])) .envelopeFlap {
-    background: hsl(230, 15%, 88%);
+  :global(:root:not([data-theme="dark"])) .dateDetailsBox {
+    background: hsla(0, 0%, 100%, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.06);
   }
-  :global(:root:not([data-theme="dark"])) .envelopeFront {
-    background: hsl(230, 15%, 93%);
+  :global(:root:not([data-theme="dark"])) .dateDetailRow + .dateDetailRow {
+    border-color: rgba(0, 0, 0, 0.06);
   }
-  :global(:root:not([data-theme="dark"])) .envelopeFront::before {
-    border-top-color: hsl(230, 15%, 89%);
+  :global(:root:not([data-theme="dark"])) .dateDetailIcon {
+    background: hsla(0, 0%, 100%, 0.6);
+    border-color: rgba(0, 0, 0, 0.06);
   }
-  :global(:root:not([data-theme="dark"])) .envelopeFront::after {
-    border-top-color: hsl(230, 15%, 90%);
-  }
-  :global(:root:not([data-theme="dark"])) .envelopePaper {
-    background: var(--bg-surface);
-    border-color: var(--border);
-    box-shadow: var(--shadow-sm);
+  :global(:root:not([data-theme="dark"])) .btnCalendar,
+  :global(:root:not([data-theme="dark"])) .btnMaps {
+    background: hsla(0, 0%, 100%, 0.5);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: var(--text-secondary);
   }
   :global(:root:not([data-theme="dark"])) .pricingCard {
     background: var(--bg-surface);

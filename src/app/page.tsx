@@ -366,7 +366,7 @@ export default function LandingPage() {
                         📅 Add to Calendar
                       </button>
                       <button className={s.btnMaps}>
-                        🗺 Open in Maps
+                        📍 Open in Maps
                       </button>
                     </div>
                   </div>
