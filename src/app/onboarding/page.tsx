@@ -128,7 +128,10 @@ function OnboardingContent() {
       const { data: { session } } = await supabase.auth.getSession();
       const pendingId = localStorage.getItem("blindside_pending_identifier");
 
-      if (session && !pendingId) {
+      if (session) {
+        // Clear any lingering pending identifier since they are authenticated
+        localStorage.removeItem("blindside_pending_identifier");
+        
         setUserId(session.user.id);
         // Load user status
         const { data: userData } = await supabase
@@ -202,11 +205,6 @@ function OnboardingContent() {
           setStep(targetStep);
         }
       } else {
-        if (session && pendingId) {
-          // Clear previous user session since we have a new pending registration
-          await supabase.auth.signOut();
-        }
-
         // Try to load initial identifier from localStorage (transferred securely from /auth)
         if (pendingId) {
           localStorage.removeItem("blindside_pending_identifier");
@@ -377,8 +375,7 @@ function OnboardingContent() {
         setUserId(data.user.id);
         
         // Clear local storage since registration is complete
-        localStorage.removeItem("blindside_onboarding_primaryId");
-        localStorage.removeItem("blindside_onboarding_primaryVerified");
+        localStorage.removeItem("blindside_pending_identifier");
 
         setActionSuccess("Account created successfully!");
         setStep(4);
