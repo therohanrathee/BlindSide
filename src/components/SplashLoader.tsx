@@ -2,14 +2,13 @@ import React from "react";
 import EyeLogo from "./EyeLogo";
 
 interface SplashLoaderProps {
-  text?: string;
+  className?: string;
 }
 
-export default function SplashLoader({ text = "Loading..." }: SplashLoaderProps) {
+export default function SplashLoader({ className }: SplashLoaderProps) {
   return (
-    <div className="splash-loader-overlay">
+    <div className={`splash-loader-overlay ${className || ""}`}>
       <EyeLogo className="splash-loader-eye" width={72} height={72} animated={true} />
-      <div className="splash-loader-text">{text}</div>
     </div>
   );
 }

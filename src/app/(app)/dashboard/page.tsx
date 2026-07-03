@@ -2155,7 +2155,7 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return <SplashLoader text="Entering BlindSide..." />;
+    return <SplashLoader />;
   }
 
   return (

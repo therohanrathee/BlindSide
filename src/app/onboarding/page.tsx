@@ -765,7 +765,7 @@ function OnboardingContent() {
   };
 
   if (loading) {
-    return <SplashLoader text="Preparing Onboarding..." />;
+    return <SplashLoader />;
   }
 
   return (
@@ -1125,7 +1125,7 @@ function OnboardingContent() {
 
 export default function OnboardingPage() {
   return (
-    <Suspense fallback={<SplashLoader text="Loading..." />}>
+    <Suspense fallback={<SplashLoader />}>
       <OnboardingContent />
     </Suspense>
   );

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import SplashLoader from "@/components/SplashLoader";
 import s from "./page.module.css";
 import EyeLogo from "@/components/EyeLogo";
 import JourneyPath from "@/components/JourneyPath";
@@ -45,11 +46,9 @@ function KeyIcon() {
   );
 }
 
-import SplashLoader from "@/components/SplashLoader";
-
 export default function LandingPage() {
   const router = useRouter();
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [visibleSteps, setVisibleSteps] = useState<Set<number>>(new Set());
 
@@ -63,18 +62,24 @@ export default function LandingPage() {
           console.error("Session error:", error);
         }
         if (session?.user) {
-          // Do not set checkingAuth to false here, keep the loader spinning until redirect happens
           router.push("/dashboard");
-        } else {
-          setCheckingAuth(false);
         }
       } catch (err) {
         console.error("Failed to check auth session:", err);
-        setCheckingAuth(false);
       }
     };
     checkUser();
   }, [router]);
+
+  // Remove splash loader once client is hydrated and layout is settled
+  useEffect(() => {
+    // A small delay ensures the browser has painted the heavy DOM tree
+    const timer = setTimeout(() => {
+      setIsPageLoading(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, []);
+
   const [envelopeOpen, setEnvelopeOpen] = useState(false);
   const [chatStage, setChatStage] = useState(0);
 
@@ -156,13 +161,14 @@ export default function LandingPage() {
     },
   ];
 
-  if (checkingAuth) {
-    return <SplashLoader text="Entering BlindSide..." />;
-  }
-
   return (
-    <div className={s.landing}>
-      {/* Background Ambience */}
+    <>
+      <div className={`${s.splashOverlay} ${!isPageLoading ? s.splashHidden : ""}`}>
+        <SplashLoader />
+      </div>
+
+      <div className={s.landing}>
+        {/* Background Ambience */}
       <div className={s.ambientBg} aria-hidden="true">
         <div className={s.aurora} />
       </div>
@@ -503,5 +509,6 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+    </>
   );
 }
