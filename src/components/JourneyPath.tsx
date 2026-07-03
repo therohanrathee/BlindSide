@@ -25,6 +25,8 @@ export default function JourneyPath({
   const nodeDotsRef = useRef<(SVGCircleElement | null)[]>([]);
   const pathLengthRef = useRef(0);
   const rafIdRef = useRef(0);
+  // OPTIMIZATION: Cache the path points to avoid expensive getPointAtLength calls on scroll
+  const pathSamplesRef = useRef<{x: number, y: number}[]>([]);
 
   /* ──────────────────────────────────────
      Calculate path geometry from DOM
@@ -184,15 +186,23 @@ export default function JourneyPath({
     pathEl.style.strokeDasharray = `${totalLength}`;
     pathEl.style.strokeDashoffset = `${totalLength}`;
 
+    // OPTIMIZATION: Pre-compute path points into an array so we don't call getPointAtLength on scroll
+    const samples = 400;
+    const cachedSamples: { x: number; y: number }[] = [];
+    for (let i = 0; i <= samples; i++) {
+      const pt = pathEl.getPointAtLength(totalLength * (i / samples));
+      cachedSamples.push({ x: pt.x, y: pt.y });
+    }
+    pathSamplesRef.current = cachedSamples;
+
     // Pre-compute the exact path-length fraction at each node
     // by sampling the path geometry — this ensures perfect glow/bulb sync
     const nodePathFractions = svgData.nodes.map((node) => {
       let bestT = 0;
       let bestDist = Infinity;
-      const samples = 400;
       for (let si = 0; si <= samples; si++) {
         const t = si / samples;
-        const pt = pathEl.getPointAtLength(totalLength * t);
+        const pt = cachedSamples[si];
         const dx = pt.x - node.x;
         const dy = pt.y - node.y;
         const dist = dx * dx + dy * dy;
@@ -230,10 +240,16 @@ export default function JourneyPath({
 
         // Animate glow dot at the leading edge
         const glow = glowRef.current;
-        if (glow && totalLength > 0) {
+        const samplesArray = pathSamplesRef.current;
+        if (glow && totalLength > 0 && samplesArray.length > 0) {
           if (progress > 0.005 && progress < 0.995) {
             try {
-              const pt = pathEl.getPointAtLength(totalLength * progress);
+              // Map progress to cached array index
+              const sampleIdx = Math.min(
+                samplesArray.length - 1, 
+                Math.max(0, Math.floor(progress * (samplesArray.length - 1)))
+              );
+              const pt = samplesArray[sampleIdx];
               glow.setAttribute("cx", `${pt.x}`);
               glow.setAttribute("cy", `${pt.y}`);
               glow.style.opacity = "1";

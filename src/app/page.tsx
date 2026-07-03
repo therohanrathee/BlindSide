@@ -47,7 +47,6 @@ function KeyIcon() {
 
 export default function LandingPage() {
   const router = useRouter();
-  const [checkingAuth, setCheckingAuth] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [visibleSteps, setVisibleSteps] = useState<Set<number>>(new Set());
 
@@ -62,12 +61,9 @@ export default function LandingPage() {
         }
         if (session?.user) {
           router.push("/dashboard");
-        } else {
-          setCheckingAuth(false);
         }
       } catch (err) {
         console.error("Failed to check auth session:", err);
-        setCheckingAuth(false);
       }
     };
     checkUser();
@@ -88,9 +84,8 @@ export default function LandingPage() {
   }, []);
 
   // IntersectionObserver for step reveal (once visible, stays visible)
+  // OPTIMIZATION: Use direct DOM manipulation to avoid re-rendering the whole page
   useEffect(() => {
-    if (checkingAuth) return;
-
     const observers: IntersectionObserver[] = [];
 
     stepRefs.current.forEach((step, i) => {
@@ -98,22 +93,24 @@ export default function LandingPage() {
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
+            step.classList.add(s.stepVisible);
             setVisibleSteps((prev) => {
               if (prev.has(i)) return prev;
               const next = new Set(prev);
               next.add(i);
               return next;
             });
+            observer.disconnect(); // Stop observing once visible
           }
         },
-        { threshold: 0.2 }
+        { threshold: 0.15 } // Trigger slightly earlier on mobile
       );
       observer.observe(step);
       observers.push(observer);
     });
 
     return () => observers.forEach((o) => o.disconnect());
-  }, [checkingAuth]);
+  }, []);
 
   // Auto-advancing simulated chat (triggers when step 3 becomes visible)
   useEffect(() => {
@@ -151,16 +148,6 @@ export default function LandingPage() {
       desc: "If both parties agree to meet, plan your date in-app. Exactly four hours before your date, we email both of you your match\u2019s photograph and confirmed location details.",
     },
   ];
-  if (checkingAuth) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#0e1117" }}>
-        <div style={{ width: "32px", height: "32px", borderRadius: "50%", border: "3px solid rgba(232, 58, 114, 0.15)", borderTopColor: "#e83a72", animation: "spin 0.8s linear infinite" }} />
-        <style>{`
-          @keyframes spin { to { transform: rotate(360deg); } }
-        `}</style>
-      </div>
-    );
-  }
 
   return (
     <div className={s.landing}>
@@ -234,9 +221,7 @@ export default function LandingPage() {
               ref={(el) => {
                 stepRefs.current[i] = el;
               }}
-              className={`${s.journeyStep} ${i % 2 === 0 ? s.stepLeft : s.stepRight} ${
-                visibleSteps.has(i) ? s.stepVisible : ""
-              }`}
+              className={`${s.journeyStep} ${i % 2 === 0 ? s.stepLeft : s.stepRight}`}
             >
               {/* Mobile-only node dot (replaces SVG nodes on small screens) */}
               <div className={s.mobileNode} aria-hidden="true" />
