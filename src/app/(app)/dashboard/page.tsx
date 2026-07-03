@@ -338,7 +338,13 @@ export default function DashboardPage() {
     };
     sync();
     mql.addEventListener("change", sync);
-    return () => mql.removeEventListener("change", sync);
+    return () => {
+      mql.removeEventListener("change", sync);
+      // Clean up inert so it doesn't leak to a reused DOM node
+      if (leftColRef.current) {
+        leftColRef.current.removeAttribute("inert");
+      }
+    };
   }, [dashboardState]);
 
   const handleSheetTouchStart = (e: React.TouchEvent) => {
@@ -2264,11 +2270,11 @@ export default function DashboardPage() {
 
             {/* Left Column: Profile Card (state 0) or Planning/Sharing (state 3) */}
             {dashboardState === 3 ? (
-              <div ref={leftColRef} className={`${s.leftColumn} ${s.desktopOnly}`}>
+              <div key="left-col-planning" ref={leftColRef} className={`${s.leftColumn} ${s.desktopOnly}`}>
                 {renderLeftColumnContent()}
               </div>
             ) : (
-              <div className={s.profileMasterCard}>
+              <div key="profile-card" className={s.profileMasterCard}>
                 {/* Mobile Dynamic Action Button */}
                 <div className={s.mobileOnly} style={{ width: "100%", marginBottom: "1rem" }}>
                   {matchStatus === "none" && (
