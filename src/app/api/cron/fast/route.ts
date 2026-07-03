@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendPhotoRevealEmail } from "@/lib/services/email";
+import webpush from "web-push";
+
+// Configure web-push with VAPID keys
+if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    "mailto:support@blindside.com",
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
 
 // Helper to calculate age
 function calculateAge(dobString: string): number {
@@ -381,6 +391,40 @@ export async function GET(request: NextRequest) {
           matchedCount++;
 
           console.log(`Matched request ${reqA.id} with ${reqB.id}. Compatibility score: ${Math.round(bestScore)}.`);
+
+          // Send Push Notifications to both users
+          try {
+            const { data: subs } = await supabase
+              .from("push_subscriptions")
+              .select("*")
+              .in("user_id", [userAId, userBId]);
+
+            if (subs && subs.length > 0) {
+              const pushPayload = JSON.stringify({
+                title: "BlindSide Match! 💖",
+                body: "You have been matched! Open the app to say hello.",
+                url: "/dashboard",
+                tag: matchRecord.id
+              });
+
+              const sendPromises = subs.map(async (sub) => {
+                const pushSubscription = {
+                  endpoint: sub.endpoint,
+                  keys: { p256dh: sub.p256dh, auth: sub.auth },
+                };
+                try {
+                  await webpush.sendNotification(pushSubscription, pushPayload);
+                } catch (err: any) {
+                  if (err.statusCode === 410 || err.statusCode === 404) {
+                    await supabase.from("push_subscriptions").delete().eq("id", sub.id);
+                  }
+                }
+              });
+              await Promise.allSettled(sendPromises);
+            }
+          } catch (pushErr) {
+            console.error("Failed to send match push notifications:", pushErr);
+          }
 
           // Insert system message in chat
           await supabase.from("messages").insert({
