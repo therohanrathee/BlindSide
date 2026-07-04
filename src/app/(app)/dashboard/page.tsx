@@ -2275,6 +2275,7 @@ export default function DashboardPage() {
   };
 
   const handleEnablePush = async () => {
+    if (pushStatus === "subscribing") return;
     setPushStatus("subscribing");
 
     // Safari Fix: Request permission synchronously before any dynamic imports
@@ -2299,27 +2300,37 @@ export default function DashboardPage() {
       }
     }
 
+    const previousState = chatNotificationState;
+    // Optimistic UI update
+    setChatNotificationState("granted");
+    localStorage.setItem("blindside_push_muted", "false");
+
     try {
       const { subscribeToPushNotifications } = await import("@/lib/push");
       const success = await subscribeToPushNotifications();
       if (success) {
         setPushStatus("success");
-        setChatNotificationState("granted");
-        localStorage.setItem("blindside_push_muted", "false");
         setTimeout(() => setShowPushPrompt(false), 2000);
       } else {
         setPushStatus("error");
+        setChatNotificationState(previousState);
+        if (previousState === "muted") localStorage.setItem("blindside_push_muted", "true");
       }
     } catch (err) {
       console.error(err);
       setPushStatus("error");
+      setChatNotificationState(previousState);
+      if (previousState === "muted") localStorage.setItem("blindside_push_muted", "true");
     }
   };
 
   const handleToggleChatBell = async () => {
+    if (pushStatus === "subscribing") return;
+    
     if (chatNotificationState === "denied") {
       setShowGuidelineModal(true);
     } else if (chatNotificationState === "granted") {
+      setPushStatus("subscribing");
       setChatNotificationState("muted");
       localStorage.setItem("blindside_push_muted", "true");
       try {
@@ -2328,12 +2339,15 @@ export default function DashboardPage() {
           const subscription = await registration.pushManager.getSubscription();
           if (subscription) await subscription.unsubscribe();
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error("Error unsubscribing:", e);
+      } finally {
+        setPushStatus("idle");
+      }
     } else if (chatNotificationState === "muted" || chatNotificationState === "default") {
       handleEnablePush();
     }
   };
-
   if (loading) {
     return <SplashLoader />;
   }
