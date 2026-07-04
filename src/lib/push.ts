@@ -73,6 +73,13 @@ export async function subscribeToPushNotifications() {
       throw new Error("Failed to store push subscription on server");
     }
 
+    // Show a test confirmation notification locally
+    await registration.showNotification("Notifications Enabled! 🎉", {
+      body: "You'll now receive alerts for new matches and messages.",
+      icon: "/icon-512x512.png",
+      badge: "/badge-72x72.png",
+    });
+
     console.log("Successfully subscribed to push notifications!");
     return true;
   } catch (error) {
