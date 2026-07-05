@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { sendPhotoRevealEmail } from "@/lib/services/email";
 import webpush from "web-push";
 
 // Configure web-push with VAPID keys
@@ -464,71 +463,18 @@ export async function GET(request: NextRequest) {
         const match = date.match as any;
         if (!match) continue;
 
-        // Fetch details for user A and B
-        const { data: userA } = await supabase
-          .from("users")
-          .select("email, first_name, last_name, profiles(photo_url)")
-          .eq("id", match.user_a_id)
-          .single();
 
-        const { data: userB } = await supabase
-          .from("users")
-          .select("email, first_name, last_name, profiles(photo_url)")
-          .eq("id", match.user_b_id)
-          .single();
+        // Mark as revealed
+        await supabase
+          .from("confirmed_dates")
+          .update({
+            photo_revealed: true,
+            reveal_sent_at: new Date().toISOString(),
+          })
+          .eq("id", date.id);
 
-        if (userA && userB) {
-          const profileA = (userA.profiles as any)?.[0] || (userA.profiles as any);
-          const profileB = (userB.profiles as any)?.[0] || (userB.profiles as any);
-
-          let signedUrlA = null;
-          let signedUrlB = null;
-
-          if (profileA?.photo_url) {
-            const { data: signedData } = await supabase.storage
-              .from("photos")
-              .createSignedUrl(profileA.photo_url, 60 * 60 * 24 * 7);
-            signedUrlA = signedData?.signedUrl || null;
-          }
-
-          if (profileB?.photo_url) {
-            const { data: signedData } = await supabase.storage
-              .from("photos")
-              .createSignedUrl(profileB.photo_url, 60 * 60 * 24 * 7);
-            signedUrlB = signedData?.signedUrl || null;
-          }
-
-          // Send Photo Reveal emails
-          await sendPhotoRevealEmail({
-            to: userA.email,
-            userName: userA.first_name,
-            partnerName: userB.first_name,
-            partnerPhotoUrl: signedUrlB,
-            locationText: date.location_text,
-            dateTimeStr: date.date_time,
-          });
-
-          await sendPhotoRevealEmail({
-            to: userB.email,
-            userName: userB.first_name,
-            partnerName: userA.first_name,
-            partnerPhotoUrl: signedUrlA,
-            locationText: date.location_text,
-            dateTimeStr: date.date_time,
-          });
-
-          // Mark as revealed
-          await supabase
-            .from("confirmed_dates")
-            .update({
-              photo_revealed: true,
-              reveal_sent_at: new Date().toISOString(),
-            })
-            .eq("id", date.id);
-
-          revealCount++;
-          console.log(`Photos revealed for match ${match.id}.`);
-        }
+        revealCount++;
+        console.log(`Photos revealed for match ${match.id}.`);
       }
     }
 

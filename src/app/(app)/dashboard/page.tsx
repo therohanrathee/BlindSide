@@ -1501,6 +1501,26 @@ export default function DashboardPage() {
       console.error("Failed to send message:", error);
     } else {
       await loadMessages(activeMatch.id);
+      
+      // Fire-and-forget Push Notification
+      const receiverId = activeMatch.user_a_id === userId ? activeMatch.user_b_id : activeMatch.user_a_id;
+      if (receiverId) {
+        const isUserA = activeMatch.user_a_id === userId;
+        const senderSharesName = isUserA ? activeMatch.user_a_shares_name : activeMatch.user_b_shares_name;
+        const pushTitle = (senderSharesName && myFirstName) ? `${myFirstName} 💌` : "Blind Chat 💌";
+
+        fetch("/api/push/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            receiver_id: receiverId,
+            title: pushTitle,
+            body: text,
+            url: "/dashboard",
+            match_id: activeMatch.id,
+          }),
+        }).catch((err) => console.error("Push notify error:", err));
+      }
     }
   };
 
