@@ -403,7 +403,7 @@ export default function DashboardPage() {
   const [mySmoking, setMySmoking] = useState("non_smoker");
   const [myFitness, setMyFitness] = useState("not_active");
   const [myHobbies, setMyHobbies] = useState<string[]>([]);
-  const [matchStatus, setMatchStatus] = useState<"none" | "searching" | "matched" | "feedback" | "unpaid">("none");
+  const [matchStatus, setMatchStatus] = useState<"none" | "searching" | "matched" | "feedback" | "unpaid" | "unmatched">("none");
 
   // Profile Edit Modal States
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -428,6 +428,10 @@ export default function DashboardPage() {
   const [editIsDragging, setEditIsDragging] = useState(false);
   const [editDragStart, setEditDragStart] = useState({ x: 0, y: 0 });
   const [editPhotoLoading, setEditPhotoLoading] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState<string | null>(null);
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState(false);
   const [showMobileInfoDrawer, setShowMobileInfoDrawer] = useState(false);
   const [sheetState, setSheetState] = useState<"collapsed" | "expanded">("collapsed");
   
@@ -1135,8 +1139,20 @@ export default function DashboardPage() {
         // Load proposal
         await loadDateProposal(match.id, uid);
       } else {
-        setMatchStatus("searching");
-        startSearchingCountdown(request.expires_at);
+        // Check if there is a declined match
+        const { data: declinedMatch } = await supabase
+          .from("matches")
+          .select("id")
+          .or(`request_a_id.eq.${request.id},request_b_id.eq.${request.id}`)
+          .eq("status", "declined")
+          .maybeSingle();
+          
+        if (declinedMatch) {
+          setMatchStatus("unmatched");
+        } else {
+          setMatchStatus("searching");
+          startSearchingCountdown(request.expires_at);
+        }
       }
     }
   };
@@ -1285,6 +1301,7 @@ export default function DashboardPage() {
     }
 
     setPartnerProfile({
+      id: partnerId,
       firstName: partnerName,
       rawFirstName: partner?.first_name || "",
       age: partnerAge,
@@ -1582,6 +1599,57 @@ export default function DashboardPage() {
       setActiveMatch(updatedMatch);
       await loadPartnerDetails(updatedMatch, userId);
     }
+  };
+
+  const handleReportSubmit = async () => {
+    if (!reportReason || !activeMatch || !partnerProfile || !userId) return;
+    setReportSubmitting(true);
+    
+    const payload = {
+      reporter_id: userId,
+      reported_id: partnerProfile.id,
+      match_id: activeMatch.id,
+      category: reportReason,
+      status: "pending"
+    };
+    
+    console.log("Submitting report payload:", payload);
+
+    // 1. Insert report
+    const { error: reportError } = await supabase
+      .from("reports")
+      .insert(payload);
+
+    if (reportError) {
+      console.error("Error submitting report:", JSON.stringify(reportError, null, 2), reportError.message, reportError.details);
+      setReportSubmitting(false);
+      return;
+    }
+
+    // 2. Unmatch (decline current match)
+    const { error: updateError } = await supabase
+      .from("matches")
+      .update({ status: "declined" })
+      .eq("id", activeMatch.id);
+
+    if (updateError) {
+      console.error("Error unmatching:", updateError);
+    } else {
+      // 3. Notify the partner
+      fetch("/api/push/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          receiver_id: partnerProfile.id,
+          title: "You've been unmatched",
+          body: "Your recent match has unmatched with you.",
+          url: "/dashboard"
+        })
+      }).catch(console.error);
+    }
+
+    setReportSubmitting(false);
+    setReportSuccess(true);
   };
 
   const handleShareName = async () => {
@@ -2281,6 +2349,22 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Report & Unmatch Section */}
+        <div style={{ marginTop: "1.5rem", padding: "0 1rem" }}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={{ width: "100%", color: "#ef4444", borderColor: "rgba(239,68,68,0.2)", padding: "0.8rem", fontSize: "0.95rem" }}
+            onClick={() => {
+              setReportReason(null);
+              setReportSuccess(false);
+              setShowReportModal(true);
+            }}
+          >
+            🚨 Report & Unmatch
+          </button>
+        </div>
       </>
     );
   };
@@ -2543,6 +2627,21 @@ export default function DashboardPage() {
                       🔍 Searching: {countdownText}
                     </button>
                   )}
+                  {matchStatus === "unmatched" && (
+                    <button 
+                      className="btn btn-primary btn-pill btn-glow" 
+                      style={{ width: "100%", background: "rgba(239, 68, 68, 0.1)", border: "1px solid var(--error)", color: "var(--error)" }}
+                      onClick={async () => {
+                        if (requestId) {
+                          await supabase.from("match_requests").update({ status: "expired" }).eq("id", requestId);
+                        }
+                        setDashboardState(0);
+                        window.location.reload();
+                      }}
+                    >
+                      🚨 Unmatched - Start Again
+                    </button>
+                  )}
                   {matchStatus === "matched" && (
                     <button 
                       className="btn btn-primary btn-pill btn-glow" 
@@ -2780,8 +2879,9 @@ export default function DashboardPage() {
                 /* Normal Match Search Portal cards content */
                 <>
                   {matchStatus === "searching" && <div className={`${s.portalGlowBg} ${s.portalSearchingGlow}`} />}
+                  {matchStatus === "unmatched" && <div className={`${s.portalGlowBg} ${s.portalSearchingGlow}`} style={{ background: "radial-gradient(circle at center, hsla(0, 72%, 55%, 0.15) 0%, transparent 70%)" }} />}
                   {matchStatus === "matched" && <div className={`${s.portalGlowBg} ${s.portalMatchedGlow}`} />}
-                  {matchStatus !== "searching" && matchStatus !== "matched" && <div className={s.portalGlowBg} />}
+                  {matchStatus !== "searching" && matchStatus !== "matched" && matchStatus !== "unmatched" && <div className={s.portalGlowBg} />}
 
                   {matchStatus === "none" && (
                     <>
@@ -2821,6 +2921,32 @@ export default function DashboardPage() {
                         }}
                       >
                         🔑 Activate Match Search
+                      </button>
+                    </>
+                  )}
+
+                  {matchStatus === "unmatched" && (
+                    <>
+                      <div className={s.portalPulsingRadar} style={{ borderColor: "var(--error)" }}>
+                        <div className={s.portalRadarCenter} style={{ background: "rgba(239, 68, 68, 0.2)", color: "var(--error)" }}>
+                          <span style={{ fontSize: "2rem" }}>💔</span>
+                        </div>
+                      </div>
+                      <h1 className={s.portalTitle} style={{ color: "var(--error)" }}>You have been unmatched</h1>
+                      <p className={s.portalDesc} style={{ marginBottom: "1.5rem" }}>
+                        Your recent match has unmatched with you. To protect privacy, all details and chat history have been removed.
+                      </p>
+                      <button
+                        className="btn btn-primary btn-glow"
+                        onClick={async () => {
+                          if (requestId) {
+                            await supabase.from("match_requests").update({ status: "expired" }).eq("id", requestId);
+                          }
+                          setDashboardState(0);
+                          window.location.reload();
+                        }}
+                      >
+                        Find a New Match
                       </button>
                     </>
                   )}
@@ -3551,6 +3677,97 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* ==================================================
+          REPORT & UNMATCH MODAL
+          ================================================== */}
+      {showReportModal && (
+        <div className={s.editOverlayModal} style={{ zIndex: 9999 }}>
+          <div className={s.editModalContent} style={{ maxWidth: "450px", alignSelf: "center", justifySelf: "center", margin: "auto" }}>
+            
+            {reportSuccess ? (
+              <div style={{ textAlign: "center", padding: "2rem 1rem" }}>
+                <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>✅</div>
+                <h2 className={s.modalTitle} style={{ marginBottom: "1rem", color: "var(--success)" }}>Report Submitted</h2>
+                <p className={s.modalSubtitle} style={{ marginBottom: "2rem", lineHeight: 1.6 }}>
+                  We aim to create a safe platform for everyone. Thanks for helping out! You have been unmatched.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-pill"
+                  style={{ width: "100%" }}
+                  onClick={() => {
+                    setShowReportModal(false);
+                    setDashboardState(0);
+                    // Force reload to cleanly reset state if preferred, but resetting state here should work.
+                    window.location.reload(); 
+                  }}
+                >
+                  Find a New Match
+                </button>
+              </div>
+            ) : (
+              <>
+                <h2 className={s.modalTitle} style={{ marginBottom: "0.5rem" }}>Report & Unmatch</h2>
+                <p className={s.modalSubtitle} style={{ marginBottom: "1.5rem" }}>
+                  Please select a reason for reporting this user.
+                </p>
+
+                <div style={{ marginBottom: "1.5rem" }}>
+                  {[
+                    { id: "harassment", label: "Harassment or bullying" },
+                    { id: "fake_profile", label: "Fake profile / Catfishing" },
+                    { id: "no_show", label: "No show on confirmed date" },
+                    { id: "inappropriate_messages", label: "Inappropriate messages" }
+                  ].map((reason) => (
+                    <button
+                      key={reason.id}
+                      type="button"
+                      className={`${s.reportReasonBtn} ${reportReason === reason.id ? s.selected : ""}`}
+                      onClick={() => setReportReason(reason.id)}
+                    >
+                      {reason.label}
+                      {reportReason === reason.id && <span>✓</span>}
+                    </button>
+                  ))}
+                </div>
+
+                {reportReason && (
+                  <div className={s.reportWarningBox}>
+                    <p className={s.reportWarningText}>
+                      <strong>Warning:</strong> You will be unmatched immediately. To run the matching algorithm again, you will need to pay the matching fee again.
+                    </p>
+                  </div>
+                )}
+
+                <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    style={{ flex: 1 }}
+                    onClick={() => {
+                      setShowReportModal(false);
+                      setReportReason(null);
+                    }}
+                    disabled={reportSubmitting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    style={{ flex: 1, backgroundColor: "#ef4444", borderColor: "#ef4444" }}
+                    onClick={handleReportSubmit}
+                    disabled={!reportReason || reportSubmitting}
+                  >
+                    {reportSubmitting ? "Submitting..." : "Report & Unmatch"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ==================================================
           EDIT PROFILE MODAL OVERLAY (STATE 0 VIEW ONLY)

@@ -3162,6 +3162,51 @@
   transform: translateX(20px);
 }
 
+/* Report Modal Styles */
+.reportReasonBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.reportReasonBtn:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-hover);
+}
+
+.reportReasonBtn.selected {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.reportWarningBox {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.reportWarningText {
+  color: #fca5a5;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
 
 
 
