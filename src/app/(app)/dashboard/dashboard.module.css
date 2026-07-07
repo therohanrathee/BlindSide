@@ -3207,7 +3207,113 @@
   margin: 0;
 }
 
+/* Wallet Top-up Modal */
+.topupModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
 
+.topupModalContent {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
+.topupTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
 
+.topupDesc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
 
+.amountInputWrapper {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.currencySymbol {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.amountInput {
+  width: 100%;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1rem 1rem 2.5rem;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.amountInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 113, 154, 0.2);
+}
+
+.quickAmounts {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.quickBtn {
+  flex: 1;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quickBtn:hover:not(:disabled) {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.quickBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.topupActions {
+  display: flex;
+  gap: 1rem;
+}
+
+.topupActions .btn {
+  flex: 1;
+}

@@ -361,6 +361,10 @@ export default function DashboardPage() {
   const [walletBalance, setWalletBalance] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [showTransactions, setShowTransactions] = useState(false);
+  const [showTopupModal, setShowTopupModal] = useState(false);
+  const [topupAmount, setTopupAmount] = useState("");
+  const [topupError, setTopupError] = useState("");
+  const [isToppingUp, setIsToppingUp] = useState(false);
   const transactionCardRef = useRef<HTMLDivElement>(null);
   const [isFirstMatch, setIsFirstMatch] = useState(true);
 
@@ -1391,6 +1395,106 @@ export default function DashboardPage() {
       setSubmitting(false);
     }
   };
+  const handleWalletTopup = async () => {
+    setTopupError("");
+    const amount = parseFloat(topupAmount);
+    
+    if (isNaN(amount) || amount < 10) {
+      setTopupError("Please enter a valid amount (minimum ₹10).");
+      return;
+    }
+    
+    if (amount > 5000) {
+      setTopupError("Maximum top-up amount is ₹5000.");
+      return;
+    }
+
+    setIsToppingUp(true);
+    
+    try {
+      const res = await fetch("/api/payment/create-wallet-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setTopupError(data.message || "Failed to create order.");
+        setIsToppingUp(false);
+        return;
+      }
+
+      const options = {
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        name: "BlindSide",
+        description: "Wallet Top-up",
+        order_id: data.orderId,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await fetch("/api/payment/verify-wallet", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyRes.ok) {
+              setWalletBalance(verifyData.newBalance);
+              setShowTopupModal(false);
+              setTopupAmount("");
+              
+              // Refresh wallet transactions silently
+              const { data: newWallet } = await supabase.from("wallets").select("id").eq("user_id", userId).single();
+              if (newWallet) {
+                const { data: newTxs } = await supabase
+                  .from("wallet_transactions")
+                  .select("*")
+                  .eq("wallet_id", newWallet.id)
+                  .order("created_at", { ascending: false });
+                if (newTxs) setTransactions(newTxs);
+              }
+              setIsToppingUp(false);
+            } else {
+              setTopupError(verifyData.message || "Payment verification failed.");
+              setIsToppingUp(false);
+            }
+          } catch (e) {
+            setTopupError("Network error during verification.");
+            setIsToppingUp(false);
+          }
+        },
+        prefill: {
+          name: myFirstName,
+        },
+        theme: {
+          color: "#ff719a",
+        },
+        modal: {
+          ondismiss: function () {
+            setIsToppingUp(false);
+          },
+        },
+      };
+
+      const razor = new (window as any).Razorpay(options);
+      razor.on("payment.failed", function (response: any) {
+        setTopupError(response.error.description);
+        setIsToppingUp(false);
+      });
+      razor.open();
+    } catch (err) {
+      setTopupError("Network error. Please try again.");
+      setIsToppingUp(false);
+    }
+  };
+
 
   const handleRazorpayPay = async () => {
     console.log("handleRazorpayPay called! Current state:", {
@@ -2458,6 +2562,64 @@ export default function DashboardPage() {
 
   return (
     <div className={`${s.dashboardLayout} ${dashboardState === 3 ? s.dashboardLayoutMatched : ""}`}>
+      {/* Wallet Top-up Modal */}
+      {showTopupModal && (
+        <div className={s.topupModalOverlay} onClick={() => !isToppingUp && setShowTopupModal(false)}>
+          <div className={s.topupModalContent} onClick={e => e.stopPropagation()}>
+            <h2 className={s.topupTitle}>Add Money to Wallet</h2>
+            <p className={s.topupDesc}>Top up your wallet to easily pay for match requests.</p>
+            
+            {topupError && <p className={s.reportWarningText} style={{ marginBottom: '1rem' }}>{topupError}</p>}
+            
+            <div className={s.amountInputWrapper}>
+              <span className={s.currencySymbol}>₹</span>
+              <input 
+                type="number" 
+                className={s.amountInput}
+                value={topupAmount}
+                onChange={e => setTopupAmount(e.target.value)}
+                placeholder="Enter amount"
+                min="10"
+                max="5000"
+                disabled={isToppingUp}
+              />
+            </div>
+            
+            <div className={s.quickAmounts}>
+              {[100, 250, 500].map(amt => (
+                <button 
+                  key={amt}
+                  className={s.quickBtn}
+                  onClick={() => setTopupAmount(amt.toString())}
+                  disabled={isToppingUp}
+                >
+                  ₹{amt}
+                </button>
+              ))}
+            </div>
+            
+            <div className={s.topupActions}>
+              <button 
+                className="btn btn-ghost" 
+                style={{ flex: 1, padding: "0.5rem" }}
+                onClick={() => setShowTopupModal(false)}
+                disabled={isToppingUp}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-primary btn-pill" 
+                style={{ flex: 1, padding: "0.5rem" }}
+                onClick={handleWalletTopup}
+                disabled={isToppingUp || !topupAmount}
+              >
+                {isToppingUp ? "Processing..." : "Proceed to Pay"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className={`${s.dashboardHeader} ${dashboardState === 3 ? s.dashboardHeaderMatched : ""}`}>
         <div className={s.headerLeft}>
@@ -2481,6 +2643,18 @@ export default function DashboardPage() {
                   <div className={s.txHeader}>
                     <span className={s.txHeaderTitle}>Wallet Balance</span>
                     <span className={s.txHeaderBalance}>₹{walletBalance}</span>
+                  </div>
+                  <div style={{ padding: '0 1rem 1rem' }}>
+                    <button 
+                      className="btn btn-primary btn-pill" 
+                      style={{ width: "100%", padding: "0.5rem" }}
+                      onClick={() => {
+                        setShowTopupModal(true);
+                        setShowTransactions(false);
+                      }}
+                    >
+                      + Add Money
+                    </button>
                   </div>
                   <div className={s.txList}>
                     {transactions.length === 0 ? (

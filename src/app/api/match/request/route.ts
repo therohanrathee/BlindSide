@@ -36,10 +36,10 @@ export async function POST(request: NextRequest) {
       .in("status", ["unpaid", "active", "matched"])
       .maybeSingle();
 
-    if (existing) {
+    if (existing && existing.status !== "unpaid") {
       return NextResponse.json(
         {
-          message: "You already have a match request active or pending payment.",
+          message: "You already have a match request active or matched.",
           requestId: existing.id,
           status: existing.status,
         },
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     const isFirstMatch = !countError && count === 0;
     const feePaid = isFirstMatch ? 49.0 : 69.0;
 
-    const requestInsert = {
+    const requestData = {
       user_id: userId,
       scope: "university",
       fee_paid: feePaid,
@@ -77,9 +77,32 @@ export async function POST(request: NextRequest) {
       expires_at: expiresAt,
     };
 
+    if (existing && existing.status === "unpaid") {
+      // Update the existing unpaid request
+      const { error: updateError } = await supabase
+        .from("match_requests")
+        .update(requestData)
+        .eq("id", existing.id);
+
+      if (updateError) {
+        console.error("Failed to update match request:", updateError);
+        return NextResponse.json(
+          { message: "Failed to update search preferences." },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        requestId: existing.id,
+        message: "Preferences updated. Please complete payment to start matching.",
+      });
+    }
+
+    // Otherwise, create a new request
     const { data: newRequest, error } = await supabase
       .from("match_requests")
-      .insert(requestInsert)
+      .insert(requestData)
       .select("id")
       .single();
 
