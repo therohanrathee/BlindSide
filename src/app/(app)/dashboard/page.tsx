@@ -417,14 +417,16 @@ export default function DashboardPage() {
     if (typeof window !== "undefined") {
       const isInStandaloneMode = ('standalone' in window.navigator) && !!(window.navigator as any).standalone 
                               || window.matchMedia('(display-mode: standalone)').matches;
+      
       const dismissed = localStorage.getItem("blindside_install_dismissed");
+      const today = new Date().toISOString().split('T')[0];
       
       const ua = window.navigator.userAgent.toLowerCase();
       const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);
       const isIos = /ipad|iphone|ipod/.test(ua);
       setIsIosDevice(isIos);
 
-      if (isMobile && !isInStandaloneMode && dismissed !== "true") {
+      if (isMobile && !isInStandaloneMode && dismissed !== today) {
         setShowInstallBanner(true);
       }
 
@@ -2636,7 +2638,8 @@ export default function DashboardPage() {
   };
 
   const dismissInstallBanner = () => {
-    localStorage.setItem("blindside_install_dismissed", "true");
+    const today = new Date().toISOString().split('T')[0];
+    localStorage.setItem("blindside_install_dismissed", today);
     setShowInstallBanner(false);
   };
 
@@ -3844,10 +3847,7 @@ export default function DashboardPage() {
             </div>
 
             {chatNotificationState !== "granted" && (
-              <div style={{ marginTop: "1.5rem", padding: "1rem", backgroundColor: "var(--bg-elevated)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
-                <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", textAlign: "center", margin: 0, lineHeight: 1.4 }}>
-                  Want to be alerted the moment we find a match?
-                </p>
+              <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "center" }}>
                 <button
                   type="button"
                   className="btn btn-primary"
