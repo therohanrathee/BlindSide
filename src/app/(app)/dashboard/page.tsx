@@ -3720,7 +3720,7 @@ export default function DashboardPage() {
                   type="button"
                   className="btn btn-primary"
                   style={{ padding: "0.5rem 1rem", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.5rem" }}
-                  onClick={requestNotificationPermission}
+                  onClick={handleToggleChatBell}
                 >
                   <BellIcon size={16} />
                   Enable Notifications
