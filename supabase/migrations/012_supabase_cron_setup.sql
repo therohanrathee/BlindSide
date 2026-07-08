@@ -14,7 +14,7 @@ select cron.schedule(
   $$
   select net.http_get(
     url := 'https://blind-side-silk.vercel.app/api/cron/fast',
-    headers := jsonb_build_object('Authorization', 'Bearer datwe2-nixvip-pArwis')
+    headers := jsonb_build_object('Authorization', 'Bearer <YOUR_CRON_SECRET>')
   );
   $$
 );
@@ -27,7 +27,7 @@ select cron.schedule(
   $$
   select net.http_get(
     url := 'https://blind-side-silk.vercel.app/api/cron/hourly',
-    headers := jsonb_build_object('Authorization', 'Bearer datwe2-nixvip-pArwis')
+    headers := jsonb_build_object('Authorization', 'Bearer <YOUR_CRON_SECRET>')
   );
   $$
 );
