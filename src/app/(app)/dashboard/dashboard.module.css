@@ -1270,6 +1270,12 @@
   pointer-events: none;
 }
 
+@media (min-width: 768px) {
+  .ageScaleNum {
+    font-size: 8.5px;
+  }
+}
+
 /* macOS Dock Magnification Styles */
 .dockScale0 {
   transform: translate(-50%, -10px) scale(1.3) !important;
