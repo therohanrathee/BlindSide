@@ -396,16 +396,34 @@ export default function DashboardPage() {
   const [showIosInstallModal, setShowIosInstallModal] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "denied") {
-        setChatNotificationState("denied");
-      } else if (Notification.permission === "granted") {
-        const isMuted = localStorage.getItem("blindside_push_muted");
-        setChatNotificationState(isMuted === "true" ? "muted" : "granted");
-      } else {
-        setChatNotificationState("default");
+    const checkNotificationStatus = async () => {
+      if (typeof window !== "undefined" && "Notification" in window) {
+        if (Notification.permission === "denied") {
+          setChatNotificationState("denied");
+        } else if (Notification.permission === "granted") {
+          const isMuted = localStorage.getItem("blindside_push_muted");
+          if (isMuted === "true") {
+            setChatNotificationState("muted");
+          } else {
+            try {
+              const registration = await navigator.serviceWorker.getRegistration();
+              const subscription = registration ? await registration.pushManager.getSubscription() : null;
+              if (subscription) {
+                setChatNotificationState("granted");
+              } else {
+                setChatNotificationState("default"); // Show button if not actually subscribed
+              }
+            } catch (e) {
+              console.error("Error checking subscription:", e);
+              setChatNotificationState("default");
+            }
+          }
+        } else {
+          setChatNotificationState("default");
+        }
       }
-    }
+    };
+    checkNotificationStatus();
   }, []);
 
   // Global PWA Install Banner
