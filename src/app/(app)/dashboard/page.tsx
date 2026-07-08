@@ -243,6 +243,26 @@ function BellIcon({ color = "currentColor", size = 24 }: { color?: string, size?
   );
 }
 
+function ShareIcon({ color = "currentColor", size = 24 }: { color?: string, size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
+    </svg>
+  );
+}
+
+function HamburgerIcon({ color = "currentColor", size = 24 }: { color?: string, size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  );
+}
+
 function BellOffIcon({ color = "currentColor", size = 24 }: { color?: string, size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -373,6 +393,7 @@ export default function DashboardPage() {
   const [pushStatus, setPushStatus] = useState<"idle" | "subscribing" | "success" | "error">("idle");
   const [chatNotificationState, setChatNotificationState] = useState<"granted" | "denied" | "muted" | "default">("default");
   const [showGuidelineModal, setShowGuidelineModal] = useState(false);
+  const [showIosInstallModal, setShowIosInstallModal] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
@@ -2554,7 +2575,15 @@ export default function DashboardPage() {
         setPushStatus("idle");
       }
     } else if (chatNotificationState === "muted" || chatNotificationState === "default") {
-      handleEnablePush();
+      // Check if user is on iOS Safari and not in standalone mode (PWA)
+      const isIos = /ipad|iphone|ipod/.test(navigator.userAgent.toLowerCase());
+      const isInStandaloneMode = ('standalone' in window.navigator) && !!(window.navigator as any).standalone;
+      
+      if (isIos && !isInStandaloneMode) {
+        setShowIosInstallModal(true);
+      } else {
+        handleEnablePush();
+      }
     }
   };
   if (loading) {
@@ -4519,6 +4548,35 @@ export default function DashboardPage() {
               <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={handleClosePushPrompt} disabled={pushStatus === "subscribing" || pushStatus === "success"}>Not Now</button>
               <button type="button" className="btn btn-primary btn-pill" style={{ flex: 1 }} onClick={handleEnablePush} disabled={pushStatus === "subscribing" || pushStatus === "success"}>{pushStatus === "subscribing" ? "Enabling..." : pushStatus === "success" ? "Enabled ✓" : "Enable"}</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showIosInstallModal && (
+        <div className={s.editOverlayModal} style={{ zIndex: 9999 }} onClick={() => setShowIosInstallModal(false)}>
+          <div className={s.editModalContent} style={{ maxWidth: "400px", alignSelf: "flex-end", justifySelf: "center", margin: "auto auto 2rem auto", textAlign: "center" }} onClick={e => e.stopPropagation()}>
+            <h2 className={s.modalTitle} style={{ marginBottom: "1rem" }}>Install App for Notifications</h2>
+            <p className={s.modalSubtitle} style={{ marginBottom: "1.5rem", lineHeight: 1.6 }}>
+              Apple requires you to add BlindSide to your Home Screen before you can receive match alerts.
+            </p>
+            
+            <div style={{ textAlign: "left", background: "var(--bg-elevated)", padding: "1.5rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", marginBottom: "1.5rem" }}>
+              <ol style={{ paddingLeft: "1.2rem", margin: 0, display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <li>Tap the <strong>Hamburger Menu</strong> <span style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px" }}><HamburgerIcon size={18} /></span> at the bottom.</li>
+                <li>Tap the <strong>Share</strong> button <span style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px" }}><ShareIcon size={18} /></span></li>
+                <li>Scroll down and tap <strong>Add to Home Screen</strong> <span style={{ display: "inline-block", verticalAlign: "middle", fontSize: "1.2rem", margin: "0 4px" }}>⊞</span></li>
+                <li>Open BlindSide from your Home Screen!</li>
+              </ol>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-primary btn-pill"
+              style={{ width: "100%" }}
+              onClick={() => setShowIosInstallModal(false)}
+            >
+              Got it
+            </button>
           </div>
         </div>
       )}
