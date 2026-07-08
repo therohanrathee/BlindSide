@@ -2236,6 +2236,7 @@ export default function DashboardPage() {
         if (data.newBalance !== null && data.newBalance !== undefined) {
           setWalletBalance(data.newBalance);
         }
+        setDashboardState(0);
         await refreshMatchStatus(userId!);
       } else {
         setActionError(data.message || "Failed to cancel search.");
@@ -2796,7 +2797,7 @@ export default function DashboardPage() {
                     <button 
                       className="btn btn-primary btn-pill btn-glow" 
                       style={{ width: "100%", background: "var(--bg-surface-hover)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
-                      onClick={() => { setDashboardState(1); setPrefSlide(7); }}
+                      onClick={() => setDashboardState(2)}
                     >
                       🔍 Searching: {countdownText}
                     </button>
@@ -3142,15 +3143,7 @@ export default function DashboardPage() {
                         {countdownText}
                       </div>
                       <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
-                        <button
-                          className="btn btn-ghost btn-sm"
-                          onClick={() => {
-                            setDashboardState(1);
-                            setPrefSlide(6);
-                          }}
-                        >
-                          View Filters
-                        </button>
+
                         <button
                           className="btn btn-danger btn-sm"
                           onClick={handleResetMatch}
@@ -3277,7 +3270,7 @@ export default function DashboardPage() {
                         {([
                           { key: "male", label: "Men", Svg: MaleSVG },
                           { key: "female", label: "Women", Svg: FemaleSVG },
-                          { key: "everyone", label: "Everyone", Svg: EveryoneSVG }
+                          { key: "everyone", label: "Both", Svg: EveryoneSVG }
                         ] as const).map((g) => {
                           const active = prefGender === g.key;
                           const accentFill = active ? "url(#accentGrad)" : "var(--text-muted)";
@@ -3630,7 +3623,7 @@ export default function DashboardPage() {
                           ← Back
                         </button>
                         <button className="btn btn-primary btn-pill" onClick={handleSavePreferences} disabled={submitting}>
-                          {submitting ? "Saving..." : "Save Preferences →"}
+                          {submitting ? "Saving..." : "Save →"}
                         </button>
                       </div>
                     </div>
@@ -3670,7 +3663,7 @@ export default function DashboardPage() {
                             onClick={handleRazorpayPay}
                             disabled={submitting}
                           >
-                            {submitting ? "Processing..." : `Pay ₹${isFirstMatch ? 49 : 69} via UPI / Card (Razorpay) ✓`}
+                            {submitting ? "Processing..." : `Pay ₹${isFirstMatch ? 49 : 69} via UPI / Card ✓`}
                           </button>
                           <div style={{ textAlign: "center", marginTop: "0.5rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
                             Wallet Balance: ₹{walletBalance} (Insufficient)
@@ -3718,14 +3711,22 @@ export default function DashboardPage() {
               <div className={s.timerVal}>{countdownText}</div>
             </div>
 
-            <button
-              className="btn btn-secondary btn-pill"
-              style={{ marginTop: "2rem" }}
-              onClick={handleResetMatch}
-              disabled={submitting}
-            >
-              Cancel Search
-            </button>
+            <div style={{ display: "flex", gap: "1rem", marginTop: "2rem", justifyContent: "center" }}>
+              <button
+                className={`btn btn-ghost ${s.mobileOnly}`}
+                onClick={() => setDashboardState(0)}
+                disabled={submitting}
+              >
+                ← Dashboard
+              </button>
+              <button
+                className="btn btn-danger btn-pill"
+                onClick={handleResetMatch}
+                disabled={submitting}
+              >
+                Cancel Search
+              </button>
+            </div>
           </div>
         )}
 

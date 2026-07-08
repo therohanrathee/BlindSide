@@ -299,6 +299,17 @@ h6 { font-size: var(--text-lg); }
   border-color: var(--border-hover);
 }
 
+.btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: 1px solid var(--error);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--error);
+  color: white;
+}
+
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
