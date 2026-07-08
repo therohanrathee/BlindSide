@@ -408,6 +408,39 @@ export default function DashboardPage() {
     }
   }, []);
 
+  // Global PWA Install Banner
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isIosDevice, setIsIosDevice] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isInStandaloneMode = ('standalone' in window.navigator) && !!(window.navigator as any).standalone 
+                              || window.matchMedia('(display-mode: standalone)').matches;
+      const dismissed = localStorage.getItem("blindside_install_dismissed");
+      
+      const ua = window.navigator.userAgent.toLowerCase();
+      const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);
+      const isIos = /ipad|iphone|ipod/.test(ua);
+      setIsIosDevice(isIos);
+
+      if (isMobile && !isInStandaloneMode && dismissed !== "true") {
+        setShowInstallBanner(true);
+      }
+
+      const handleBeforeInstallPrompt = (e: any) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      };
+      
+      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      
+      return () => {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      };
+    }
+  }, []);
+
   // Match State Machine
   const [dashboardState, setDashboardState] = useState<0 | 1 | 2 | 3 | 4>(0);
   const [activeRequest, setActiveRequest] = useState<any | null>(null);
@@ -2586,12 +2619,82 @@ export default function DashboardPage() {
       }
     }
   };
+  const handleInstallClick = async () => {
+    if (isIosDevice) {
+      setShowIosInstallModal(true);
+    } else if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setShowInstallBanner(false);
+      }
+      setDeferredPrompt(null);
+    } else {
+      // Fallback for Android without beforeinstallprompt
+      alert("To install, tap the browser menu (⋮) and select 'Install app' or 'Add to Home Screen'.");
+    }
+  };
+
+  const dismissInstallBanner = () => {
+    localStorage.setItem("blindside_install_dismissed", "true");
+    setShowInstallBanner(false);
+  };
+
   if (loading) {
     return <SplashLoader />;
   }
 
   return (
     <div className={`${s.dashboardLayout} ${dashboardState === 3 ? s.dashboardLayoutMatched : ""}`}>
+      {/* Global PWA Install Banner */}
+      {showInstallBanner && (
+        <div style={{
+          position: "sticky",
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: "var(--accent-primary)",
+          color: "white",
+          padding: "12px 16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          zIndex: 1000,
+          boxShadow: "0 4px 12px rgba(232, 58, 114, 0.3)",
+          animation: "slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
+        }}>
+          <style>{`
+            @keyframes slideDown {
+              from { transform: translateY(-100%); }
+              to { transform: translateY(0); }
+            }
+          `}</style>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
+            <div style={{ width: 36, height: 36, backgroundColor: "white", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <HeartIcon size={20} color="var(--accent-primary)" />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontWeight: 700, fontSize: "0.95rem", lineHeight: 1.2 }}>Get the BlindSide App</span>
+              <span style={{ fontSize: "0.75rem", opacity: 0.9 }}>For instant match alerts</span>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <button 
+              onClick={handleInstallClick}
+              style={{ backgroundColor: "white", color: "var(--accent-primary)", border: "none", padding: "6px 14px", borderRadius: 20, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+            >
+              Install
+            </button>
+            <button 
+              onClick={dismissInstallBanner}
+              style={{ background: "transparent", border: "none", color: "white", padding: "4px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", opacity: 0.8 }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Wallet Top-up Modal */}
       {showTopupModal && (
         <div className={s.topupModalOverlay} onClick={() => !isToppingUp && setShowTopupModal(false)}>
