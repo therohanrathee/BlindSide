@@ -3711,6 +3711,23 @@ export default function DashboardPage() {
               <div className={s.timerVal}>{countdownText}</div>
             </div>
 
+            {chatNotificationState !== "granted" && (
+              <div style={{ marginTop: "1.5rem", padding: "1rem", backgroundColor: "var(--bg-elevated)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
+                <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", textAlign: "center", margin: 0, lineHeight: 1.4 }}>
+                  Want to be alerted the moment we find a match?
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  style={{ padding: "0.5rem 1rem", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.5rem" }}
+                  onClick={requestNotificationPermission}
+                >
+                  <BellIcon size={16} />
+                  Enable Notifications
+                </button>
+              </div>
+            )}
+
             <div style={{ display: "flex", gap: "1rem", marginTop: "2rem", justifyContent: "center" }}>
               <button
                 className={`btn btn-ghost ${s.mobileOnly}`}
