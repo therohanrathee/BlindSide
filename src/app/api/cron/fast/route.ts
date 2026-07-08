@@ -436,52 +436,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 2. Photo Reveal check (T-4 hours check)
-    console.log("Checking for photo reveals...");
-    const fourHoursFromNow = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString();
-    const { data: datesToReveal, error: revealFetchError } = await supabase
-      .from("confirmed_dates")
-      .select(`
-        id,
-        match_id,
-        date_time,
-        location_text,
-        photo_revealed,
-        match:matches (
-          id,
-          user_a_id,
-          user_b_id
-        )
-      `)
-      .eq("photo_revealed", false)
-      .lte("date_time", fourHoursFromNow);
-
-    let revealCount = 0;
-
-    if (!revealFetchError && datesToReveal && datesToReveal.length > 0) {
-      for (const date of datesToReveal) {
-        const match = date.match as any;
-        if (!match) continue;
-
-
-        // Mark as revealed
-        await supabase
-          .from("confirmed_dates")
-          .update({
-            photo_revealed: true,
-            reveal_sent_at: new Date().toISOString(),
-          })
-          .eq("id", date.id);
-
-        revealCount++;
-        console.log(`Photos revealed for match ${match.id}.`);
-      }
-    }
-
     return NextResponse.json({
       success: true,
       matchesCreated: matchedCount,
-      photoRevealsSent: revealCount,
     });
   } catch (err: any) {
     console.error("Error in fast cron handler:", err);
