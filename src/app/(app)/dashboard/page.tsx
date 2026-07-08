@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import s from "./dashboard.module.css";
 import SplashLoader from "@/components/SplashLoader";
-
+import EyeLogo from "@/components/EyeLogo";
 // Minimal Icons
 function HeartIcon({ size = 24, color = "currentColor" }: { size?: number, color?: string }) {
   return (
@@ -2670,8 +2670,8 @@ export default function DashboardPage() {
             }
           `}</style>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
-            <div style={{ width: 36, height: 36, backgroundColor: "white", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <HeartIcon size={20} color="var(--accent-primary)" />
+            <div style={{ width: 36, height: 36, backgroundColor: "white", color: "var(--accent-primary)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <EyeLogo width={20} height={20} animated={true} />
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span style={{ fontWeight: 700, fontSize: "0.95rem", lineHeight: 1.2 }}>Get the BlindSide App</span>
