@@ -20,7 +20,7 @@ interface SendEmailParams {
  */
 export async function sendEmail({ to, subject, html, from }: SendEmailParams): Promise<boolean> {
   const formatFromAddress = (addr?: string): string => {
-    const raw = addr || process.env.EMAIL_FROM_ADDRESS || "reveal@blindside.in";
+    const raw = addr || process.env.EMAIL_OTP_FROM_ADDRESS || "verify@blindside.in";
     if (raw.includes("<") && raw.includes(">")) {
       return raw;
     }
