@@ -44,3 +44,6 @@ next-env.d.ts
 # agent overrides
 AGENTS.md
 CLAUDE.md
+
+# local test scripts
+test-*
