@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { sendEmail, isSESConfigured } from "@/lib/services/ses";
+import { sendEmail, isResendConfigured } from "@/lib/services/resendService";
 import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       </div>
     `;
 
-    if (isSESConfigured()) {
+    if (isResendConfigured()) {
       const emailSent = await sendEmail({
         to: normalizedEmail,
         subject,
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         console.log(`Link: ${actionLink}`);
         console.log(`==================================================\n`);
       } else {
-        console.error("AWS SES is not configured in production environment.");
+        console.error("Resend is not configured in production environment.");
         return NextResponse.json(
           { message: "Failed to send the reset email due to missing configuration." },
           { status: 502 }

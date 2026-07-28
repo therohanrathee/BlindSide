@@ -5,12 +5,12 @@ import crypto from "crypto";
  * Automatically falls back to console logging when API keys are not configured in local environment.
  */
 
-import { sendEmail, isSESConfigured } from "./ses";
+import { sendEmail, isResendConfigured } from "./resendService";
 
 export async function sendEmailOTP(email: string, otp: string): Promise<boolean> {
   const isDev = process.env.NODE_ENV === "development";
 
-  if (isSESConfigured()) {
+  if (isResendConfigured()) {
     try {
       const subject = "BlindSide — Verification Code";
       const html = `
@@ -30,7 +30,7 @@ export async function sendEmailOTP(email: string, otp: string): Promise<boolean>
         from: process.env.EMAIL_OTP_FROM_ADDRESS || "BlindSide <verify@blindside.in>",
       });
     } catch (err) {
-      console.error("Failed to send verification email via AWS SES:", err);
+      console.error("Failed to send verification email via Resend:", err);
       return false;
     }
   }
@@ -41,12 +41,12 @@ export async function sendEmailOTP(email: string, otp: string): Promise<boolean>
     console.log(`[MOCK EMAIL OTP SENDER]`);
     console.log(`To: ${email}`);
     console.log(`Code: ${otp}`);
-    console.log(`(Configure AWS_ACCESS_KEY_ID & AWS_SECRET_ACCESS_KEY in .env.local to send real emails via AWS SES)`);
+    console.log(`(Configure RESEND_API_KEY in .env.local to send real emails via Resend)`);
     console.log(`==================================================\n`);
     return true;
   }
 
-  console.error("AWS SES is not configured in production environment.");
+  console.error("Resend is not configured in production environment.");
   return false;
 }
 

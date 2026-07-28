@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send OTP via service (handles AWS SES or falls back to console log)
+    // Send OTP via service (handles Resend or falls back to console log)
     const sendSuccess = await sendEmailOTP(email, otp);
 
     if (!sendSuccess) {
