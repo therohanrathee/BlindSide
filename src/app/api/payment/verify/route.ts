@@ -67,18 +67,24 @@ export async function POST(request: NextRequest) {
     console.log("Payment signature verified successfully!");
 
     // Update payment record status to paid
-    const { error: paymentUpdateError } = await supabase
+    const { data: paymentRecord, error: paymentUpdateError } = await supabase
       .from("payments")
       .update({
         status: "paid",
         razorpay_payment_id,
         razorpay_signature,
       })
-      .eq("razorpay_order_id", razorpay_order_id);
+      .eq("razorpay_order_id", razorpay_order_id)
+      .eq("status", "created")
+      .select("*")
+      .single();
 
-    if (paymentUpdateError) {
-      console.error("Failed to update payment record status:", paymentUpdateError);
-      // Proceed anyway since signature matches, but log error
+    if (paymentUpdateError || !paymentRecord) {
+      console.log("Payment already verified or record not found for:", razorpay_order_id);
+      return NextResponse.json({
+        success: true,
+        message: "Payment already verified and search activated successfully!",
+      });
     }
 
     // Get the request details to know the amount

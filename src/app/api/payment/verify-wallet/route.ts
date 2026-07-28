@@ -72,15 +72,16 @@ export async function POST(request: NextRequest) {
         razorpay_signature,
       })
       .eq("razorpay_order_id", razorpay_order_id)
+      .eq("status", "created")
       .select("*")
       .single();
 
     if (paymentUpdateError || !paymentRecord) {
-      console.error("Failed to update payment record status:", paymentUpdateError);
-      return NextResponse.json(
-        { message: "Failed to verify payment record." },
-        { status: 500 }
-      );
+      console.log("Wallet payment already verified or record not found for:", razorpay_order_id);
+      return NextResponse.json({
+        success: true,
+        message: "Wallet topped up successfully!",
+      });
     }
 
     const amount = parseFloat(paymentRecord.amount);
