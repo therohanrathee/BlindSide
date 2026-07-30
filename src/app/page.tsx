@@ -8,6 +8,7 @@ import SplashLoader from "@/components/SplashLoader";
 import s from "./page.module.css";
 import EyeLogo from "@/components/EyeLogo";
 import JourneyPath from "@/components/JourneyPath";
+import AnonymousNodes from "@/components/AnonymousNodes";
 
 /* ============================================
    LINE-ART SVG ICONS (Serene, minimal)
@@ -51,6 +52,7 @@ export default function LandingPage() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [visibleSteps, setVisibleSteps] = useState<Set<number>>(new Set());
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -134,6 +136,14 @@ export default function LandingPage() {
     }
   }, [visibleSteps]);
 
+  const handleEyeClick = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      router.push("/auth");
+    }, 800);
+  };
+
   const steps = [
     {
       num: "01",
@@ -188,24 +198,30 @@ export default function LandingPage() {
 
       {/* ---- Hero Section ---- */}
       <section className={s.hero} id="hero">
+        <AnonymousNodes />
         <div className={s.heroContent}>
-          <span className={s.heroBadge}>A quiet space for real connection</span>
+          <div className={s.heroPills}>
+            <span className={s.heroPill}>No Swiping</span>
+            <span className={s.heroPill}>Anonymous First</span>
+            <span className={s.heroPill}>Campus Verified</span>
+          </div>
           <h1 className={s.heroTitle}>
             Connect in the dark.
             <br />
             <span className={s.heroTitleSecondary}>Meet in the light.</span>
           </h1>
           <p className={s.heroSubtitle}>
-            A verified blind-matching platform for university students. No superficial swiping. Converse anonymously, reveal your identity on your own terms, and seamlessly coordinate your first date in-app.
+            A verified platform exclusively for university students. <br className={s.mobileHidden} />Converse anonymously, build genuine chemistry, and reveal your identity only when you're ready.
           </p>
 
-          <div className={s.heroActions}>
-            <Link href="/auth" className={s.heroCta} id="hero-cta">
-              Enter BlindSide
-            </Link>
-            <a href="#how-it-works" className={s.heroSecondary} id="hero-learn-more">
-              How it unfolds
-            </a>
+          <div 
+            className={`${s.heroEyeContainer} ${isTransitioning ? s.eyeTransitioning : ""}`}
+            onClick={handleEyeClick}
+            role="button"
+            tabIndex={0}
+          >
+            <EyeLogo className={s.heroEye} width={96} height={96} animated={!isTransitioning} />
+            <span className={s.eyeHint}>Enter the blindside</span>
           </div>
 
           {/* Simple organic divider */}
@@ -404,80 +420,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ---- Pricing Section ---- */}
-      <section className={s.pricingSection} id="pricing">
-        <div className={s.pricingLayout}>
-          <div className={s.pricingInfo}>
-            <span className={s.sectionTag}>Transparent Plans</span>
-            <h2 className={s.sectionTitle}>Simple Pay-Per-Match</h2>
-            <p className={s.pricingSubtitle}>
-              No recurrent memberships or predatory microtransactions. Pay a simple flat rate per search. If we cannot find a suitable partner in 7 days, receive a 100% refund.
-            </p>
-
-            <div className={s.pricingBenefits}>
-              <div className={s.benefitItem}>
-                <div className={s.benefitIcon}>
-                  <ShieldIcon />
-                </div>
-                <div className={s.benefitText}>
-                  <h4>Campus Verified Only</h4>
-                  <p>Matches are strictly restricted to students inside your official university network.</p>
-                </div>
-              </div>
-              <div className={s.benefitItem}>
-                <div className={s.benefitIcon}>
-                  <KeyIcon />
-                </div>
-                <div className={s.benefitText}>
-                  <h4>Double-Blind Security</h4>
-                  <p>You control your privacy. Identities and photos remain completely hidden by default, revealed only by mutual consent.</p>
-                </div>
-              </div>
-              <div className={s.benefitItem}>
-                <div className={s.benefitIcon}>
-                  <WalletIcon />
-                </div>
-                <div className={s.benefitText}>
-                  <h4>7-Day Refund Guarantee</h4>
-                  <p>If the system cannot locate a matching profile within 7 days, the fee is fully refunded.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card: University */}
-          <div className={s.pricingCard}>
-            <span className={s.cardLabel}>Campus Exclusive</span>
-            <h3 className={s.cardPlanTitle}>My Campus</h3>
-            <div className={s.priceBox}>
-              <span className={s.priceCurrency}>₹</span>
-              <span className={s.priceVal}>49</span>
-              <span className={s.pricePer}>/first search</span>
-            </div>
-            <div className={s.firstMatchPromo}>Regular rate: ₹69/search</div>
-            <ul className={s.planFeatures}>
-              <li>
-                <span className={s.checkMark}>✓</span> Matches restricted to your campus network
-              </li>
-              <li>
-                <span className={s.checkMark}>✓</span> Verified student status verification
-              </li>
-              <li>
-                <span className={s.checkMark}>✓</span> 48-hour secure chat timer
-              </li>
-              <li>
-                <span className={s.checkMark}>✓</span> In-app date coordination & calendar sync
-              </li>
-              <li>
-                <span className={s.checkMark}>✓</span> 7-day match guarantee or 100% refund
-              </li>
-            </ul>
-            <Link href="/auth" className={s.planCta} id="pricing-uni-cta">
-              Start Matching
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* ---- CTA Section ---- */}
       <section className={s.ctaSection}>
