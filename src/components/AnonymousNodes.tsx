@@ -71,12 +71,12 @@ export default function AnonymousNodes() {
     }
 
     class Pair {
-      nodeA: Node;
-      nodeB: Node;
-      state: 'approaching' | 'connected';
-      driftVx: number;
-      driftVy: number;
-      timeOffsets: { a: number, b: number };
+      nodeA!: Node;
+      nodeB!: Node;
+      state!: 'approaching' | 'connected';
+      driftVx!: number;
+      driftVy!: number;
+      timeOffsets!: { a: number, b: number };
 
       constructor() {
         this.reset();
