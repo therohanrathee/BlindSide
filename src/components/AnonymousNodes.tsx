@@ -197,7 +197,7 @@ export default function AnonymousNodes() {
             ctx.beginPath();
             ctx.moveTo(this.nodeA.x, this.nodeA.y);
             ctx.lineTo(this.nodeB.x, this.nodeB.y);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${connectIntensity * 0.7})`;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${connectIntensity * 0.5})`;
             // Fix low res look by explicitly ensuring subpixel rendering for lines
             ctx.lineWidth = 1.2;
             ctx.stroke();
@@ -206,7 +206,7 @@ export default function AnonymousNodes() {
             ctx.beginPath();
             ctx.moveTo(this.nodeA.x, this.nodeA.y);
             ctx.lineTo(this.nodeB.x, this.nodeB.y);
-            ctx.strokeStyle = `rgba(255, 255, 255, 0.9)`;
+            ctx.strokeStyle = `rgba(255, 255, 255, 0.5)`;
             ctx.lineWidth = 1.5;
             ctx.stroke();
         }
