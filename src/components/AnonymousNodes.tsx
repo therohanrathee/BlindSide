@@ -19,8 +19,14 @@ export default function AnonymousNodes() {
     let logicalHeight = window.innerHeight;
 
     const resize = () => {
-      logicalWidth = window.innerWidth;
-      logicalHeight = window.innerHeight;
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+      
+      // Only re-initialize dots if the width changes (prevents mobile scroll jank)
+      const widthChanged = newWidth !== logicalWidth;
+      
+      logicalWidth = newWidth;
+      logicalHeight = newHeight;
       
       const pixelRatio = window.devicePixelRatio || 1;
       // Actual pixels
@@ -33,7 +39,9 @@ export default function AnonymousNodes() {
       // Scale context so drawing commands use CSS pixels but render in High-DPI
       ctx.scale(pixelRatio, pixelRatio);
       
-      initPairs();
+      if (pairs.length === 0 || widthChanged) {
+        initPairs();
+      }
     };
 
     class Node {
