@@ -342,42 +342,54 @@ function ScrollWheel({ items, selectedIndex, onSelect, label }: WheelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const isUserScroll = useRef(true);
+  const [itemH, setItemH] = useState(44);
+  const [pad, setPad] = useState(88);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      const containerH = scrollRef.current.clientHeight;
+      const firstItem = scrollRef.current.querySelector(`.${a.wheelItem}`) as HTMLDivElement;
+      if (firstItem) {
+        const h = firstItem.getBoundingClientRect().height || 44;
+        setItemH(h);
+        setPad(containerH / 2 - h / 2);
+      }
+    }
+  }, []);
 
   // scroll to initial position on mount
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && itemH > 0) {
       isUserScroll.current = false;
-      scrollRef.current.scrollTop = selectedIndex * ITEM_H;
+      scrollRef.current.scrollTop = selectedIndex * itemH;
       setTimeout(() => { isUserScroll.current = true; }, 100);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [itemH]);
 
   const handleScroll = useCallback(() => {
     if (!isUserScroll.current) return;
     if (scrollTimer.current) clearTimeout(scrollTimer.current);
     scrollTimer.current = setTimeout(() => {
       if (!scrollRef.current) return;
-      const idx = Math.round(scrollRef.current.scrollTop / ITEM_H);
+      const idx = Math.round(scrollRef.current.scrollTop / itemH);
       if (idx >= 0 && idx < items.length && idx !== selectedIndex) {
         onSelect(idx);
       }
     }, 80);
-  }, [items.length, selectedIndex, onSelect]);
+  }, [items.length, selectedIndex, onSelect, itemH]);
 
   useEffect(() => {
     if (scrollRef.current) {
-      const expected = selectedIndex * ITEM_H;
+      const expected = selectedIndex * itemH;
       const current = scrollRef.current.scrollTop;
-      if (Math.abs(current - expected) > ITEM_H / 2) {
+      if (Math.abs(current - expected) > itemH / 2) {
         isUserScroll.current = false;
         scrollRef.current.scrollTo({ top: expected, behavior: "smooth" });
         setTimeout(() => { isUserScroll.current = true; }, 300);
       }
     }
-  }, [selectedIndex]);
-
-  const PAD = ITEM_H * 2;
+  }, [selectedIndex, itemH]);
 
   return (
     <div className={a.wheelCol}>
@@ -391,17 +403,16 @@ function ScrollWheel({ items, selectedIndex, onSelect, label }: WheelProps) {
           ref={scrollRef}
           onScroll={handleScroll}
         >
-          <div style={{ height: PAD }}/>
+          <div style={{ height: pad }}/>
           {items.map((item, i) => (
             <div
               key={i}
               className={`${a.wheelItem} ${i === selectedIndex ? a.wheelItemActive : ""}`}
-              style={{ height: ITEM_H }}
             >
               {item}
             </div>
           ))}
-          <div style={{ height: PAD }}/>
+          <div style={{ height: pad }}/>
         </div>
       </div>
     </div>
@@ -772,22 +783,41 @@ export default function AboutYouWizard({
   const [heightLocked, setHeightLocked] = useState(false);
   const [weightLocked, setWeightLocked] = useState(false);
 
+  const triggerHaptic = useCallback(() => {
+    if (typeof window !== "undefined") {
+      if (window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(10); } catch (e) {}
+      }
+      if ((window as any).Telegram?.WebApp?.HapticFeedback) {
+        try { (window as any).Telegram.WebApp.HapticFeedback.selectionChanged(); } catch (e) {}
+      }
+    }
+  }, []);
+
   const updateHeight = useCallback((clientY: number) => {
     if (!heightRef.current) return;
     const r = heightRef.current.getBoundingClientRect();
     const frac = 1 - ((clientY - r.top) / r.height);
     const clamped = Math.max(0, Math.min(1, frac));
-    setHeightVal(Math.round(MIN_CM + clamped * (MAX_CM - MIN_CM)));
-  }, []);
+    const newCm = Math.round(MIN_CM + clamped * (MAX_CM - MIN_CM));
+    setHeightVal((prev) => {
+      if (prev !== newCm) triggerHaptic();
+      return newCm;
+    });
+  }, [triggerHaptic]);
 
   const updateWeight = useCallback((clientX: number) => {
     if (!weightRef.current) return;
     const r = weightRef.current.getBoundingClientRect();
     const frac = (clientX - r.left) / r.width;
     const clamped = Math.max(0, Math.min(1, frac));
-    setWeightVal(Math.round(MIN_KG + clamped * (MAX_KG - MIN_KG)));
+    const newKg = Math.round(MIN_KG + clamped * (MAX_KG - MIN_KG));
+    setWeightVal((prev) => {
+      if (prev !== newKg) triggerHaptic();
+      return newKg;
+    });
     setWeightSkipped(false);
-  }, []);
+  }, [triggerHaptic]);
 
   const onHeightMouseMove = useCallback((e: React.MouseEvent) => { if (!heightLocked) updateHeight(e.clientY); }, [heightLocked, updateHeight]);
   const onHeightClick = useCallback((e: React.MouseEvent) => {
