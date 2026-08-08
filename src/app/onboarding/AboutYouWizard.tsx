@@ -56,6 +56,35 @@ const HOBBIES_LIST = [
 
 /* ── helpers ───────────────────────────────────────────────── */
 
+let sharedAudioCtx: any = null;
+
+function playTickSound() {
+  if (typeof window === "undefined") return;
+  try {
+    if (!sharedAudioCtx) {
+      sharedAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (sharedAudioCtx.state === "suspended") {
+      sharedAudioCtx.resume();
+    }
+    const osc = sharedAudioCtx.createOscillator();
+    const gain = sharedAudioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(sharedAudioCtx.destination);
+    
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(800, sharedAudioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(300, sharedAudioCtx.currentTime + 0.04);
+    
+    gain.gain.setValueAtTime(0, sharedAudioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.05, sharedAudioCtx.currentTime + 0.01);
+    gain.gain.linearRampToValueAtTime(0, sharedAudioCtx.currentTime + 0.04);
+    
+    osc.start(sharedAudioCtx.currentTime);
+    osc.stop(sharedAudioCtx.currentTime + 0.05);
+  } catch (e) {}
+}
+
 function cmToFtIn(cm: number) {
   const totalInches = cm / 2.54;
   const ft = Math.floor(totalInches / 12);
@@ -785,6 +814,7 @@ export default function AboutYouWizard({
 
   const triggerHaptic = useCallback(() => {
     if (typeof window !== "undefined") {
+      playTickSound();
       if (window.navigator && window.navigator.vibrate) {
         try { window.navigator.vibrate(10); } catch (e) {}
       }
