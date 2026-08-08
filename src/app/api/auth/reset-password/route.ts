@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://blindside.in";
     const actionLink = `${origin}/reset-password?token=${rawToken}&email=${encodeURIComponent(normalizedEmail)}`;
 
-    const subject = "BlindSide — Reset Password";
+    const subject = "Password reset instructions for BlindSide";
     const html = `
       <div style="font-family: sans-serif; padding: 30px; background-color: #f4f5f7; color: #16192a; border-radius: 16px; max-width: 480px; margin: 0 auto; border: 1px solid #dcdee4;">
         <h2 style="color: #d42466; margin-top: 0; font-weight: 800; text-align: center; letter-spacing: -0.02em;">BlindSide</h2>
@@ -77,11 +77,15 @@ export async function POST(request: NextRequest) {
       </div>
     `;
 
+    const text = `You recently requested to reset your password for BlindSide.\n\nPlease visit the following link to choose a new password:\n${actionLink}\n\nThis link will expire in 15 minutes. If you did not request this change, you can safely ignore this email.`;
+
     if (isResendConfigured()) {
       const emailSent = await sendEmail({
         to: normalizedEmail,
         subject,
         html,
+        text,
+        replyTo: "support@blindside.in",
         from: process.env.EMAIL_OTP_FROM_ADDRESS || "BlindSide <verify@blindside.in>",
       });
 
