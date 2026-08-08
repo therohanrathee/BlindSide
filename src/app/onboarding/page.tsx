@@ -95,6 +95,7 @@ function OnboardingContent() {
   const [lon, setLon] = useState<number | null>(null);
   const [locationStatus, setLocationStatus] = useState<"idle" | "requesting" | "granted" | "denied">("idle");
   const [locationError, setLocationError] = useState("");
+  const [isFetchingFallback, setIsFetchingFallback] = useState(false);
 
   // General Status
   const [actionError, setActionError] = useState("");
@@ -513,6 +514,29 @@ function OnboardingContent() {
         maximumAge: 0
       }
     );
+  };
+
+  const requestApproximateLocation = async () => {
+    setIsFetchingFallback(true);
+    setLocationError("");
+    try {
+      const res = await fetch("/api/location/ip");
+      const data = await res.json();
+      if (data.success && data.lat && data.lon) {
+        setLat(data.lat);
+        setLon(data.lon);
+        setLocationStatus("granted");
+        setLocationError("Using estimated location. Your matches may be less accurate.");
+      } else {
+        setLocationStatus("denied");
+        setLocationError("Could not determine approximate location. Please enable GPS.");
+      }
+    } catch (e) {
+      setLocationStatus("denied");
+      setLocationError("Network error while determining approximate location.");
+    } finally {
+      setIsFetchingFallback(false);
+    }
   };
 
   const handleMockLocation = () => {
@@ -1046,13 +1070,24 @@ function OnboardingContent() {
                   type="button"
                   className={`${s.locationBtn} ${locationStatus === "granted" ? s.locationGranted : ""}`}
                   onClick={requestLocation}
-                  disabled={locationStatus === "granted"}
+                  disabled={locationStatus === "granted" || isFetchingFallback}
                 >
                   {locationStatus === "idle" && "Authorize Location Access"}
                   {locationStatus === "requesting" && "Acquiring Coordinates..."}
                   {locationStatus === "granted" && "Coordinates Verified ✓"}
                   {locationStatus === "denied" && "Access Denied (Re-authorize)"}
                 </button>
+
+                {locationStatus !== "granted" && (
+                  <button
+                    type="button"
+                    className={s.locationFallbackBtn}
+                    onClick={requestApproximateLocation}
+                    disabled={isFetchingFallback}
+                  >
+                    {isFetchingFallback ? "Estimating..." : "Skip / Use Approximate Location"}
+                  </button>
+                )}
 
                 {locationError && (
                   <p className={s.locationErrorText}>
