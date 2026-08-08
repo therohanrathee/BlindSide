@@ -43,7 +43,7 @@ export async function sendEmail({ to, subject, html, text, from, replyTo }: Send
       subject: subject,
       html: html,
       text: text,
-      reply_to: replyTo || "support@blindside.in",
+      replyTo: replyTo || "support@blindside.in",
     });
 
     if (error) {
