@@ -12,7 +12,7 @@ export async function sendEmailOTP(email: string, otp: string): Promise<boolean>
 
   if (isResendConfigured()) {
     try {
-      const subject = "BlindSide — Verification Code";
+      const subject = "Your access code for BlindSide";
       const html = `
         <div style="font-family: sans-serif; padding: 30px; background-color: #f4f5f7; color: #16192a; border-radius: 16px; max-width: 480px; margin: 0 auto; border: 1px solid #dcdee4;">
           <h2 style="color: #d42466; margin-top: 0; font-weight: 800; text-align: center; letter-spacing: -0.02em;">BlindSide</h2>
@@ -23,10 +23,14 @@ export async function sendEmailOTP(email: string, otp: string): Promise<boolean>
           <p style="font-size: 12px; color: #8b8f9e; text-align: center; margin-bottom: 0; line-height: 1.4;">This code is valid for 10 minutes.<br />If you did not request this code, please ignore this email.</p>
         </div>
       `;
+      const text = `Welcome to BlindSide.\n\nYour verification code is: ${otp}\n\nThis code is valid for 10 minutes. If you did not request this code, please ignore this email.`;
+
       return await sendEmail({
         to: email,
         subject,
         html,
+        text,
+        replyTo: "support@blindside.in",
         from: process.env.EMAIL_OTP_FROM_ADDRESS || "BlindSide <verify@blindside.in>",
       });
     } catch (err) {

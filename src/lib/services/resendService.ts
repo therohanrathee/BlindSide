@@ -11,14 +11,16 @@ interface SendEmailParams {
   to: string;
   subject: string;
   html: string;
+  text?: string;
   from?: string;
+  replyTo?: string;
 }
 
 /**
  * Sends a transactional email using Resend.
  * Returns true if successful, false otherwise.
  */
-export async function sendEmail({ to, subject, html, from }: SendEmailParams): Promise<boolean> {
+export async function sendEmail({ to, subject, html, text, from, replyTo }: SendEmailParams): Promise<boolean> {
   const formatFromAddress = (addr?: string): string => {
     const raw = addr || process.env.EMAIL_OTP_FROM_ADDRESS || "verify@blindside.in";
     if (raw.includes("<") && raw.includes(">")) {
@@ -40,6 +42,8 @@ export async function sendEmail({ to, subject, html, from }: SendEmailParams): P
       to: [to.trim().toLowerCase()],
       subject: subject,
       html: html,
+      text: text,
+      reply_to: replyTo || "support@blindside.in",
     });
 
     if (error) {
