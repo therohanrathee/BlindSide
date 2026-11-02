@@ -7,15 +7,15 @@ export async function POST(request: NextRequest) {
     const userSupabase = await createClient();
 
     // Verify session
-    const { data: { session } } = await userSupabase.auth.getSession();
-    if (!session) {
+    const { data: { user } } = await userSupabase.auth.getUser();
+    if (!user) {
       return NextResponse.json(
         { message: "Unauthorized." },
         { status: 401 }
       );
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const body = await request.json();
 
     const {
@@ -85,6 +85,13 @@ export async function POST(request: NextRequest) {
         success: true,
         message: "Payment already verified and search activated successfully!",
       });
+    }
+
+    if (paymentRecord.user_id !== userId) {
+      return NextResponse.json(
+        { message: "Forbidden: Payment record belongs to another user." },
+        { status: 403 }
+      );
     }
 
     // Get the request details to know the amount

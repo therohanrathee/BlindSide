@@ -226,7 +226,7 @@ function OnboardingContent() {
 
             if (res.ok) {
               setPrimaryOtpSent(true);
-              setActionSuccess("Verification code sent! Check your terminal console.");
+              setActionSuccess("Verification code sent! Please check your inbox (and Spam/Junk folder).");
             } else {
               const errData = await res.json();
               setActionError(errData.message || "Failed to send code.");
@@ -295,7 +295,7 @@ function OnboardingContent() {
 
       if (res.ok) {
         setPrimaryOtpSent(true);
-        setActionSuccess("Verification code sent! Check your terminal console.");
+        setActionSuccess("Verification code sent! Please check your inbox (and Spam/Junk folder).");
       } else {
         const errData = await res.json();
         setActionError(errData.message || "Failed to send code.");
@@ -422,7 +422,7 @@ function OnboardingContent() {
 
       if (res.ok) {
         setUniOtpSent(true);
-        setActionSuccess("Verification code sent to university email! Check your terminal console.");
+        setActionSuccess("Verification code sent to your university email! Check your inbox (and Spam/Junk folder).");
       } else {
         const errData = await res.json();
         setActionError(errData.message || "Failed to send code.");

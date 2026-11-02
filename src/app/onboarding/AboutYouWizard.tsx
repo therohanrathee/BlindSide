@@ -961,7 +961,7 @@ export default function AboutYouWizard({
         return (
           <div className={a.photoContent}>
             <h2 className={a.subTitle}>Add a profile photo</h2>
-            <p className={a.subHint}>This will be revealed to your matches 4 hours before your date.</p>
+            <p className={a.subHint}>Your photo is kept private. You can choose to share it directly with your match during chat.</p>
 
             {!photoDataUrl ? (
               <>

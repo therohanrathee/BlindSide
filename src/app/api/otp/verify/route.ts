@@ -1,47 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
   try {
     const { userId, email, otp } = await request.json();
 
-    if (!otp) {
+    if (!otp || typeof otp !== "string") {
       return NextResponse.json(
         { message: "OTP code is required." },
         { status: 400 }
       );
     }
 
-    if (!email && !userId) {
+    if (!email) {
       return NextResponse.json(
-        { message: "Identifier (email or userId) is required." },
+        { message: "Email is required for verification." },
         { status: 400 }
       );
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
     const supabase = createAdminClient();
+
+    // 1. If verifying for a specific userId, authenticate the session
+    if (userId) {
+      const userSupabase = await createClient();
+      const { data: { user } } = await userSupabase.auth.getUser();
+
+      if (!user || user.id !== userId) {
+        return NextResponse.json(
+          { message: "Unauthorized." },
+          { status: 401 }
+        );
+      }
+    }
+
     const otpHash = crypto.createHash("sha256").update(otp.trim()).digest("hex");
 
-    // Query the latest active OTP for this identifier
+    // 2. Query the latest active OTP for this identifier
     let query = supabase
       .from("otp_verifications")
       .select("*")
+      .eq("email", normalizedEmail)
       .eq("is_used", false)
       .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
       .limit(1);
 
-    if (userId && email) {
-      // If verifying university email, query by userId and university email
-      query = query.eq("user_id", userId).eq("email", email.trim().toLowerCase());
-    } else if (email) {
-      query = query.eq("email", email.trim().toLowerCase());
-    } else {
-      return NextResponse.json(
-        { message: "Email is required for verification." },
-        { status: 400 }
-      );
+    if (userId) {
+      query = query.eq("user_id", userId);
     }
 
     const { data: records, error } = await query;
@@ -63,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     const latestOtpRecord = records[0];
 
-    // Check attempts limit
+    // Check attempts limit (max 3)
     if (latestOtpRecord.attempts >= 3) {
       return NextResponse.json(
         { message: "This code is blocked due to too many incorrect attempts. Please request a new one." },
@@ -85,7 +93,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Success! Mark as used
+    // Success! Mark OTP as used
     const { error: updateError } = await supabase
       .from("otp_verifications")
       .update({ is_used: true })
@@ -99,13 +107,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // If verified university email, we can immediately update users table to verify university
-    if (userId && email) {
+    // If verifying university email for authenticated user, validate university and update status
+    if (userId) {
+      const domain = normalizedEmail.split("@")[1];
+      const { data: matchedUni } = await supabase
+        .from("universities")
+        .select("id, name, email_domain")
+        .eq("email_domain", domain)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (!matchedUni) {
+        return NextResponse.json(
+          { message: `Email domain (@${domain}) is not recognized as a registered university.` },
+          { status: 400 }
+        );
+      }
+
       const { error: userUpdateError } = await supabase
         .from("users")
         .update({
           is_university_verified: true,
-          university_email: email.trim().toLowerCase(),
+          university_email: normalizedEmail,
+          university_id: matchedUni.id,
         })
         .eq("id", userId);
 

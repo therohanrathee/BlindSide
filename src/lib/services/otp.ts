@@ -20,10 +20,13 @@ export async function sendEmailOTP(email: string, otp: string): Promise<boolean>
           <div style="font-size: 36px; font-weight: 800; color: #16192a; text-align: center; letter-spacing: 0.15em; padding: 20px; background-color: #ffffff; border-radius: 12px; border: 1px solid #dcdee4; margin: 24px 0; font-variant-numeric: tabular-nums;">
             ${otp}
           </div>
+          <div style="margin: 20px 0; padding: 14px 16px; background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 10px; font-size: 13px; line-height: 1.5; color: #92400e; text-align: center;">
+            📬 <strong>Important:</strong> If this email landed in your <strong>Spam or Junk folder</strong>, please mark it as <strong>&ldquo;Not Spam&rdquo;</strong> to ensure you receive your matches, chat alerts, and date confirmations!
+          </div>
           <p style="font-size: 12px; color: #8b8f9e; text-align: center; margin-bottom: 0; line-height: 1.4;">This code is valid for 10 minutes.<br />If you did not request this code, please ignore this email.</p>
         </div>
       `;
-      const text = `Welcome to BlindSide.\n\nYour verification code is: ${otp}\n\nThis code is valid for 10 minutes. If you did not request this code, please ignore this email.`;
+      const text = `Welcome to BlindSide.\n\nYour verification code is: ${otp}\n\nImportant: This email might land in your Spam / Junk folder. If so, please mark it as "Not Spam" to ensure you receive future date updates and notifications.\n\nThis code is valid for 10 minutes. If you did not request this code, please ignore this email.`;
 
       return await sendEmail({
         to: email,

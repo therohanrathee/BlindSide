@@ -10,8 +10,8 @@ self.addEventListener('push', function (event) {
 
     const options = {
       body,
-      icon: '/icon-512x512.png', // Assuming a standard icon exists, fallback if not
-      badge: '/badge-72x72.png', // Transparent white icon for Android status bar
+      icon: '/icons/icon-512.png',
+      badge: '/icons/icon-192.png',
       vibrate: [200, 100, 200],
       tag,
       data: { url },

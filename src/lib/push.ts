@@ -76,8 +76,8 @@ export async function subscribeToPushNotifications() {
     // Show a test confirmation notification locally
     await registration.showNotification("Notifications Enabled! 🎉", {
       body: "You'll now receive alerts for new matches and messages.",
-      icon: "/icon-512x512.png",
-      badge: "/badge-72x72.png",
+      icon: "/icons/icon-512.png",
+      badge: "/icons/icon-192.png",
     });
 
     console.log("Successfully subscribed to push notifications!");

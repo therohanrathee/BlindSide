@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlindSide — K.R. Mangalam University Launch Kit & Ad Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --card-bg: rgba(14, 17, 26, 0.9);
+      --accent-pink: #e82c6c;
+      --accent-purple: #7c5ceb;
+      --accent-cyan: #38bdf8;
+      --accent-grad: linear-gradient(135deg, #e82c6c 0%, #7c5ceb 100%);
+      --glow-pink: rgba(232, 44, 108, 0.35);
+      --border: rgba(255, 255, 255, 0.12);
+      --border-focus: rgba(232, 44, 108, 0.6);
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      padding: 32px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Banner / Header */
+    .header-card {
+      text-align: center;
+      max-width: 980px;
+      background: rgba(14, 17, 26, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 36px 28px;
+      width: 100%;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+    .header-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 44, 108, 0.15);
+      border: 1px solid rgba(232, 44, 108, 0.4);
+      color: #fb7185;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .header-pill .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e82c6c;
+      box-shadow: 0 0 10px #e82c6c;
+    }
+    .header-card h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      background: var(--accent-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+      line-height: 1.15;
+    }
+    .header-card p {
+      color: var(--text-sub);
+      font-size: 1.05rem;
+      max-width: 720px;
+      margin: 0 auto;
+      line-height: 1.55;
+    }
+
+    /* Navigation Tabs */
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      max-width: 760px;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+    .tab-btn.active {
+      background: var(--accent-grad);
+      color: #fff;
+      box-shadow: 0 4px 20px var(--glow-pink);
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+      width: 100%;
+      max-width: 1360px;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+    .tab-panel.active { display: flex; }
+
+    /* Ready PNG Showcase Grid */
+    .png-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 28px;
+      width: 100%;
+    }
+    .png-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .png-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(232, 44, 108, 0.4);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    }
+    .png-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .png-card-header h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .png-badge {
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .png-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      line-height: 1.45;
+    }
+    .png-preview-wrapper {
+      position: relative;
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 280px;
+      max-height: 400px;
+    }
+    .png-preview-wrapper img {
+      width: 100%;
+      height: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .png-preview-wrapper:hover img {
+      transform: scale(1.02);
+    }
+    .png-card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+    .btn-download {
+      flex: 1;
+      background: var(--accent-grad);
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      font-family: inherit;
+    }
+    .btn-download:hover { opacity: 0.92; box-shadow: 0 4px 20px var(--glow-pink); }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.14); }
+
+    /* Interactive Live Studio Styles */
+    .studio-controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 24px;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .control-group label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .control-input {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .control-input:focus { border-color: var(--accent-pink); }
+
+    /* Live Card Previews */
+    .live-cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 36px;
+      width: 100%;
+    }
+    .live-card-wrapper {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Template 1: Square */
+    .ad-stage-square {
+      width: 480px;
+      height: 480px;
+      border-radius: 20px;
+      padding: 34px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 35px var(--glow-pink);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background-size: cover;
+      background-position: center;
+      background-image: 
+        linear-gradient(180deg, rgba(7, 9, 14, 0.75) 0%, rgba(7, 9, 14, 0.55) 50%, rgba(7, 9, 14, 0.92) 100%),
+        url('./post_hero.jpg'),
+        radial-gradient(circle at top right, #381228, #07090e);
+    }
+
+    /* Template 2: Portrait */
+    .ad-stage-portrait {
+      width: 384px;
+      height: 480px;
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 35px rgba(124, 92, 235, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background-size: cover;
+      background-position: center;
+      background-image: 
+        linear-gradient(180deg, rgba(7, 9, 14, 0.8) 0%, rgba(7, 9, 14, 0.6) 45%, rgba(7, 9, 14, 0.95) 100%),
+        url('./post_hero.jpg'),
+        radial-gradient(circle at top right, #1d1238, #07090e);
+    }
+
+    /* Template 3: Story */
+    .ad-stage-story {
+      width: 320px;
+      height: 568px;
+      border-radius: 24px;
+      padding: 36px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 35px var(--glow-pink);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background-size: cover;
+      background-position: center;
+      background-image: 
+        linear-gradient(180deg, rgba(7, 9, 14, 0.7) 0%, rgba(7, 9, 14, 0.3) 30%, rgba(7, 9, 14, 0.92) 100%),
+        url('./story_hero.jpg'),
+        radial-gradient(circle at top right, #381228, #07090e);
+    }
+
+    /* UI Components inside Stages */
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(14, 17, 26, 0.85);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #f1f5f9;
+      width: fit-content;
+    }
+    .brand-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e82c6c;
+      box-shadow: 0 0 10px #e82c6c;
+    }
+    .headline-huge {
+      font-size: 1.85rem;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: #fff;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+    }
+    .headline-huge span {
+      background: var(--accent-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .glass-feature-card {
+      background: rgba(14, 17, 26, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ad-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(14, 17, 26, 0.88);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 10px 16px;
+    }
+    .price-badge-val {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #38bdf8;
+    }
+    .cta-pill-btn {
+      background: var(--accent-grad);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 15px var(--glow-pink);
+    }
+
+    /* Influencer Scripts & Copy Table */
+    .content-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .content-box h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .copy-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+    .copy-card-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--accent-pink);
+    }
+    .copy-text {
+      font-family: monospace;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      background: rgba(0,0,0,0.4);
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .btn-copy {
+      align-self: flex-end;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy:hover { background: var(--accent-pink); border-color: var(--accent-pink); }
+
+    /* Modal / Full Preview */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+    }
+    .modal-content img {
+      max-width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+    .modal-close {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      background: #e82c6c;
+      color: #fff;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Hero Header -->
+  <div class="header-card">
+    <div class="header-pill">
+      <span class="pulse-dot"></span>
+      Official Campus Launch Kit &bull; Fall 2026
+    </div>
+    <h1>BlindSide Marketing Studio</h1>
+    <p>High-resolution, ultra-engaging marketing creative suite tailored for the campus launch at <strong>K.R. Mangalam University (KRMU)</strong>.</p>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" onclick="switchTab('krmu')">🎯 KRMU Ready-to-Post PNGs (5 Assets)</button>
+    <button class="tab-btn" onclick="switchTab('studio')">🎨 Interactive Live Studio</button>
+    <button class="tab-btn" onclick="switchTab('influencer')">📱 Reel Scripts & Captions</button>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- TAB 1: KRMU READY-TO-POST HIGH-RES PNGs    -->
+  <!-- ========================================== -->
+  <div id="tab-krmu" class="tab-panel active">
+    <div style="text-align: center; max-width: 700px;">
+      <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin-bottom: 6px;">Pre-Rendered K.R. Mangalam University Assets</h2>
+      <p style="color: var(--text-sub); font-size: 0.95rem;">Rendered at full 1080p resolution with custom KRMU verified badge, anti-ghosting hook, and canteen date call-to-actions.</p>
+    </div>
+
+    <div class="png-grid">
+
+      <!-- Asset 1: Square Feed Ad -->
+      <div class="png-card">
+        <div class="png-card-header">
+          <div>
+            <h3>1. Feed Ad: Anti-Ghosting Hook</h3>
+            <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Feed Square</span>
+          </div>
+          <span class="png-badge">1080 &times; 1080 (1:1)</span>
+        </div>
+        <p class="png-card-desc">Hook post calling out dating fatigue, highlighting 100% verified KRMU peers and ₹49 launch pricing.</p>
+        <div class="png-preview-wrapper" onclick="openModal('./krmu/post_square_1080x1080.png')">
+          <img src="./krmu/post_square_1080x1080.png" alt="KRMU Post Square 1080x1080" loading="lazy">
+        </div>
+        <div class="png-card-actions">
+          <a class="btn-download" href="./krmu/post_square_1080x1080.png" download="blindside_krmu_feed_square_1080x1080.png">
+            ⬇️ Download PNG (923 KB)
+          </a>
+          <button class="btn-secondary" onclick="openModal('./krmu/post_square_1080x1080.png')">🔍 Preview</button>
+        </div>
+      </div>
+
+      <!-- Asset 2: Portrait Feed Ad -->
+      <div class="png-card">
+        <div class="png-card-header">
+          <div>
+            <h3>2. Feed Ad: The Anti-Tinder</h3>
+            <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Feed Portrait</span>
+          </div>
+          <span class="png-badge">1080 &times; 1350 (4:5)</span>
+        </div>
+        <p class="png-card-desc">Maximum vertical feed screen real estate with 3-step trust badges and college email verification highlight.</p>
+        <div class="png-preview-wrapper" onclick="openModal('./krmu/post_portrait_1080x1350.png')">
+          <img src="./krmu/post_portrait_1080x1350.png" alt="KRMU Post Portrait 1080x1350" loading="lazy">
+        </div>
+        <div class="png-card-actions">
+          <a class="btn-download" href="./krmu/post_portrait_1080x1350.png" download="blindside_krmu_feed_portrait_1080x1350.png">
+            ⬇️ Download PNG (902 KB)
+          </a>
+          <button class="btn-secondary" onclick="openModal('./krmu/post_portrait_1080x1350.png')">🔍 Preview</button>
+        </div>
+      </div>
+
+      <!-- Asset 3: Story Interactive Poll -->
+      <div class="png-card">
+        <div class="png-card-header">
+          <div>
+            <h3>3. Story: Interactive Campus Poll</h3>
+            <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Story / Reel</span>
+          </div>
+          <span class="png-badge">1080 &times; 1920 (9:16)</span>
+        </div>
+        <p class="png-card-desc">Designed with exact sticker proportions for IG poll sticker & link sticker overlays. High viral engagement.</p>
+        <div class="png-preview-wrapper" onclick="openModal('./krmu/story_poll_1080x1920.png')">
+          <img src="./krmu/story_poll_1080x1920.png" alt="KRMU Story Poll 1080x1920" loading="lazy">
+        </div>
+        <div class="png-card-actions">
+          <a class="btn-download" href="./krmu/story_poll_1080x1920.png" download="blindside_krmu_story_poll_1080x1920.png">
+            ⬇️ Download PNG (1.59 MB)
+          </a>
+          <button class="btn-secondary" onclick="openModal('./krmu/story_poll_1080x1920.png')">🔍 Preview</button>
+        </div>
+      </div>
+
+      <!-- Asset 4: Story Campus Secret Notice -->
+      <div class="png-card">
+        <div class="png-card-header">
+          <div>
+            <h3>4. Story: Official Campus Notice</h3>
+            <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Story / Reel</span>
+          </div>
+          <span class="png-badge">1080 &times; 1920 (9:16)</span>
+        </div>
+        <p class="png-card-desc">Mystery memo format: "KRMU Students Only: You've been invited to BlindSide". Creates massive campus FOMO.</p>
+        <div class="png-preview-wrapper" onclick="openModal('./krmu/story_notice_1080x1920.png')">
+          <img src="./krmu/story_notice_1080x1920.png" alt="KRMU Story Notice 1080x1920" loading="lazy">
+        </div>
+        <div class="png-card-actions">
+          <a class="btn-download" href="./krmu/story_notice_1080x1920.png" download="blindside_krmu_story_notice_1080x1920.png">
+            ⬇️ Download PNG (795 KB)
+          </a>
+          <button class="btn-secondary" onclick="openModal('./krmu/story_notice_1080x1920.png')">🔍 Preview</button>
+        </div>
+      </div>
+
+      <!-- Asset 5: Story 3-Step Walkthrough -->
+      <div class="png-card">
+        <div class="png-card-header">
+          <div>
+            <h3>5. Story: How BlindSide Works</h3>
+            <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Story / Reel</span>
+          </div>
+          <span class="png-badge">1080 &times; 1920 (9:16)</span>
+        </div>
+        <p class="png-card-desc">Clear 3-step breakdown explaining @krmu.edu.in verification, 48h chat, and campus canteen meetup.</p>
+        <div class="png-preview-wrapper" onclick="openModal('./krmu/story_how_it_works_1080x1920.png')">
+          <img src="./krmu/story_how_it_works_1080x1920.png" alt="KRMU Story How It Works 1080x1920" loading="lazy">
+        </div>
+        <div class="png-card-actions">
+          <a class="btn-download" href="./krmu/story_how_it_works_1080x1920.png" download="blindside_krmu_story_guide_1080x1920.png">
+            ⬇️ Download PNG (1.43 MB)
+          </a>
+          <button class="btn-secondary" onclick="openModal('./krmu/story_how_it_works_1080x1920.png')">🔍 Preview</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- TAB 2: INTERACTIVE LIVE STUDIO             -->
+  <!-- ========================================== -->
+  <div id="tab-studio" class="tab-panel">
+
+    <div class="studio-controls-bar">
+      <div class="control-group">
+        <label>🎓 Campus Name</label>
+        <input type="text" id="liveCampusInput" class="control-input" value="K.R. Mangalam University" oninput="updateLiveCampus(this.value)" placeholder="e.g. K.R. Mangalam University">
+      </div>
+      <div class="control-group">
+        <label>🏷️ Launch Price</label>
+        <input type="text" id="livePriceInput" class="control-input" value="₹49" oninput="updateLivePrice(this.value)" style="width: 100px;">
+      </div>
+      <div class="control-group">
+        <span style="font-size: 0.85rem; color: var(--text-sub);">💡 Real-time CSS layout preview with fallback imagery</span>
+      </div>
+    </div>
+
+    <div class="live-cards-container">
+
+      <!-- Live Square Card -->
+      <div class="live-card-wrapper">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff;">Square Feed (1080 &times; 1080)</h3>
+        <div class="ad-stage-square" id="live-stage-square">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="brand-pill">
+              <span class="dot"></span>
+              BlindSide &bull; <span class="campus-target">K.R. Mangalam University</span>
+            </div>
+            <span style="font-size: 0.7rem; color: #f43f5e; font-weight: 800; letter-spacing: 0.05em; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 6px;">EXCLUSIVE LAUNCH</span>
+          </div>
+
+          <div>
+            <h2 class="headline-huge">
+              Tired of swiping on faces that <span>ghost you?</span>
+            </h2>
+            <p style="color: #cbd5e1; font-size: 0.9rem; margin-top: 10px; line-height: 1.4; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
+              No photos. No fake bios. Just 100% verified students from <strong class="campus-target" style="color: #fff;">K.R. Mangalam University</strong> matched on pure personality & vibe.
+            </p>
+          </div>
+
+          <div class="glass-feature-card">
+            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; font-weight: 800;">How It Works</div>
+            <div style="display: flex; gap: 8px; font-size: 0.78rem; color: #f1f5f9; font-weight: 700;">
+              <span>🔒 Verified College Email</span> &bull; 
+              <span>💬 48-Hour Chat</span> &bull; 
+              <span>☕ Canteen Meetup</span>
+            </div>
+          </div>
+
+          <div class="ad-footer-row">
+            <div>
+              <div style="font-size: 0.7rem; color: #64748b; text-decoration: line-through; font-weight: 700;">Regular ₹69</div>
+              <div class="price-badge-val"><span class="price-target">₹49</span> First Match</div>
+            </div>
+            <div class="cta-pill-btn">Enter Match Queue &rarr;</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Portrait Card -->
+      <div class="live-card-wrapper">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff;">Portrait Feed (1080 &times; 1350)</h3>
+        <div class="ad-stage-portrait" id="live-stage-portrait">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="brand-pill">
+              <span class="dot"></span>
+              BlindSide 🎓
+            </div>
+            <span style="font-size: 0.7rem; color: #38bdf8; font-weight: 800; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 6px;">CAMPUS EXCLUSIVE</span>
+          </div>
+
+          <div>
+            <div style="font-size: 0.75rem; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">The Anti-Tinder</div>
+            <h2 class="headline-huge" style="font-size: 1.55rem;">
+              Dating at <span class="campus-target">K.R. Mangalam University</span> just got <span>re-invented.</span>
+            </h2>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div class="glass-feature-card" style="padding: 10px 14px;">
+              <span style="font-size: 0.76rem; color: #f1f5f9;"><strong>1. Verified Student Email:</strong> 100% verified college peers.</span>
+            </div>
+            <div class="glass-feature-card" style="padding: 10px 14px;">
+              <span style="font-size: 0.76rem; color: #f1f5f9;"><strong>2. 48-Hour Blind Chat:</strong> Personality-first conversation.</span>
+            </div>
+            <div class="glass-feature-card" style="padding: 10px 14px;">
+              <span style="font-size: 0.76rem; color: #f1f5f9;"><strong>3. Real Campus Date:</strong> Meet at your campus canteen.</span>
+            </div>
+          </div>
+
+          <div class="ad-footer-row">
+            <div>
+              <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 700;">CAMPUS ONLY</div>
+              <div class="price-badge-val" style="font-size: 0.95rem;">First Match <span class="price-target">₹49</span></div>
+            </div>
+            <div class="cta-pill-btn" style="font-size: 0.72rem; padding: 6px 12px;">Get Matched</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Story Card -->
+      <div class="live-card-wrapper">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff;">Story Ad (1080 &times; 1920)</h3>
+        <div class="ad-stage-story" id="live-stage-story">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <div class="brand-pill">
+              <span class="dot"></span>
+              Campus Confidential
+            </div>
+            <span style="font-size: 0.65rem; color: #cbd5e1; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px;">EXCLUSIVE EXPERIMENT</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px; text-align: center;">
+            <h2 style="font-size: 1.6rem; font-weight: 900; line-height: 1.2; letter-spacing: -0.03em; color: #fff;">
+              Would you go on a <span style="background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">blind date</span> with someone from <span class="campus-target">K.R. Mangalam University</span>? 👀
+            </h2>
+
+            <div style="background: rgba(14,17,26,0.9); border: 1px solid rgba(255,255,255,0.25); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1;">Tap to vote:</div>
+              <div style="background: linear-gradient(90deg, rgba(232, 44, 108, 0.4) 0%, rgba(124, 92, 235, 0.4) 100%); border: 1px solid rgba(232, 44, 108, 0.6); padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.82rem;">
+                🔥 Hell YES, let's vibe!
+              </div>
+              <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.82rem;">
+                🙈 Too shy tbh
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px; text-align: center;">
+            <div style="background: #fff; color: #0f172a; font-weight: 900; font-size: 0.85rem; padding: 8px 18px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin: 0 auto;">
+              🔗 blindside.in
+            </div>
+            <p style="font-size: 0.68rem; color: #cbd5e1; line-height: 1.35;">
+              No photos shown until you both decide to meet.<br/>Verified students only. First search <span class="price-target">₹49</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- TAB 3: INFLUENCER REEL SCRIPTS & CAPTIONS  -->
+  <!-- ========================================== -->
+  <div id="tab-influencer" class="tab-panel">
+
+    <div class="content-box">
+      <h2>🎬 Influencer Launch Reel Scripts (K.R. Mangalam University)</h2>
+
+      <!-- Script 1 -->
+      <div class="copy-card">
+        <div class="copy-card-title">Concept 1: "The Campus Confession" (High Viral Potential)</div>
+        <div class="copy-text">HOOK (0-3s): "Okay KRMU, why did nobody tell me about this? Look at what someone posted on campus today..."
+VISUAL: Hold phone showing the BlindSide website / story notice.
+BODY (4-15s): "Basically everyone is sick of Tinder where you match, exchange two dry texts, and get ghosted. BlindSide just launched exclusively for K.R. Mangalam students.
+You sign up with your @krmu.edu.in email, get matched on your actual personality and hobbies, and for 48 hours you blind chat. No profile pictures until you both decide to meet at the canteen."
+CTA (16-25s): "Link is in my bio and story sticker right now. First match is literally ₹49. Go check who your match is before Friday!"</div>
+        <button class="btn-copy" onclick="copyText(this)">📋 Copy Script</button>
+      </div>
+
+      <!-- Script 2 -->
+      <div class="copy-card">
+        <div class="copy-card-title">Concept 2: "Street Interview / Campus Mic"</div>
+        <div class="copy-text">HOOK: "Asking KRMU students: Would you go on a blind date with someone from your own college?"
+GUEST 1: "Bro, only if they're verified, I don't want a catfish."
+CREATOR: "What if it was 100% verified with college email, and you only see their face after 48 hours of chatting?"
+GUEST 2: "Wait that's actually kinda fire. What app is this?"
+CREATOR: "It's called BlindSide, it just launched at K.R. Mangalam University. Tap the link in bio to join the queue!"</div>
+        <button class="btn-copy" onclick="copyText(this)">📋 Copy Script</button>
+      </div>
+
+      <!-- Caption -->
+      <div class="copy-card">
+        <div class="copy-card-title">📱 Standard Instagram Feed & Reel Caption (Optimized for KRMU Reach)</div>
+        <div class="copy-text">Dating at K.R. Mangalam University just changed forever 👀🔒
+
+No fake bios. No endless swiping. Just 100% verified KRMU students matched on personality & energy.
+
+Here's how BlindSide works:
+1️⃣ Sign up with your @krmu.edu.in email
+2️⃣ Take the 2-minute vibe quiz
+3️⃣ 48-hour blind chat (countdown begins!)
+4️⃣ Reveal photos & meet at the campus cafe ☕
+
+First match is only ₹49 for the launch week!
+Link in bio & stories: blindside.in 🚀
+
+#KRMangalamUniversity #KRMU #KRMUdiaries #GurugramCampuses #BlindSide #CollegeDating #CollegeLife #BlindDate #CampusDating</div>
+        <button class="btn-copy" onclick="copyText(this)">📋 Copy Caption</button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- Fullscreen Preview Modal -->
+  <div id="previewModal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <img id="modalImg" src="" alt="Full Preview">
+    </div>
+  </div>
+
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      
+      const targetPanel = document.getElementById('tab-' + tabId);
+      if (targetPanel) targetPanel.classList.add('active');
+
+      const clickedBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => 
+        b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId)
+      );
+      if (clickedBtn) clickedBtn.classList.add('active');
+    }
+
+    function updateLiveCampus(val) {
+      const targets = document.querySelectorAll('.campus-target');
+      targets.forEach(t => t.textContent = val || 'Your Campus');
+    }
+
+    function updateLivePrice(val) {
+      const targets = document.querySelectorAll('.price-target');
+      targets.forEach(t => t.textContent = val || '₹49');
+    }
+
+    function openModal(imgSrc) {
+      const modal = document.getElementById('previewModal');
+      const img = document.getElementById('modalImg');
+      img.src = imgSrc;
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('previewModal');
+      modal.classList.remove('active');
+    }
+
+    function copyText(btn) {
+      const card = btn.closest('.copy-card');
+      const text = card.querySelector('.copy-text').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    // Close modal on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>

@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
+    const userSupabase = await createClient();
+    const { data: { user } } = await userSupabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "Unauthorized. Please log in." },
+        { status: 401 }
+      );
+    }
+
     const payload = await request.json();
     const {
       userId,
@@ -25,16 +35,35 @@ export async function POST(request: NextRequest) {
       fitness,
     } = payload;
 
-    if (!userId) {
+    if (!userId || user.id !== userId) {
       return NextResponse.json(
-        { message: "User ID is required." },
-        { status: 400 }
+        { message: "Forbidden: User ID mismatch." },
+        { status: 403 }
       );
+    }
+
+    // Age validation (Minimum 18 years old)
+    if (dateOfBirth) {
+      const dobDate = new Date(dateOfBirth);
+      const ageInYears = (Date.now() - dobDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+      if (isNaN(ageInYears) || ageInYears < 18) {
+        return NextResponse.json(
+          { message: "You must be at least 18 years old to join BlindSide." },
+          { status: 400 }
+        );
+      }
     }
 
     const supabase = createAdminClient();
 
-    // 1. Update public.users
+    // Verify university verification status
+    const { data: userCurrent } = await supabase
+      .from("users")
+      .select("is_university_verified, university_email")
+      .eq("id", userId)
+      .single();
+
+    // 1. Prepare user update
     const userUpdate: any = {
       is_onboarding_complete: true,
       updated_at: new Date().toISOString(),
@@ -48,10 +77,32 @@ export async function POST(request: NextRequest) {
     if (weightKg) userUpdate.weight_kg = parseFloat(weightKg);
     if (gender) userUpdate.gender = gender;
     if (universityId) userUpdate.university_id = universityId;
+
     if (universityEmail) {
-      userUpdate.university_email = universityEmail.trim().toLowerCase();
-      userUpdate.is_university_verified = true;
+      const normalizedUniEmail = universityEmail.trim().toLowerCase();
+      userUpdate.university_email = normalizedUniEmail;
+
+      if (!userCurrent?.is_university_verified) {
+        // Verify that this email was actually verified through otp_verifications
+        const { data: verifiedOtp } = await supabase
+          .from("otp_verifications")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("email", normalizedUniEmail)
+          .eq("is_used", true)
+          .limit(1)
+          .maybeSingle();
+
+        if (!verifiedOtp) {
+          return NextResponse.json(
+            { message: "University email must be verified with OTP before completing onboarding." },
+            { status: 400 }
+          );
+        }
+        userUpdate.is_university_verified = true;
+      }
     }
+
     if (latitude) userUpdate.latitude = parseFloat(latitude);
     if (longitude) userUpdate.longitude = parseFloat(longitude);
 
@@ -68,8 +119,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-
-
+    // 2. Update profile
     const { error: profileError } = await supabase
       .from("profiles")
       .update({
@@ -90,16 +140,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Log user onboarding details to public.onboarding_leads for lead gen
+    // 3. Log lead data for analytics (safe non-blocking)
     try {
-      // Fetch personal email from users table
-      const { data: userRow } = await supabase
-        .from("users")
-        .select("email")
-        .eq("id", userId)
-        .single();
-
-      // Fetch university name
       let universityName = "";
       if (universityId) {
         const { data: uniRow } = await supabase
@@ -118,7 +160,7 @@ export async function POST(request: NextRequest) {
       await supabase.from("onboarding_leads").insert({
         user_id: userId,
         full_name: `${firstName || ""} ${lastName || ""}`.trim(),
-        personal_email: userRow?.email || "",
+        personal_email: user.email || "",
         hobbies: hobbies || [],
         date_of_birth: dateOfBirth || null,
         height_cm: heightCm ? parseFloat(heightCm) : null,

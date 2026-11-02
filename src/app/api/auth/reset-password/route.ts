@@ -62,8 +62,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://blindside.in";
-    const actionLink = `${origin}/reset-password?token=${rawToken}&email=${encodeURIComponent(normalizedEmail)}`;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://blindside.in";
+    const cleanSiteUrl = siteUrl.replace(/\/$/, "");
+    const actionLink = `${cleanSiteUrl}/reset-password?token=${rawToken}&email=${encodeURIComponent(normalizedEmail)}`;
 
     const subject = "Password reset instructions for BlindSide";
     const html = `
@@ -73,11 +74,14 @@ export async function POST(request: NextRequest) {
         <div style="text-align: center; margin: 32px 0;">
           <a href="${actionLink}" style="background-color: #d42466; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; display: inline-block;">Reset Password</a>
         </div>
+        <div style="margin: 20px 0; padding: 14px 16px; background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 10px; font-size: 13px; line-height: 1.5; color: #92400e; text-align: center;">
+          📬 <strong>Note:</strong> If this email landed in your <strong>Spam or Junk folder</strong>, please mark it as <strong>&ldquo;Not Spam&rdquo;</strong> to ensure you continue to receive date and community updates!
+        </div>
         <p style="font-size: 12px; color: #8b8f9e; text-align: center; margin-bottom: 0; line-height: 1.4;">This link will expire in 15 minutes.<br/>If you did not request this change, you can safely ignore this email.</p>
       </div>
     `;
 
-    const text = `You recently requested to reset your password for BlindSide.\n\nPlease visit the following link to choose a new password:\n${actionLink}\n\nThis link will expire in 15 minutes. If you did not request this change, you can safely ignore this email.`;
+    const text = `You recently requested to reset your password for BlindSide.\n\nPlease visit the following link to choose a new password:\n${actionLink}\n\nNote: If this email landed in your Spam/Junk folder, please mark it as "Not Spam".\n\nThis link will expire in 15 minutes. If you did not request this change, you can safely ignore this email.`;
 
     if (isResendConfigured()) {
       const emailSent = await sendEmail({

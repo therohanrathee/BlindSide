@@ -36,17 +36,25 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
 
-      // Verify the user is part of the provided match
-      if (match_id) {
-        const { data: matchData } = await supabaseAdmin
-          .from("matches")
-          .select("user_a_id, user_b_id")
-          .eq("id", match_id)
-          .single();
+      // Client calls MUST provide a valid match_id to prevent notification spoofing
+      if (!match_id) {
+        return NextResponse.json({ error: "Forbidden: match_id is required" }, { status: 403 });
+      }
 
-        if (!matchData || (matchData.user_a_id !== user.id && matchData.user_b_id !== user.id)) {
-          return NextResponse.json({ error: "Forbidden: Not part of this match" }, { status: 403 });
-        }
+      const { data: matchData } = await supabaseAdmin
+        .from("matches")
+        .select("user_a_id, user_b_id, status")
+        .eq("id", match_id)
+        .single();
+
+      if (!matchData || (matchData.user_a_id !== user.id && matchData.user_b_id !== user.id)) {
+        return NextResponse.json({ error: "Forbidden: Not part of this match" }, { status: 403 });
+      }
+
+      // Ensure the receiver is actually the other participant in this match
+      const partnerId = matchData.user_a_id === user.id ? matchData.user_b_id : matchData.user_a_id;
+      if (receiver_id !== partnerId) {
+        return NextResponse.json({ error: "Forbidden: Receiver mismatch for match" }, { status: 403 });
       }
     }
 

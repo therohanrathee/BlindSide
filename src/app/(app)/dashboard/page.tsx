@@ -1308,85 +1308,48 @@ export default function DashboardPage() {
     const isPhotoShared = isUserA ? match.user_b_shares_photo : match.user_a_shares_photo;
     const isNameShared = isUserA ? match.user_b_shares_name : match.user_a_shares_name;
 
-    console.log("loadPartnerDetails stats:", {
-      matchId: match.id,
-      isUserA,
-      partnerId,
-      isNameShared,
-      isPhotoShared,
-      user_a_shares_name: match.user_a_shares_name,
-      user_b_shares_name: match.user_b_shares_name,
-      user_a_shares_photo: match.user_a_shares_photo,
-      user_b_shares_photo: match.user_b_shares_photo
-    });
+    // Use secure RPC to prevent leaking private fields (latitude, longitude, email, unshared names)
+    try {
+      const { data: partnerData, error: rpcErr } = await supabase
+        .rpc("get_match_partner_details", { p_match_id: match.id });
 
-    // Fetch partner details
-    const { data: partner, error: partnerErr } = await supabase
-      .from("users")
-      .select("first_name, last_name, date_of_birth, universities(name)")
-      .eq("id", partnerId)
-      .single();
-
-    if (partnerErr) {
-      console.error("loadPartnerDetails: error fetching partner from users:", partnerErr);
-    }
-
-    const { data: partnerProfileData, error: profileErr } = await supabase
-      .from("profiles")
-      .select("hobbies, photo_url")
-      .eq("user_id", partnerId)
-      .single();
-
-    if (profileErr) {
-      console.error("loadPartnerDetails: error fetching partner from profiles:", profileErr);
-    }
-
-    let partnerName = "Your Blind Date";
-    let partnerAge = 21;
-    let partnerUni = "Same Campus";
-    let partnerHobbies = ["Hobbies Hidden"];
-    let partnerPhotoUrl = "";
-
-    if (partner) {
-      if (isNameShared) {
-        partnerName = `${partner.first_name || ""} ${partner.last_name || ""}`.trim() || "Your Blind Date";
-      } else {
-        partnerName = "Your Blind Date";
-      }
-      if (partner.date_of_birth) {
-        const dob = new Date(partner.date_of_birth);
-        const today = new Date();
-        let age = today.getFullYear() - dob.getFullYear();
-        const m = today.getMonth() - dob.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-          age--;
+      if (!rpcErr && partnerData) {
+        let partnerPhotoUrl = "";
+        if (partnerData.photo_url) {
+          const { data: signedData } = await supabase.storage
+            .from("photos")
+            .createSignedUrl(partnerData.photo_url, 3600);
+          if (signedData?.signedUrl) {
+            partnerPhotoUrl = signedData.signedUrl;
+          }
         }
-        partnerAge = age;
+
+        setPartnerProfile({
+          id: partnerData.id || partnerId,
+          firstName: partnerData.first_name || "Your Blind Date",
+          rawFirstName: partnerData.raw_first_name || "",
+          age: partnerData.age || 21,
+          university: partnerData.university_name || "Same Campus",
+          hobbies: partnerData.hobbies && partnerData.hobbies.length > 0 ? partnerData.hobbies : ["Hobbies Hidden"],
+          compatibility: partnerData.compatibility_score || match.compatibility_score || 55,
+          photoUrl: partnerPhotoUrl,
+        });
+        return;
       }
-      partnerUni = (partner.universities as any)?.name || "Same Campus";
+    } catch (e) {
+      console.warn("RPC partner fetch fallback:", e);
     }
 
-    if (partnerProfileData) {
-      partnerHobbies = partnerProfileData.hobbies || ["Hobbies Hidden"];
-      if (isPhotoShared && partnerProfileData.photo_url) {
-        const { data: signedData } = await supabase.storage
-          .from("photos")
-          .createSignedUrl(partnerProfileData.photo_url, 3600);
-        if (signedData?.signedUrl) {
-          partnerPhotoUrl = signedData.signedUrl;
-        }
-      }
-    }
-
+    // Safe fallback if RPC unavailable
     setPartnerProfile({
       id: partnerId,
-      firstName: partnerName,
-      rawFirstName: partner?.first_name || "",
-      age: partnerAge,
-      university: partnerUni,
-      hobbies: partnerHobbies,
+      firstName: isNameShared ? "Your Match" : "Your Blind Date",
+      rawFirstName: "",
+      age: 21,
+      university: "Same Campus",
+      hobbies: ["Hobbies Hidden"],
       compatibility: match.compatibility_score || 55,
-      photoUrl: partnerPhotoUrl,
+      photoUrl: "",
     });
   };
 
@@ -1469,6 +1432,7 @@ export default function DashboardPage() {
       setSubmitting(false);
     }
   };
+
   const handleWalletTopup = async () => {
     setTopupError("");
     const amount = parseFloat(topupAmount);
@@ -1673,6 +1637,20 @@ export default function DashboardPage() {
     if (!newMessageText.trim() || !activeMatch) return;
 
     const text = newMessageText.trim();
+
+    // 3-Layer Content Moderation (Social handles, URLs, Phone numbers)
+    const socialKeywords = /\b(instagram|insta|ig|snapchat|snap|whatsapp|wa|telegram|tg|twitter|x\.com|facebook|fb|dm me|hmu|hit me up|add me)\b/i;
+    const urlPattern = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-z0-9_-]+\.(com|in|org|net|co|io|me))/i;
+    const phonePattern = /(\+?\d[\d\s-]{8,}\d)/;
+
+    const containsContact = socialKeywords.test(text) || urlPattern.test(text) || phonePattern.test(text);
+    if (containsContact) {
+      const proceed = window.confirm(
+        "🕵️ Notice: Your message may contain contact info or external links.\n\nBlindSide keeps conversations blind and safe inside the app until your confirmed date.\n\nAre you sure you want to send this?"
+      );
+      if (!proceed) return;
+    }
+
     setNewMessageText("");
 
     // optimistic update using a real UUID
@@ -1690,6 +1668,7 @@ export default function DashboardPage() {
       match_id: activeMatch.id,
       sender_id: userId,
       content: text,
+      is_flagged: containsContact,
     });
 
     if (error) {
@@ -1804,21 +1783,40 @@ export default function DashboardPage() {
       return;
     }
 
-    // 2. Unmatch (decline current match)
+    // 2. Permanently block this user to ensure they are never matched again
+    try {
+      await supabase.from("user_blocks").insert({
+        blocker_id: userId,
+        blocked_id: partnerProfile.id,
+      });
+    } catch (blockErr) {
+      console.warn("Failed to insert user block (may already exist):", blockErr);
+    }
+
+    // 3. Unmatch (decline current match)
     const { error: updateError } = await supabase
       .from("matches")
       .update({ status: "declined" })
       .eq("id", activeMatch.id);
 
+    // 4. Release current user's match request so they can search again immediately
+    if (requestId) {
+      await supabase
+        .from("match_requests")
+        .update({ status: "expired" })
+        .eq("id", requestId);
+    }
+
     if (updateError) {
       console.error("Error unmatching:", updateError);
     } else {
-      // 3. Notify the partner
+      // 5. Notify the partner with verified match_id
       fetch("/api/push/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           receiver_id: partnerProfile.id,
+          match_id: activeMatch.id,
           title: "You've been unmatched",
           body: "Your recent match has unmatched with you.",
           url: "/dashboard"
@@ -1997,7 +1995,7 @@ export default function DashboardPage() {
     
     const title = encodeURIComponent("BlindSide Date");
     const location = encodeURIComponent(currentProposal.location_text);
-    const details = encodeURIComponent("Your BlindSide Date is confirmed! Details & photographs will be revealed 4 hours before the meeting via email.");
+    const details = encodeURIComponent("Your BlindSide Date is confirmed! Meet up and enjoy your blind date.");
     
     const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startGCal}/${endGCal}&details=${details}&location=${location}`;
     window.open(gcalUrl, "_blank");
@@ -2030,6 +2028,38 @@ export default function DashboardPage() {
       }
     } catch {
       setActionError("Network error.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirm1 = window.confirm(
+      "⚠️ Are you sure you want to delete your BlindSide account?\n\nThis will permanently remove your profile, photos, active matches, and wallet balance. This action cannot be undone."
+    );
+    if (!confirm1) return;
+
+    const confirm2 = window.prompt("Type 'DELETE' to confirm permanent account deletion:");
+    if (confirm2 !== "DELETE") {
+      alert("Account deletion canceled.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/user/delete-account", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || "Account successfully deleted.");
+        await supabase.auth.signOut();
+        window.location.href = "/";
+      } else {
+        alert(data.message || "Failed to delete account.");
+      }
+    } catch {
+      alert("Network error while deleting account.");
     } finally {
       setSubmitting(false);
     }
@@ -4270,6 +4300,19 @@ export default function DashboardPage() {
                       disabled={submitting || editPhotoLoading}
                     >
                       {submitting ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
+
+                  {/* Danger Zone: Account Deletion */}
+                  <div style={{ marginTop: "2.5rem", paddingTop: "1.25rem", borderTop: "1px solid var(--border)", textAlign: "center" }}>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      style={{ color: "var(--error)", fontSize: "11px", opacity: 0.8 }}
+                      onClick={handleDeleteAccount}
+                      disabled={submitting}
+                    >
+                      🗑️ Delete Account & Wipe Personal Data
                     </button>
                   </div>
                 </div>

@@ -24,6 +24,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "SubscribeURL required" }, { status: 400 });
       }
 
+      // SSRF Protection: Ensure URL is HTTPS and belongs strictly to amazonaws.com SNS domain
+      try {
+        const parsedUrl = new URL(subscribeUrl);
+        if (
+          parsedUrl.protocol !== "https:" ||
+          !/^sns\.[a-z0-9-]+\.amazonaws\.com$/.test(parsedUrl.hostname)
+        ) {
+          console.error("Untrusted AWS SNS SubscribeURL hostname:", parsedUrl.hostname);
+          return NextResponse.json({ message: "Untrusted SubscribeURL domain" }, { status: 400 });
+        }
+      } catch {
+        return NextResponse.json({ message: "Invalid SubscribeURL format" }, { status: 400 });
+      }
+
       console.log(`Received AWS SNS SubscriptionConfirmation request. Confirming subscription via URL: ${subscribeUrl}`);
       
       const confirmRes = await fetch(subscribeUrl);

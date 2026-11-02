@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 
+// Rate limiting cache: IP -> array of timestamps
+const rateLimitMap = new Map<string, number[]>();
+
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+    const now = Date.now();
+    const timestamps = (rateLimitMap.get(ip) || []).filter((t) => now - t < 60000);
+    
+    if (timestamps.length >= 25) {
+      return NextResponse.json(
+        { message: "Too many requests. Please wait a moment." },
+        { status: 429 }
+      );
+    }
+    timestamps.push(now);
+    rateLimitMap.set(ip, timestamps);
+
     const { identifier, getEmail } = await request.json();
 
     if (!identifier) {

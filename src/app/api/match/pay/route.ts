@@ -5,16 +5,16 @@ export async function POST(request: NextRequest) {
   try {
     const userSupabase = await createClient();
 
-    // Verify session
-    const { data: { session } } = await userSupabase.auth.getSession();
-    if (!session) {
+    // Verify user session
+    const { data: { user } } = await userSupabase.auth.getUser();
+    if (!user) {
       return NextResponse.json(
         { message: "Unauthorized." },
         { status: 401 }
       );
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const { requestId } = await request.json();
 
     if (!requestId) {
@@ -65,28 +65,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let currentBalance = parseFloat(wallet.balance);
+    const currentBalance = parseFloat(wallet.balance) || 0;
 
-    // If wallet balance is insufficient, auto-fund with a ₹100 promo credit for ease of testing!
+    // Check for sufficient balance
     if (currentBalance < matchCost) {
-      const topupAmount = 100.0;
-      currentBalance += topupAmount;
-
-      // 1. Log topup in transactions ledger
-      await supabase.from("wallet_transactions").insert({
-        wallet_id: wallet.id,
-        direction: "credit",
-        amount: topupAmount,
-        balance_after: currentBalance,
-        category: "promo_credit",
-        description: "Testing Auto-Fund Credit",
-      });
-
-      // 2. Update wallet balance
-      await supabase
-        .from("wallets")
-        .update({ balance: currentBalance, updated_at: new Date().toISOString() })
-        .eq("id", wallet.id);
+      return NextResponse.json(
+        {
+          message: `Insufficient wallet balance. Required: ₹${matchCost.toFixed(2)}, Available: ₹${currentBalance.toFixed(2)}. Please top up your wallet or pay directly.`,
+          required: matchCost,
+          currentBalance,
+        },
+        { status: 400 }
+      );
     }
 
     // Deduct matchCost from wallet

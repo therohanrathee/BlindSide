@@ -8,9 +8,9 @@ export async function GET(request: NextRequest) {
     // Security check for production Vercel cron
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
-    const isLocal = process.env.NODE_ENV === "development" || !cronSecret;
+    const isDev = process.env.NODE_ENV === "development";
 
-    if (!isLocal && authHeader !== `Bearer ${cronSecret}`) {
+    if (!isDev && (!cronSecret || authHeader !== `Bearer ${cronSecret}`)) {
       return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
     }
 
