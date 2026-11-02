@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import crypto from "crypto";
+import { getMatchPricingForUser } from "@/lib/match-pricing";
 
 export async function POST(request: NextRequest) {
   try {
@@ -108,7 +109,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const feeAmount = parseFloat(matchReq.fee_paid) || 69.0;
+    // Authoritative fee determination
+    const { price: feeAmount } = await getMatchPricingForUser(supabase, userId);
+
+    if (parseFloat(matchReq.fee_paid) !== feeAmount) {
+      await supabase
+        .from("match_requests")
+        .update({ fee_paid: feeAmount })
+        .eq("id", requestId);
+    }
 
     // Fetch user wallet to log ledger transactions
     let { data: wallet } = await supabase

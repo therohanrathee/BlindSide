@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { getMatchPricingForUser } from "@/lib/match-pricing";
 import s from "./dashboard.module.css";
 import SplashLoader from "@/components/SplashLoader";
 import EyeLogo from "@/components/EyeLogo";
@@ -1030,16 +1031,9 @@ export default function DashboardPage() {
           }
         }
 
-        // Check if this is the user's first paid match search request
-        const { count: paidCount, error: countError } = await supabase
-          .from("match_requests")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", session.user.id)
-          .not("status", "eq", "unpaid");
-
-        if (!countError && paidCount !== null) {
-          setIsFirstMatch(paidCount === 0);
-        }
+        // Check first match eligibility (preserved until user actually matches)
+        const pricing = await getMatchPricingForUser(supabase, session.user.id);
+        setIsFirstMatch(pricing.isFirstMatch);
 
         await refreshMatchStatus(session.user.id);
       } catch (err) {

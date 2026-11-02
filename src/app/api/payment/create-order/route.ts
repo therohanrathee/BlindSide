@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Razorpay from "razorpay";
+import { getMatchPricingForUser } from "@/lib/match-pricing";
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,7 +51,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const feeAmount = parseFloat(matchReq.fee_paid) || 69.0;
+    // Determine authoritative match fee dynamically
+    const { price: feeAmount } = await getMatchPricingForUser(supabase, userId);
+
+    if (parseFloat(matchReq.fee_paid) !== feeAmount) {
+      await supabase
+        .from("match_requests")
+        .update({ fee_paid: feeAmount })
+        .eq("id", requestId);
+    }
+
     const amountInPaise = Math.round(feeAmount * 100);
 
     const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;

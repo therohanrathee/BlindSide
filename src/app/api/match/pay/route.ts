@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { getMatchPricingForUser } from "@/lib/match-pricing";
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,7 +50,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const matchCost = parseFloat(matchReq.fee_paid) || 69.0;
+    // Determine authoritative match cost dynamically to prevent any pricing loopholes
+    const { price: matchCost } = await getMatchPricingForUser(supabase, userId);
+
+    // Sync fee_paid in match request if it differed
+    if (parseFloat(matchReq.fee_paid) !== matchCost) {
+      await supabase
+        .from("match_requests")
+        .update({ fee_paid: matchCost })
+        .eq("id", requestId);
+    }
 
     // Fetch user wallet
     const { data: wallet, error: walletError } = await supabase

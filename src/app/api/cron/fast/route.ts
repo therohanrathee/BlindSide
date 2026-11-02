@@ -385,6 +385,12 @@ export async function GET(request: NextRequest) {
             continue;
           }
 
+          // Mark both users as having used their introductory first-match discount
+          await supabase
+            .from("users")
+            .update({ is_first_match_used: true })
+            .in("id", [userAId, userBId]);
+
           // Add new matched requests to matched set so they aren't processed again in this loop
           matchedRequestIds.add(reqA.id);
           matchedRequestIds.add(reqB.id);

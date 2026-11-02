@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getMatchPricingForUser } from "@/lib/match-pricing";
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,15 +51,8 @@ export async function POST(request: NextRequest) {
     // Set expires_at to 7 days from now
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    // Count previous paid/completed/active/matched requests to determine if this is the first one
-    const { count, error: countError } = await supabase
-      .from("match_requests")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .not("status", "eq", "unpaid");
-
-    const isFirstMatch = !countError && count === 0;
-    const feePaid = isFirstMatch ? 49.0 : 69.0;
+    // Authoritative pricing: first match discount is preserved until the user actually receives a match
+    const { isFirstMatch, price: feePaid } = await getMatchPricingForUser(supabase, userId);
 
     const requestData = {
       user_id: userId,
