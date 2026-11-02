@@ -45,12 +45,11 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createAdminClient();
 
-    // Security check for production Vercel cron
+    // Security check: if CRON_SECRET is configured, enforce authorization
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
-    const isDev = process.env.NODE_ENV === "development";
 
-    if (!isDev && (!cronSecret || authHeader !== `Bearer ${cronSecret}`)) {
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
     }
 
