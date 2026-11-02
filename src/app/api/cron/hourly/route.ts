@@ -5,11 +5,13 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createAdminClient();
 
-    // Security check: if CRON_SECRET is configured, enforce authorization
+    // Security check: if CRON_SECRET is configured, enforce authorization (via Header or URL query param)
     const authHeader = request.headers.get("authorization");
+    const { searchParams } = new URL(request.url);
+    const secretParam = searchParams.get("secret") || searchParams.get("key");
     const cronSecret = process.env.CRON_SECRET;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}` && secretParam !== cronSecret) {
       return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
     }
 
