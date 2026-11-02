@@ -607,14 +607,14 @@ function OnboardingContent() {
       return;
     }
 
-    // Convert height to cm
+    // Convert height to cm using exact chosen cm value
     let canonicalHeight = 170;
-    if (heightUnit === "ft") {
-      const ft = parseFloat(heightFt);
-      const inch = parseFloat(heightIn);
+    if (heightCm && !isNaN(parseFloat(heightCm)) && parseFloat(heightCm) > 0) {
+      canonicalHeight = Math.round(parseFloat(heightCm));
+    } else if (heightUnit === "ft") {
+      const ft = parseFloat(heightFt) || 5;
+      const inch = parseFloat(heightIn) || 7;
       canonicalHeight = Math.round((ft * 30.48) + (inch * 2.54));
-    } else {
-      canonicalHeight = parseInt(heightCm);
     }
 
     setSubmitting(true);
@@ -701,6 +701,9 @@ function OnboardingContent() {
     setGender(result.gender as any);
     setHeightCm(result.heightCm.toString());
     setHeightUnit(result.heightUnit);
+    const totalInches = Math.round(result.heightCm / 2.54);
+    setHeightFt(Math.floor(totalInches / 12).toString());
+    setHeightIn((totalInches % 12).toString());
     setWeight(result.weightKg ? result.weightKg.toString() : "");
     setDietary(result.dietary);
     setDrinking(result.drinking);

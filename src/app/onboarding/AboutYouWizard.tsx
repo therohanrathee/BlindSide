@@ -910,7 +910,7 @@ export default function AboutYouWizard({
             <input
               className={a.nameInput}
               type="text"
-              placeholder="e.g. Rohan Rathee"
+              placeholder="e.g. Aryan Sharma"
               value={fullName}
               onChange={e => setFullName(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") handleNameSubmit(); }}
@@ -1226,6 +1226,7 @@ export default function AboutYouWizard({
               onMouseMove={onHeightMouseMove}
               onClick={onHeightClick}
               onMouseLeave={onHeightMouseLeave}
+              onTouchStart={e => updateHeight(e.touches[0].clientY)}
               onTouchMove={onHeightTouchMove}
             >
               <div className={`${a.heightLabelsCol} ${a.right}`}>
@@ -1302,6 +1303,7 @@ export default function AboutYouWizard({
               onMouseMove={onWeightMouseMove}
               onClick={onWeightClick}
               onMouseLeave={onWeightMouseLeave}
+              onTouchStart={e => updateWeight(e.touches[0].clientX)}
               onTouchMove={onWeightTouchMove}
             >
               <div className={a.weightLabelsRow}>
