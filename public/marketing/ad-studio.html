@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BlindSide — K.R. Mangalam University Launch Kit & Ad Studio</title>
+  <title>BlindSide — K.R. Mangalam University Launch Asset Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #07090e;
-      --card-bg: rgba(14, 17, 26, 0.9);
+      --card-bg: rgba(14, 17, 26, 0.92);
       --accent-pink: #e82c6c;
       --accent-purple: #7c5ceb;
       --accent-cyan: #38bdf8;
@@ -83,7 +83,7 @@
     .header-card p {
       color: var(--text-sub);
       font-size: 1.05rem;
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto;
       line-height: 1.55;
     }
@@ -96,7 +96,7 @@
       padding: 6px;
       border-radius: 999px;
       border: 1px solid var(--border);
-      max-width: 760px;
+      max-width: 860px;
       width: 100%;
       justify-content: center;
       flex-wrap: wrap;
@@ -105,7 +105,7 @@
       background: transparent;
       border: none;
       color: var(--text-sub);
-      padding: 10px 20px;
+      padding: 10px 22px;
       border-radius: 999px;
       font-weight: 700;
       font-size: 0.9rem;
@@ -127,44 +127,224 @@
       max-width: 1360px;
       flex-direction: column;
       align-items: center;
-      gap: 32px;
+      gap: 36px;
     }
     .tab-panel.active { display: flex; }
 
-    /* Ready PNG Showcase Grid */
-    .png-grid {
+    /* Carousel Viewer Section */
+    .carousel-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 32px;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 16px;
+    }
+    .section-header h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .section-header p {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+    }
+
+    .carousel-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .carousel-container { grid-template-columns: 1fr; }
+    }
+
+    /* Active Slide Stage */
+    .slide-stage-card {
+      position: relative;
+      background: #000;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .slide-stage-card img {
+      width: 100%;
+      height: auto;
+      max-height: 580px;
+      object-fit: contain;
+      display: block;
+      cursor: zoom-in;
+      transition: transform 0.25s ease;
+    }
+    .slide-stage-card img:hover {
+      transform: scale(1.015);
+    }
+
+    /* Slide Controls */
+    .carousel-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .slide-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .slide-badge-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .slide-badge-desc {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+    .nav-arrow-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-arrow-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 800;
+      transition: all 0.2s;
+    }
+    .nav-arrow-btn:hover {
+      background: var(--accent-pink);
+      border-color: var(--accent-pink);
+      box-shadow: 0 4px 15px var(--glow-pink);
+    }
+
+    /* Thumbnails Strip */
+    .thumbnails-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .thumb-item {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: all 0.2s;
+      background: #000;
+    }
+    .thumb-item img {
+      width: 100%;
+      height: 90px;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb-item.active {
+      opacity: 1;
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 15px var(--glow-pink);
+    }
+    .thumb-item:hover { opacity: 0.9; }
+
+    /* Action Buttons */
+    .btn-download-slide {
+      background: var(--accent-grad);
+      color: #fff;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: opacity 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    .btn-download-slide:hover {
+      opacity: 0.95;
+      box-shadow: 0 6px 25px var(--glow-pink);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid var(--border);
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+
+    /* Grid for Stories and Single Posts */
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
       gap: 28px;
       width: 100%;
     }
-    .png-card {
+    .asset-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 24px;
-      padding: 20px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.2s, border-color 0.2s;
     }
-    .png-card:hover {
+    .asset-card:hover {
       transform: translateY(-4px);
       border-color: rgba(232, 44, 108, 0.4);
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
     }
-    .png-card-header {
+    .asset-card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 10px;
     }
-    .png-card-header h3 {
-      font-size: 1.1rem;
+    .asset-card-header h3 {
+      font-size: 1.15rem;
       font-weight: 800;
       color: #fff;
     }
-    .png-badge {
+    .asset-badge {
       background: rgba(56, 189, 248, 0.12);
       color: var(--accent-cyan);
       border: 1px solid rgba(56, 189, 248, 0.3);
@@ -174,13 +354,12 @@
       font-weight: 800;
       white-space: nowrap;
     }
-    .png-card-desc {
+    .asset-desc {
       font-size: 0.85rem;
       color: var(--text-sub);
       line-height: 1.45;
     }
-    .png-preview-wrapper {
-      position: relative;
+    .asset-preview-box {
       background: #000;
       border-radius: 16px;
       overflow: hidden;
@@ -189,295 +368,41 @@
       justify-content: center;
       align-items: center;
       min-height: 280px;
-      max-height: 400px;
+      max-height: 420px;
+      cursor: zoom-in;
     }
-    .png-preview-wrapper img {
+    .asset-preview-box img {
       width: 100%;
       height: 100%;
-      max-height: 400px;
+      max-height: 420px;
       object-fit: contain;
       display: block;
-      transition: transform 0.3s ease;
-    }
-    .png-preview-wrapper:hover img {
-      transform: scale(1.02);
-    }
-    .png-card-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: auto;
-    }
-    .btn-download {
-      flex: 1;
-      background: var(--accent-grad);
-      color: #fff;
-      border: none;
-      padding: 12px 18px;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      font-weight: 800;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      text-decoration: none;
-      transition: opacity 0.2s;
-      font-family: inherit;
-    }
-    .btn-download:hover { opacity: 0.92; box-shadow: 0 4px 20px var(--glow-pink); }
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-      border: 1px solid var(--border);
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
-    }
-    .btn-secondary:hover { background: rgba(255, 255, 255, 0.14); }
-
-    /* Interactive Live Studio Styles */
-    .studio-controls-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 20px 24px;
-      width: 100%;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .control-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .control-group label {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-sub);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .control-input {
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid var(--border);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      outline: none;
-      transition: border-color 0.2s;
-      font-family: inherit;
-    }
-    .control-input:focus { border-color: var(--accent-pink); }
-
-    /* Live Card Previews */
-    .live-cards-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 36px;
-      width: 100%;
-    }
-    .live-card-wrapper {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
     }
 
-    /* Template 1: Square */
-    .ad-stage-square {
-      width: 480px;
-      height: 480px;
-      border-radius: 20px;
-      padding: 34px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 35px var(--glow-pink);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background-size: cover;
-      background-position: center;
-      background-image: 
-        linear-gradient(180deg, rgba(7, 9, 14, 0.75) 0%, rgba(7, 9, 14, 0.55) 50%, rgba(7, 9, 14, 0.92) 100%),
-        url('./post_hero.jpg'),
-        radial-gradient(circle at top right, #381228, #07090e);
-    }
-
-    /* Template 2: Portrait */
-    .ad-stage-portrait {
-      width: 384px;
-      height: 480px;
-      border-radius: 20px;
-      padding: 30px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 35px rgba(124, 92, 235, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background-size: cover;
-      background-position: center;
-      background-image: 
-        linear-gradient(180deg, rgba(7, 9, 14, 0.8) 0%, rgba(7, 9, 14, 0.6) 45%, rgba(7, 9, 14, 0.95) 100%),
-        url('./post_hero.jpg'),
-        radial-gradient(circle at top right, #1d1238, #07090e);
-    }
-
-    /* Template 3: Story */
-    .ad-stage-story {
-      width: 320px;
-      height: 568px;
-      border-radius: 24px;
-      padding: 36px 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 35px var(--glow-pink);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background-size: cover;
-      background-position: center;
-      background-image: 
-        linear-gradient(180deg, rgba(7, 9, 14, 0.7) 0%, rgba(7, 9, 14, 0.3) 30%, rgba(7, 9, 14, 0.92) 100%),
-        url('./story_hero.jpg'),
-        radial-gradient(circle at top right, #381228, #07090e);
-    }
-
-    /* UI Components inside Stages */
-    .brand-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(14, 17, 26, 0.85);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: #f1f5f9;
-      width: fit-content;
-    }
-    .brand-pill .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #e82c6c;
-      box-shadow: 0 0 10px #e82c6c;
-    }
-    .headline-huge {
-      font-size: 1.85rem;
-      font-weight: 900;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      color: #fff;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-    }
-    .headline-huge span {
-      background: var(--accent-grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .glass-feature-card {
-      background: rgba(14, 17, 26, 0.85);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 14px;
-      padding: 12px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .ad-footer-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(14, 17, 26, 0.88);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 14px;
-      padding: 10px 16px;
-    }
-    .price-badge-val {
-      font-size: 1.1rem;
-      font-weight: 900;
-      color: #38bdf8;
-    }
-    .cta-pill-btn {
-      background: var(--accent-grad);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      box-shadow: 0 4px 15px var(--glow-pink);
-    }
-
-    /* Influencer Scripts & Copy Table */
-    .content-box {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 28px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .content-box h2 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #fff;
-    }
+    /* Copy Cards for Scripts */
     .copy-card {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
+      border-radius: 16px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      position: relative;
+      gap: 14px;
+      width: 100%;
     }
     .copy-card-title {
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 800;
       color: var(--accent-pink);
     }
     .copy-text {
       font-family: monospace;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       color: #cbd5e1;
       white-space: pre-wrap;
       line-height: 1.5;
       background: rgba(0,0,0,0.4);
-      padding: 14px;
+      padding: 16px;
       border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.06);
     }
@@ -486,26 +411,26 @@
       background: rgba(255,255,255,0.08);
       color: #fff;
       border: 1px solid var(--border);
-      padding: 6px 14px;
+      padding: 8px 16px;
       border-radius: 8px;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
     }
     .btn-copy:hover { background: var(--accent-pink); border-color: var(--accent-pink); }
 
-    /* Modal / Full Preview */
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(10px);
       z-index: 1000;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 24px;
     }
     .modal.active { display: flex; }
     .modal-content {
@@ -515,7 +440,7 @@
     }
     .modal-content img {
       max-width: 100%;
-      max-height: 85vh;
+      max-height: 86vh;
       object-fit: contain;
       border-radius: 16px;
       border: 1px solid var(--border);
@@ -527,8 +452,8 @@
       background: #e82c6c;
       color: #fff;
       border: none;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       font-size: 1.2rem;
       font-weight: 800;
@@ -542,322 +467,291 @@
   <div class="header-card">
     <div class="header-pill">
       <span class="pulse-dot"></span>
-      Official Campus Launch Kit &bull; Fall 2026
+      Official Launch Kit &bull; K.R. Mangalam University
     </div>
     <h1>BlindSide Marketing Studio</h1>
-    <p>High-resolution, ultra-engaging marketing creative suite tailored for the campus launch at <strong>K.R. Mangalam University (KRMU)</strong>.</p>
+    <p>High-resolution, native Instagram Carousel, Story, and Single Feed Post assets designed specifically for the K.R. Mangalam University campus launch.</p>
   </div>
 
   <!-- Navigation Tabs -->
   <div class="tabs-bar">
-    <button class="tab-btn active" onclick="switchTab('krmu')">🎯 KRMU Ready-to-Post PNGs (5 Assets)</button>
-    <button class="tab-btn" onclick="switchTab('studio')">🎨 Interactive Live Studio</button>
-    <button class="tab-btn" onclick="switchTab('influencer')">📱 Reel Scripts & Captions</button>
+    <button class="tab-btn active" onclick="switchTab('carousels')">🎠 Feed Carousels (Portrait & Square)</button>
+    <button class="tab-btn" onclick="switchTab('stories')">📱 Stories & Reels (3 Templates)</button>
+    <button class="tab-btn" onclick="switchTab('single')">🖼️ Single Feed Posts</button>
+    <button class="tab-btn" onclick="switchTab('scripts')">🎬 Influencer Scripts & Captions</button>
   </div>
 
 
   <!-- ========================================== -->
-  <!-- TAB 1: KRMU READY-TO-POST HIGH-RES PNGs    -->
+  <!-- TAB 1: INSTAGRAM FEED CAROUSELS            -->
   <!-- ========================================== -->
-  <div id="tab-krmu" class="tab-panel active">
-    <div style="text-align: center; max-width: 700px;">
-      <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin-bottom: 6px;">Pre-Rendered K.R. Mangalam University Assets</h2>
-      <p style="color: var(--text-sub); font-size: 0.95rem;">Rendered at full 1080p resolution with custom KRMU verified badge, anti-ghosting hook, and canteen date call-to-actions.</p>
+  <div id="tab-carousels" class="tab-panel active">
+
+    <!-- 1. PORTRAIT CAROUSEL (1080 x 1350) -->
+    <div class="carousel-section">
+      <div class="section-header">
+        <div>
+          <h2>1. Portrait Feed Carousel (1080 &times; 1350 &bull; 4:5 Ratio)</h2>
+          <p>Takes up maximum vertical feed screen space. Natural swipe design explaining why college dating is broken and how BlindSide works.</p>
+        </div>
+        <span class="asset-badge">4 Slides &bull; 1080p Full-Res</span>
+      </div>
+
+      <div class="carousel-container">
+        <!-- Stage / Big Preview -->
+        <div class="slide-stage-card" onclick="openModal(portraitSlides[currentPortraitIndex].src)">
+          <img id="portraitStageImg" src="./krmu/carousel_portrait_1.png" alt="Portrait Carousel Slide">
+        </div>
+
+        <!-- Controls & Meta -->
+        <div class="carousel-controls">
+          <div class="slide-meta-row">
+            <div>
+              <div id="portraitSlideBadge" class="slide-badge-title">Slide 1: The Hook</div>
+              <div id="portraitSlideDesc" class="slide-badge-desc">"Tired of swiping on faces that ghost you?" with KRMU campus badge.</div>
+            </div>
+            <div class="nav-arrow-group">
+              <button class="nav-arrow-btn" onclick="prevPortraitSlide()">&#8592;</button>
+              <span id="portraitSlideCounter" style="font-weight: 800; font-size: 0.95rem; color: #fff;">1 / 4</span>
+              <button class="nav-arrow-btn" onclick="nextPortraitSlide()">&#8594;</button>
+            </div>
+          </div>
+
+          <!-- Thumbnails Strip -->
+          <div class="thumbnails-strip">
+            <div class="thumb-item active" onclick="setPortraitSlide(0)">
+              <img src="./krmu/carousel_portrait_1.png" alt="Slide 1">
+            </div>
+            <div class="thumb-item" onclick="setPortraitSlide(1)">
+              <img src="./krmu/carousel_portrait_2.png" alt="Slide 2">
+            </div>
+            <div class="thumb-item" onclick="setPortraitSlide(2)">
+              <img src="./krmu/carousel_portrait_3.png" alt="Slide 3">
+            </div>
+            <div class="thumb-item" onclick="setPortraitSlide(3)">
+              <img src="./krmu/carousel_portrait_4.png" alt="Slide 4">
+            </div>
+          </div>
+
+          <!-- Download Action -->
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <a id="portraitDownloadBtn" class="btn-download-slide" href="./krmu/carousel_portrait_1.png" download="blindside_krmu_portrait_slide1.png">
+              ⬇️ Download Slide 1 (1.1 MB PNG)
+            </a>
+            <button class="btn-secondary" onclick="openModal(portraitSlides[currentPortraitIndex].src)">🔍 Zoom</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="png-grid">
 
-      <!-- Asset 1: Square Feed Ad -->
-      <div class="png-card">
-        <div class="png-card-header">
-          <div>
-            <h3>1. Feed Ad: Anti-Ghosting Hook</h3>
-            <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Feed Square</span>
-          </div>
-          <span class="png-badge">1080 &times; 1080 (1:1)</span>
+    <!-- 2. SQUARE CAROUSEL (1080 x 1080) -->
+    <div class="carousel-section">
+      <div class="section-header">
+        <div>
+          <h2>2. Square Feed Carousel (1080 &times; 1080 &bull; 1:1 Ratio)</h2>
+          <p>Standard Instagram grid format. Fast-paced, mystery experiment hook with 3 rules of blind dating at KRMU.</p>
         </div>
-        <p class="png-card-desc">Hook post calling out dating fatigue, highlighting 100% verified KRMU peers and ₹49 launch pricing.</p>
-        <div class="png-preview-wrapper" onclick="openModal('./krmu/post_square_1080x1080.png')">
-          <img src="./krmu/post_square_1080x1080.png" alt="KRMU Post Square 1080x1080" loading="lazy">
-        </div>
-        <div class="png-card-actions">
-          <a class="btn-download" href="./krmu/post_square_1080x1080.png" download="blindside_krmu_feed_square_1080x1080.png">
-            ⬇️ Download PNG (923 KB)
-          </a>
-          <button class="btn-secondary" onclick="openModal('./krmu/post_square_1080x1080.png')">🔍 Preview</button>
-        </div>
+        <span class="asset-badge">4 Slides &bull; 1080p Full-Res</span>
       </div>
 
-      <!-- Asset 2: Portrait Feed Ad -->
-      <div class="png-card">
-        <div class="png-card-header">
-          <div>
-            <h3>2. Feed Ad: The Anti-Tinder</h3>
-            <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Feed Portrait</span>
+      <div class="carousel-container">
+        <!-- Stage / Big Preview -->
+        <div class="slide-stage-card" onclick="openModal(squareSlides[currentSquareIndex].src)">
+          <img id="squareStageImg" src="./krmu/carousel_square_1.png" alt="Square Carousel Slide">
+        </div>
+
+        <!-- Controls & Meta -->
+        <div class="carousel-controls">
+          <div class="slide-meta-row">
+            <div>
+              <div id="squareSlideBadge" class="slide-badge-title">Slide 1: The Experiment Hook</div>
+              <div id="squareSlideDesc" class="slide-badge-desc">"What happens when looks don't matter?" — KRMU Blind Date Experiment.</div>
+            </div>
+            <div class="nav-arrow-group">
+              <button class="nav-arrow-btn" onclick="prevSquareSlide()">&#8592;</button>
+              <span id="squareSlideCounter" style="font-weight: 800; font-size: 0.95rem; color: #fff;">1 / 4</span>
+              <button class="nav-arrow-btn" onclick="nextSquareSlide()">&#8594;</button>
+            </div>
           </div>
-          <span class="png-badge">1080 &times; 1350 (4:5)</span>
-        </div>
-        <p class="png-card-desc">Maximum vertical feed screen real estate with 3-step trust badges and college email verification highlight.</p>
-        <div class="png-preview-wrapper" onclick="openModal('./krmu/post_portrait_1080x1350.png')">
-          <img src="./krmu/post_portrait_1080x1350.png" alt="KRMU Post Portrait 1080x1350" loading="lazy">
-        </div>
-        <div class="png-card-actions">
-          <a class="btn-download" href="./krmu/post_portrait_1080x1350.png" download="blindside_krmu_feed_portrait_1080x1350.png">
-            ⬇️ Download PNG (902 KB)
-          </a>
-          <button class="btn-secondary" onclick="openModal('./krmu/post_portrait_1080x1350.png')">🔍 Preview</button>
+
+          <!-- Thumbnails Strip -->
+          <div class="thumbnails-strip">
+            <div class="thumb-item active" onclick="setSquareSlide(0)">
+              <img src="./krmu/carousel_square_1.png" alt="Slide 1">
+            </div>
+            <div class="thumb-item" onclick="setSquareSlide(1)">
+              <img src="./krmu/carousel_square_2.png" alt="Slide 2">
+            </div>
+            <div class="thumb-item" onclick="setSquareSlide(2)">
+              <img src="./krmu/carousel_square_3.png" alt="Slide 3">
+            </div>
+            <div class="thumb-item" onclick="setSquareSlide(3)">
+              <img src="./krmu/carousel_square_4.png" alt="Slide 4">
+            </div>
+          </div>
+
+          <!-- Download Action -->
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <a id="squareDownloadBtn" class="btn-download-slide" href="./krmu/carousel_square_1.png" download="blindside_krmu_square_slide1.png">
+              ⬇️ Download Slide 1 (980 KB PNG)
+            </a>
+            <button class="btn-secondary" onclick="openModal(squareSlides[currentSquareIndex].src)">🔍 Zoom</button>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Asset 3: Story Interactive Poll -->
-      <div class="png-card">
-        <div class="png-card-header">
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- TAB 2: INSTAGRAM STORIES & REELS           -->
+  <!-- ========================================== -->
+  <div id="tab-stories" class="tab-panel">
+    <div style="text-align: center; max-width: 700px;">
+      <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin-bottom: 6px;">Instagram Story & Reel Templates</h2>
+      <p style="color: var(--text-sub); font-size: 0.95rem;">Designed for full 9:16 vertical stories with Instagram native poll sticker and link sticker framing.</p>
+    </div>
+
+    <div class="asset-grid">
+      <!-- Story 1: Interactive Poll -->
+      <div class="asset-card">
+        <div class="asset-card-header">
           <div>
-            <h3>3. Story: Interactive Campus Poll</h3>
+            <h3>1. Interactive Campus Poll</h3>
             <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Story / Reel</span>
           </div>
-          <span class="png-badge">1080 &times; 1920 (9:16)</span>
+          <span class="asset-badge">1080 &times; 1920</span>
         </div>
-        <p class="png-card-desc">Designed with exact sticker proportions for IG poll sticker & link sticker overlays. High viral engagement.</p>
-        <div class="png-preview-wrapper" onclick="openModal('./krmu/story_poll_1080x1920.png')">
-          <img src="./krmu/story_poll_1080x1920.png" alt="KRMU Story Poll 1080x1920" loading="lazy">
+        <p class="asset-desc">"Would you go on a blind date with someone from KRMU?" — framed for IG poll sticker.</p>
+        <div class="asset-preview-box" onclick="openModal('./krmu/story_poll_1080x1920.png')">
+          <img src="./krmu/story_poll_1080x1920.png" alt="Story Poll 1080x1920" loading="lazy">
         </div>
-        <div class="png-card-actions">
-          <a class="btn-download" href="./krmu/story_poll_1080x1920.png" download="blindside_krmu_story_poll_1080x1920.png">
+        <div style="display: flex; gap: 10px;">
+          <a class="btn-download-slide" style="flex: 1;" href="./krmu/story_poll_1080x1920.png" download="blindside_krmu_story_poll_1080x1920.png">
             ⬇️ Download PNG (1.59 MB)
           </a>
-          <button class="btn-secondary" onclick="openModal('./krmu/story_poll_1080x1920.png')">🔍 Preview</button>
+          <button class="btn-secondary" onclick="openModal('./krmu/story_poll_1080x1920.png')">🔍 Zoom</button>
         </div>
       </div>
 
-      <!-- Asset 4: Story Campus Secret Notice -->
-      <div class="png-card">
-        <div class="png-card-header">
+      <!-- Story 2: Official Notice -->
+      <div class="asset-card">
+        <div class="asset-card-header">
           <div>
-            <h3>4. Story: Official Campus Notice</h3>
+            <h3>2. Official Campus Notice</h3>
             <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Story / Reel</span>
           </div>
-          <span class="png-badge">1080 &times; 1920 (9:16)</span>
+          <span class="asset-badge">1080 &times; 1920</span>
         </div>
-        <p class="png-card-desc">Mystery memo format: "KRMU Students Only: You've been invited to BlindSide". Creates massive campus FOMO.</p>
-        <div class="png-preview-wrapper" onclick="openModal('./krmu/story_notice_1080x1920.png')">
-          <img src="./krmu/story_notice_1080x1920.png" alt="KRMU Story Notice 1080x1920" loading="lazy">
+        <p class="asset-desc">"KRMU Students Only: You've been invited to BlindSide" — creates massive campus FOMO.</p>
+        <div class="asset-preview-box" onclick="openModal('./krmu/story_notice_1080x1920.png')">
+          <img src="./krmu/story_notice_1080x1920.png" alt="Story Notice 1080x1920" loading="lazy">
         </div>
-        <div class="png-card-actions">
-          <a class="btn-download" href="./krmu/story_notice_1080x1920.png" download="blindside_krmu_story_notice_1080x1920.png">
+        <div style="display: flex; gap: 10px;">
+          <a class="btn-download-slide" style="flex: 1;" href="./krmu/story_notice_1080x1920.png" download="blindside_krmu_story_notice_1080x1920.png">
             ⬇️ Download PNG (795 KB)
           </a>
-          <button class="btn-secondary" onclick="openModal('./krmu/story_notice_1080x1920.png')">🔍 Preview</button>
+          <button class="btn-secondary" onclick="openModal('./krmu/story_notice_1080x1920.png')">🔍 Zoom</button>
         </div>
       </div>
 
-      <!-- Asset 5: Story 3-Step Walkthrough -->
-      <div class="png-card">
-        <div class="png-card-header">
+      <!-- Story 3: How It Works -->
+      <div class="asset-card">
+        <div class="asset-card-header">
           <div>
-            <h3>5. Story: How BlindSide Works</h3>
+            <h3>3. How BlindSide Works</h3>
             <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Story / Reel</span>
           </div>
-          <span class="png-badge">1080 &times; 1920 (9:16)</span>
+          <span class="asset-badge">1080 &times; 1920</span>
         </div>
-        <p class="png-card-desc">Clear 3-step breakdown explaining @krmu.edu.in verification, 48h chat, and campus canteen meetup.</p>
-        <div class="png-preview-wrapper" onclick="openModal('./krmu/story_how_it_works_1080x1920.png')">
-          <img src="./krmu/story_how_it_works_1080x1920.png" alt="KRMU Story How It Works 1080x1920" loading="lazy">
+        <p class="asset-desc">Clear 3-step breakdown explaining @krmu.edu.in verification, 48h chat, and canteen meetup.</p>
+        <div class="asset-preview-box" onclick="openModal('./krmu/story_how_it_works_1080x1920.png')">
+          <img src="./krmu/story_how_it_works_1080x1920.png" alt="Story How It Works 1080x1920" loading="lazy">
         </div>
-        <div class="png-card-actions">
-          <a class="btn-download" href="./krmu/story_how_it_works_1080x1920.png" download="blindside_krmu_story_guide_1080x1920.png">
+        <div style="display: flex; gap: 10px;">
+          <a class="btn-download-slide" style="flex: 1;" href="./krmu/story_how_it_works_1080x1920.png" download="blindside_krmu_story_guide_1080x1920.png">
             ⬇️ Download PNG (1.43 MB)
           </a>
-          <button class="btn-secondary" onclick="openModal('./krmu/story_how_it_works_1080x1920.png')">🔍 Preview</button>
+          <button class="btn-secondary" onclick="openModal('./krmu/story_how_it_works_1080x1920.png')">🔍 Zoom</button>
         </div>
       </div>
-
     </div>
   </div>
 
 
   <!-- ========================================== -->
-  <!-- TAB 2: INTERACTIVE LIVE STUDIO             -->
+  <!-- TAB 3: SINGLE FEED POSTS (NO BUTTONS)      -->
   <!-- ========================================== -->
-  <div id="tab-studio" class="tab-panel">
-
-    <div class="studio-controls-bar">
-      <div class="control-group">
-        <label>🎓 Campus Name</label>
-        <input type="text" id="liveCampusInput" class="control-input" value="K.R. Mangalam University" oninput="updateLiveCampus(this.value)" placeholder="e.g. K.R. Mangalam University">
-      </div>
-      <div class="control-group">
-        <label>🏷️ Launch Price</label>
-        <input type="text" id="livePriceInput" class="control-input" value="₹49" oninput="updateLivePrice(this.value)" style="width: 100px;">
-      </div>
-      <div class="control-group">
-        <span style="font-size: 0.85rem; color: var(--text-sub);">💡 Real-time CSS layout preview with fallback imagery</span>
-      </div>
+  <div id="tab-single" class="tab-panel">
+    <div style="text-align: center; max-width: 700px;">
+      <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin-bottom: 6px;">Single Image Feed Posts (Button-Free)</h2>
+      <p style="color: var(--text-sub); font-size: 0.95rem;">Clean, editorial feed posts without fake clickable buttons. Directly directs students to the link in bio.</p>
     </div>
 
-    <div class="live-cards-container">
-
-      <!-- Live Square Card -->
-      <div class="live-card-wrapper">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff;">Square Feed (1080 &times; 1080)</h3>
-        <div class="ad-stage-square" id="live-stage-square">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="brand-pill">
-              <span class="dot"></span>
-              BlindSide &bull; <span class="campus-target">K.R. Mangalam University</span>
-            </div>
-            <span style="font-size: 0.7rem; color: #f43f5e; font-weight: 800; letter-spacing: 0.05em; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 6px;">EXCLUSIVE LAUNCH</span>
-          </div>
-
+    <div class="asset-grid">
+      <!-- Single Portrait -->
+      <div class="asset-card">
+        <div class="asset-card-header">
           <div>
-            <h2 class="headline-huge">
-              Tired of swiping on faces that <span>ghost you?</span>
-            </h2>
-            <p style="color: #cbd5e1; font-size: 0.9rem; margin-top: 10px; line-height: 1.4; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
-              No photos. No fake bios. Just 100% verified students from <strong class="campus-target" style="color: #fff;">K.R. Mangalam University</strong> matched on pure personality & vibe.
-            </p>
+            <h3>Single Portrait Feed Post</h3>
+            <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Feed Portrait</span>
           </div>
-
-          <div class="glass-feature-card">
-            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; font-weight: 800;">How It Works</div>
-            <div style="display: flex; gap: 8px; font-size: 0.78rem; color: #f1f5f9; font-weight: 700;">
-              <span>🔒 Verified College Email</span> &bull; 
-              <span>💬 48-Hour Chat</span> &bull; 
-              <span>☕ Canteen Meetup</span>
-            </div>
-          </div>
-
-          <div class="ad-footer-row">
-            <div>
-              <div style="font-size: 0.7rem; color: #64748b; text-decoration: line-through; font-weight: 700;">Regular ₹69</div>
-              <div class="price-badge-val"><span class="price-target">₹49</span> First Match</div>
-            </div>
-            <div class="cta-pill-btn">Enter Match Queue &rarr;</div>
-          </div>
+          <span class="asset-badge">1080 &times; 1350 (4:5)</span>
+        </div>
+        <p class="asset-desc">"Dating at KRMU just got re-invented" — Maximum vertical screen real estate with "Link in Bio" native CTA.</p>
+        <div class="asset-preview-box" onclick="openModal('./krmu/post_portrait_single.png')">
+          <img src="./krmu/post_portrait_single.png" alt="Single Portrait 1080x1350" loading="lazy">
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <a class="btn-download-slide" style="flex: 1;" href="./krmu/post_portrait_single.png" download="blindside_krmu_single_portrait_1080x1350.png">
+            ⬇️ Download PNG (1.09 MB)
+          </a>
+          <button class="btn-secondary" onclick="openModal('./krmu/post_portrait_single.png')">🔍 Zoom</button>
         </div>
       </div>
 
-      <!-- Live Portrait Card -->
-      <div class="live-card-wrapper">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff;">Portrait Feed (1080 &times; 1350)</h3>
-        <div class="ad-stage-portrait" id="live-stage-portrait">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="brand-pill">
-              <span class="dot"></span>
-              BlindSide 🎓
-            </div>
-            <span style="font-size: 0.7rem; color: #38bdf8; font-weight: 800; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 6px;">CAMPUS EXCLUSIVE</span>
-          </div>
-
+      <!-- Single Square -->
+      <div class="asset-card">
+        <div class="asset-card-header">
           <div>
-            <div style="font-size: 0.75rem; font-weight: 800; color: #c084fc; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">The Anti-Tinder</div>
-            <h2 class="headline-huge" style="font-size: 1.55rem;">
-              Dating at <span class="campus-target">K.R. Mangalam University</span> just got <span>re-invented.</span>
-            </h2>
+            <h3>Single Square Feed Post</h3>
+            <span style="font-size: 0.75rem; color: #94a3b8;">Instagram Feed Square</span>
           </div>
-
-          <div style="display: flex; flex-direction: column; gap: 6px;">
-            <div class="glass-feature-card" style="padding: 10px 14px;">
-              <span style="font-size: 0.76rem; color: #f1f5f9;"><strong>1. Verified Student Email:</strong> 100% verified college peers.</span>
-            </div>
-            <div class="glass-feature-card" style="padding: 10px 14px;">
-              <span style="font-size: 0.76rem; color: #f1f5f9;"><strong>2. 48-Hour Blind Chat:</strong> Personality-first conversation.</span>
-            </div>
-            <div class="glass-feature-card" style="padding: 10px 14px;">
-              <span style="font-size: 0.76rem; color: #f1f5f9;"><strong>3. Real Campus Date:</strong> Meet at your campus canteen.</span>
-            </div>
-          </div>
-
-          <div class="ad-footer-row">
-            <div>
-              <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 700;">CAMPUS ONLY</div>
-              <div class="price-badge-val" style="font-size: 0.95rem;">First Match <span class="price-target">₹49</span></div>
-            </div>
-            <div class="cta-pill-btn" style="font-size: 0.72rem; padding: 6px 12px;">Get Matched</div>
-          </div>
+          <span class="asset-badge">1080 &times; 1080 (1:1)</span>
+        </div>
+        <p class="asset-desc">"Tired of swiping on faces that ghost you?" — High contrast hook designed for student meme pages.</p>
+        <div class="asset-preview-box" onclick="openModal('./krmu/post_square_single.png')">
+          <img src="./krmu/post_square_single.png" alt="Single Square 1080x1080" loading="lazy">
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <a class="btn-download-slide" style="flex: 1;" href="./krmu/post_square_single.png" download="blindside_krmu_single_square_1080x1080.png">
+            ⬇️ Download PNG (939 KB)
+          </a>
+          <button class="btn-secondary" onclick="openModal('./krmu/post_square_single.png')">🔍 Zoom</button>
         </div>
       </div>
-
-      <!-- Live Story Card -->
-      <div class="live-card-wrapper">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff;">Story Ad (1080 &times; 1920)</h3>
-        <div class="ad-stage-story" id="live-stage-story">
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-            <div class="brand-pill">
-              <span class="dot"></span>
-              Campus Confidential
-            </div>
-            <span style="font-size: 0.65rem; color: #cbd5e1; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px;">EXCLUSIVE EXPERIMENT</span>
-          </div>
-
-          <div style="display: flex; flex-direction: column; gap: 14px; text-align: center;">
-            <h2 style="font-size: 1.6rem; font-weight: 900; line-height: 1.2; letter-spacing: -0.03em; color: #fff;">
-              Would you go on a <span style="background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">blind date</span> with someone from <span class="campus-target">K.R. Mangalam University</span>? 👀
-            </h2>
-
-            <div style="background: rgba(14,17,26,0.9); border: 1px solid rgba(255,255,255,0.25); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
-              <div style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1;">Tap to vote:</div>
-              <div style="background: linear-gradient(90deg, rgba(232, 44, 108, 0.4) 0%, rgba(124, 92, 235, 0.4) 100%); border: 1px solid rgba(232, 44, 108, 0.6); padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.82rem;">
-                🔥 Hell YES, let's vibe!
-              </div>
-              <div style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.82rem;">
-                🙈 Too shy tbh
-              </div>
-            </div>
-          </div>
-
-          <div style="display: flex; flex-direction: column; gap: 8px; text-align: center;">
-            <div style="background: #fff; color: #0f172a; font-weight: 900; font-size: 0.85rem; padding: 8px 18px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin: 0 auto;">
-              🔗 blindside.in
-            </div>
-            <p style="font-size: 0.68rem; color: #cbd5e1; line-height: 1.35;">
-              No photos shown until you both decide to meet.<br/>Verified students only. First search <span class="price-target">₹49</span>.
-            </p>
-          </div>
-        </div>
-      </div>
-
     </div>
-
   </div>
 
 
   <!-- ========================================== -->
-  <!-- TAB 3: INFLUENCER REEL SCRIPTS & CAPTIONS  -->
+  <!-- TAB 4: INFLUENCER REEL SCRIPTS & CAPTIONS  -->
   <!-- ========================================== -->
-  <div id="tab-influencer" class="tab-panel">
+  <div id="tab-scripts" class="tab-panel">
+    <div style="text-align: center; max-width: 700px;">
+      <h2 style="font-size: 1.6rem; font-weight: 900; color: #fff; margin-bottom: 6px;">Campus Influencer Launch Copy</h2>
+      <p style="color: var(--text-sub); font-size: 0.95rem;">Copy-paste reel scripts, carousel captions, and viral campus hooks.</p>
+    </div>
 
-    <div class="content-box">
-      <h2>🎬 Influencer Launch Reel Scripts (K.R. Mangalam University)</h2>
-
-      <!-- Script 1 -->
+    <div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+      <!-- Carousel Caption -->
       <div class="copy-card">
-        <div class="copy-card-title">Concept 1: "The Campus Confession" (High Viral Potential)</div>
-        <div class="copy-text">HOOK (0-3s): "Okay KRMU, why did nobody tell me about this? Look at what someone posted on campus today..."
-VISUAL: Hold phone showing the BlindSide website / story notice.
-BODY (4-15s): "Basically everyone is sick of Tinder where you match, exchange two dry texts, and get ghosted. BlindSide just launched exclusively for K.R. Mangalam students.
-You sign up with your @krmu.edu.in email, get matched on your actual personality and hobbies, and for 48 hours you blind chat. No profile pictures until you both decide to meet at the canteen."
-CTA (16-25s): "Link is in my bio and story sticker right now. First match is literally ₹49. Go check who your match is before Friday!"</div>
-        <button class="btn-copy" onclick="copyText(this)">📋 Copy Script</button>
-      </div>
-
-      <!-- Script 2 -->
-      <div class="copy-card">
-        <div class="copy-card-title">Concept 2: "Street Interview / Campus Mic"</div>
-        <div class="copy-text">HOOK: "Asking KRMU students: Would you go on a blind date with someone from your own college?"
-GUEST 1: "Bro, only if they're verified, I don't want a catfish."
-CREATOR: "What if it was 100% verified with college email, and you only see their face after 48 hours of chatting?"
-GUEST 2: "Wait that's actually kinda fire. What app is this?"
-CREATOR: "It's called BlindSide, it just launched at K.R. Mangalam University. Tap the link in bio to join the queue!"</div>
-        <button class="btn-copy" onclick="copyText(this)">📋 Copy Script</button>
-      </div>
-
-      <!-- Caption -->
-      <div class="copy-card">
-        <div class="copy-card-title">📱 Standard Instagram Feed & Reel Caption (Optimized for KRMU Reach)</div>
+        <div class="copy-card-title">📱 Instagram Carousel Caption (Optimized for Swipes & Saves)</div>
         <div class="copy-text">Dating at K.R. Mangalam University just changed forever 👀🔒
 
-No fake bios. No endless swiping. Just 100% verified KRMU students matched on personality & energy.
+No fake bios. No endless swiping on gym selfies. Just 100% verified KRMU students matched on personality & energy.
 
 Here's how BlindSide works:
 1️⃣ Sign up with your @krmu.edu.in email
@@ -865,19 +759,29 @@ Here's how BlindSide works:
 3️⃣ 48-hour blind chat (countdown begins!)
 4️⃣ Reveal photos & meet at the campus cafe ☕
 
-First match is only ₹49 for the launch week!
-Link in bio & stories: blindside.in 🚀
+First match is only ₹49 for launch week!
+👉 Link in bio: blindside.in
 
 #KRMangalamUniversity #KRMU #KRMUdiaries #GurugramCampuses #BlindSide #CollegeDating #CollegeLife #BlindDate #CampusDating</div>
         <button class="btn-copy" onclick="copyText(this)">📋 Copy Caption</button>
       </div>
 
+      <!-- Reel Script 1 -->
+      <div class="copy-card">
+        <div class="copy-card-title">🎬 Reel Concept: "The Campus Street Interview" (High Virality)</div>
+        <div class="copy-text">HOOK (0-3s): "Quick question KRMU: Would you go on a blind date with someone from your own college?"
+STUDENTS: "Bro, only if they're verified, I don't want a catfish."
+CREATOR: "What if it was 100% verified with college email, and you only see their face after 48 hours of chatting?"
+STUDENTS: "Wait that's actually kinda fire. What app is this?"
+CREATOR: "It's called BlindSide. You sign up with your @krmu.edu.in email, get matched on your actual personality and hobbies, and blind chat for 48 hours.
+First match is literally ₹49 for launch week. Link is in my bio right now!"</div>
+        <button class="btn-copy" onclick="copyText(this)">📋 Copy Script</button>
+      </div>
     </div>
-
   </div>
 
 
-  <!-- Fullscreen Preview Modal -->
+  <!-- Fullscreen Modal -->
   <div id="previewModal" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -887,6 +791,75 @@ Link in bio & stories: blindside.in 🚀
 
 
   <script>
+    const portraitSlides = [
+      { src: "./krmu/carousel_portrait_1.png", title: "Slide 1: The Hook", desc: "\"Tired of swiping on faces that ghost you?\" with KRMU campus badge.", filename: "blindside_krmu_portrait_slide1.png", size: "1.1 MB" },
+      { src: "./krmu/carousel_portrait_2.png", title: "Slide 2: The College Reality", desc: "Why traditional dating apps are broken (swiping fatigue, ghosting, unverified strangers).", filename: "blindside_krmu_portrait_slide2.png", size: "778 KB" },
+      { src: "./krmu/carousel_portrait_3.png", title: "Slide 3: The 3-Step Formula", desc: "1. Verified @krmu.edu.in, 2. 48-Hour Blind Chat, 3. The Campus Meetup.", filename: "blindside_krmu_portrait_slide3.png", size: "841 KB" },
+      { src: "./krmu/carousel_portrait_4.png", title: "Slide 4: Join the Queue", desc: "Call to action: Link in Bio (blindside.in), First match ₹49, Save & Tag friends.", filename: "blindside_krmu_portrait_slide4.png", size: "928 KB" }
+    ];
+
+    const squareSlides = [
+      { src: "./krmu/carousel_square_1.png", title: "Slide 1: The Experiment Hook", desc: "\"What happens when looks don't matter?\" — KRMU Blind Date Experiment.", filename: "blindside_krmu_square_slide1.png", size: "980 KB" },
+      { src: "./krmu/carousel_square_2.png", title: "Slide 2: The 3 Rules", desc: "1. No photos initially, 2. 48-hour countdown, 3. 100% KRMU students.", filename: "blindside_krmu_square_slide2.png", size: "621 KB" },
+      { src: "./krmu/carousel_square_3.png", title: "Slide 3: Why It Works", desc: "Dating without the superficial BS (Music compatibility, Zero ghosting, Campus cafe).", filename: "blindside_krmu_square_slide3.png", size: "715 KB" },
+      { src: "./krmu/carousel_square_4.png", title: "Slide 4: The Launch CTA", desc: "Queue is open for KRMU, First search ₹49, Tap link in bio.", filename: "blindside_krmu_square_slide4.png", size: "796 KB" }
+    ];
+
+    let currentPortraitIndex = 0;
+    let currentSquareIndex = 0;
+
+    function setPortraitSlide(idx) {
+      currentPortraitIndex = idx;
+      const s = portraitSlides[idx];
+      document.getElementById('portraitStageImg').src = s.src;
+      document.getElementById('portraitSlideBadge').textContent = s.title;
+      document.getElementById('portraitSlideDesc').textContent = s.desc;
+      document.getElementById('portraitSlideCounter').textContent = `${idx + 1} / 4`;
+      
+      const btn = document.getElementById('portraitDownloadBtn');
+      btn.href = s.src;
+      btn.download = s.filename;
+      btn.textContent = `⬇️ Download Slide ${idx + 1} (${s.size} PNG)`;
+
+      const thumbs = document.querySelectorAll('#tab-carousels .thumbnails-strip')[0].querySelectorAll('.thumb-item');
+      thumbs.forEach((t, i) => t.classList.toggle('active', i === idx));
+    }
+
+    function prevPortraitSlide() {
+      const newIdx = (currentPortraitIndex - 1 + portraitSlides.length) % portraitSlides.length;
+      setPortraitSlide(newIdx);
+    }
+    function nextPortraitSlide() {
+      const newIdx = (currentPortraitIndex + 1) % portraitSlides.length;
+      setPortraitSlide(newIdx);
+    }
+
+    function setSquareSlide(idx) {
+      currentSquareIndex = idx;
+      const s = squareSlides[idx];
+      document.getElementById('squareStageImg').src = s.src;
+      document.getElementById('squareSlideBadge').textContent = s.title;
+      document.getElementById('squareSlideDesc').textContent = s.desc;
+      document.getElementById('squareSlideCounter').textContent = `${idx + 1} / 4`;
+      
+      const btn = document.getElementById('squareDownloadBtn');
+      btn.href = s.src;
+      btn.download = s.filename;
+      btn.textContent = `⬇️ Download Slide ${idx + 1} (${s.size} PNG)`;
+
+      const thumbs = document.querySelectorAll('#tab-carousels .thumbnails-strip')[1].querySelectorAll('.thumb-item');
+      thumbs.forEach((t, i) => t.classList.toggle('active', i === idx));
+    }
+
+    function prevSquareSlide() {
+      const newIdx = (currentSquareIndex - 1 + squareSlides.length) % squareSlides.length;
+      setSquareSlide(newIdx);
+    }
+    function nextSquareSlide() {
+      const newIdx = (currentSquareIndex + 1) % squareSlides.length;
+      setSquareSlide(newIdx);
+    }
+
     function switchTab(tabId) {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -898,16 +871,6 @@ Link in bio & stories: blindside.in 🚀
         b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId)
       );
       if (clickedBtn) clickedBtn.classList.add('active');
-    }
-
-    function updateLiveCampus(val) {
-      const targets = document.querySelectorAll('.campus-target');
-      targets.forEach(t => t.textContent = val || 'Your Campus');
-    }
-
-    function updateLivePrice(val) {
-      const targets = document.querySelectorAll('.price-target');
-      targets.forEach(t => t.textContent = val || '₹49');
     }
 
     function openModal(imgSrc) {
@@ -932,7 +895,6 @@ Link in bio & stories: blindside.in 🚀
       });
     }
 
-    // Close modal on Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeModal();
     });
