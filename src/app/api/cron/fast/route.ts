@@ -310,8 +310,10 @@ export async function GET(request: NextRequest) {
 
           const totalScore = hobbyScore + lifestyleScore + proximityScore;
 
-          // Check if candidate passes the threshold and is the best so far
-          if (totalScore >= 55 && totalScore > bestScore) {
+          // Candidate passed all hard filters. Select the best candidate (highest compatibility score).
+          // In early stage, users match as long as hard filters pass; hobbies and lifestyle boost compatibility
+          // so candidates with higher scores are prioritized when multiple people qualify.
+          if (totalScore > bestScore) {
             bestScore = totalScore;
             bestCandidate = reqB;
           }

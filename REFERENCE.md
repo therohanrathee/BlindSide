@@ -404,7 +404,7 @@ Only candidates passing all hard filters are scored.
 | Lifestyle Match | 35% | 35 pts | Per-category comparison (~11.67 pts each for dietary, drinking, smoking) |
 | Proximity Bonus | 20% | 20 pts | Distance-based tiers |
 
-**Minimum threshold**: **55/100**
+**Selection criteria**: Candidates passing all hard filters are eligible to match. When multiple candidates qualify, the pair with the highest soft score is prioritized (hobbies and lifestyle alignment raise the score). *(Note: strict 55/100 threshold is relaxed in early stage to maximize match availability with low traffic).*
 
 #### Hobby Scoring (Jaccard Similarity)
 
