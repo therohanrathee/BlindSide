@@ -92,6 +92,10 @@ export default function AdminDashboardPage() {
   // Full Profile View Modal State
   const [viewingProfileUser, setViewingProfileUser] = useState<any | null>(null);
 
+  // User Deletion State
+  const [deletingUser, setDeletingUser] = useState<any | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   // Match Chat Transcript Modal State
   const [viewingMatch, setViewingMatch] = useState<any | null>(null);
   const [transcriptMessages, setTranscriptMessages] = useState<any[]>([]);
@@ -289,7 +293,35 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // 9. Load Chat Transcript
+  // 9. Permanently Delete User (Hard Purge)
+  const handleExecuteDeleteUser = async () => {
+    if (!deletingUser) return;
+    setDeleteLoading(true);
+
+    try {
+      const res = await fetch("/api/admin/delete-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: deletingUser.id }),
+      });
+
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setToastMessage(`🗑️ User ${deletingUser.first_name || ""} (${deletingUser.email || deletingUser.id}) completely deleted.`);
+        setTimeout(() => setToastMessage(null), 5000);
+        setDeletingUser(null);
+        await fetchAdminData();
+      } else {
+        alert(json.error || "Failed to delete user.");
+      }
+    } catch (err: any) {
+      alert("Error deleting user: " + err.message);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // 10. Load Chat Transcript
   const handleViewTranscript = async (match: any) => {
     setViewingMatch(match);
     setTranscriptLoading(true);
@@ -836,6 +868,14 @@ export default function AdminDashboardPage() {
                                 >
                                   {user.is_suspended ? "Unsuspend" : "Suspend"}
                                 </button>
+                                <button
+                                  className={s.smallActionBtn}
+                                  onClick={() => setDeletingUser(user)}
+                                  title="Permanently Delete User"
+                                  style={{ color: "#ef4444", background: "rgba(239, 68, 68, 0.08)" }}
+                                >
+                                  🗑️ Delete
+                                </button>
                               </div>
                             </td>
                           </tr>
@@ -1222,9 +1262,88 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className={s.modalFooter}>
+            <div className={s.modalFooter} style={{ justifyContent: "space-between", alignItems: "center" }}>
+              <button
+                type="button"
+                className={s.smallActionBtn}
+                onClick={() => {
+                  const u = viewingProfileUser;
+                  setViewingProfileUser(null);
+                  setDeletingUser(u);
+                }}
+                style={{ color: "#ef4444", background: "rgba(239, 68, 68, 0.12)", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "0.55rem 1rem" }}
+              >
+                🗑️ Delete User Completely
+              </button>
               <button type="button" className={s.iconBtn} onClick={() => setViewingProfileUser(null)}>
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: PERMANENTLY DELETE USER CONFIRMATION
+          ========================================================================= */}
+      {deletingUser && (
+        <div className={s.modalBackdrop}>
+          <div className={s.modalBox} style={{ maxWidth: "520px", border: "1px solid rgba(239, 68, 68, 0.4)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "1.75rem" }}>⚠️</div>
+              <div>
+                <h3 className={s.modalTitle} style={{ margin: 0, color: "#f87171" }}>
+                  Permanently Delete User?
+                </h3>
+                <p className={s.modalSubtitle} style={{ margin: "0.25rem 0 0 0" }}>
+                  This action is irreversible and immediately wipes all records.
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              background: "rgba(239, 68, 68, 0.08)",
+              border: "1px solid rgba(239, 68, 68, 0.2)",
+              borderRadius: "10px",
+              padding: "1rem",
+              margin: "1.25rem 0",
+              fontSize: "0.85rem",
+              lineHeight: "1.5",
+              color: "#fca5a5"
+            }}>
+              You are about to completely erase <strong>{deletingUser.first_name || "User"}</strong> ({deletingUser.email || deletingUser.id}):
+              <ul style={{ margin: "0.5rem 0 0 1.25rem", padding: 0 }}>
+                <li>Profile, bio, photos, and media from storage</li>
+                <li>Wallet balance, deposits, and transaction history</li>
+                <li>Active match requests & queue positions</li>
+                <li>All matches, conversations, and chat messages</li>
+                <li>Date proposals, confirmed dates, and feedback</li>
+                <li>Authentication record (they can re-register as brand new)</li>
+              </ul>
+            </div>
+
+            <div className={s.modalFooter}>
+              <button
+                type="button"
+                className={s.iconBtn}
+                onClick={() => setDeletingUser(null)}
+                disabled={deleteLoading}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={s.loginBtn}
+                style={{
+                  width: "auto",
+                  padding: "0.7rem 1.5rem",
+                  background: "linear-gradient(135deg, #ef4444, #b91c1c)",
+                  boxShadow: "0 4px 14px rgba(239, 68, 68, 0.4)"
+                }}
+                onClick={handleExecuteDeleteUser}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? "Deleting permanently..." : "Yes, Wipe & Delete User"}
               </button>
             </div>
           </div>
