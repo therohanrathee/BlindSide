@@ -165,7 +165,7 @@ export function generateDropEmailHtml({ firstName, amount, appUrl }: DropEmailPa
                   <td>
                     <div class="step-title" style="font-size: 13px; font-weight: 700; color: #1e293b;">2. 72-Hour Blind Chat</div>
                     <div class="step-desc" style="font-size: 12px; color: #64748b; line-height: 1.4; margin-top: 2px;">
-                      Break the ice with prompts and talk without superficial bias.
+                      Chat anonymously for 72 hours and get to know each other without superficial bias.
                     </div>
                   </td>
                 </tr>
@@ -224,7 +224,7 @@ ${targetUrl}
 
 How BlindSide Works:
 1. Request a Match: Choose your preferences and get paired by our matching algorithm.
-2. 72-Hour Blind Chat: Break the ice with prompts and talk without superficial bias.
+2. 72-Hour Blind Chat: Chat anonymously for 72 hours and get to know each other without superficial bias.
 3. Plan a Meetup: Propose a date time and place to meet up in person.
 
 ---
