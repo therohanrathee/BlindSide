@@ -904,6 +904,11 @@ export default function DashboardPage() {
   const searchingIntervalRef = useRef<any>(null);
   const chatIntervalRef = useRef<any>(null);
   const messagesAreaRef = useRef<HTMLDivElement | null>(null);
+  const userIdRef = useRef<string | null>(null);
+  userIdRef.current = userId;
+  const activeMatchRef = useRef<any | null>(null);
+  activeMatchRef.current = activeMatch;
+  const lastSyncTimeRef = useRef<number>(0);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -1210,6 +1215,16 @@ export default function DashboardPage() {
         await loadMessages(match.id);
         // Load proposal
         await loadDateProposal(match.id, uid);
+
+        // Auto-navigate to chat if requested by deep link (?tab=chat)
+        if (typeof window !== "undefined") {
+          const params = new URLSearchParams(window.location.search);
+          if (params.get("tab") === "chat" || params.get("view") === "chat") {
+            setDashboardState(3);
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, "", cleanUrl);
+          }
+        }
       } else {
         // Check if there is a declined match
         const { data: declinedMatch } = await supabase
@@ -1368,6 +1383,64 @@ export default function DashboardPage() {
       setProposalStatus("none");
     }
   };
+
+  // Automatic background/foreground sync and Service Worker notification click listener
+  useEffect(() => {
+    const handleSync = async () => {
+      const now = Date.now();
+      if (now - lastSyncTimeRef.current < 1500) return;
+      lastSyncTimeRef.current = now;
+
+      const uid = userIdRef.current;
+      if (!uid) return;
+
+      try {
+        await refreshMatchStatus(uid);
+        if (activeMatchRef.current?.id) {
+          await loadMessages(activeMatchRef.current.id);
+        }
+      } catch (err) {
+        console.error("Foreground sync error:", err);
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        handleSync();
+      }
+    };
+
+    const onFocus = () => {
+      handleSync();
+    };
+
+    const onServiceWorkerMessage = (event: MessageEvent) => {
+      if (
+        event.data?.type === "NOTIFICATION_CLICK" ||
+        event.data?.type === "OPEN_CHAT" ||
+        event.data?.type === "PUSH_RECEIVED"
+      ) {
+        handleSync();
+        if (event.data?.action === "OPEN_CHAT" || event.data?.url?.includes("tab=chat")) {
+          setDashboardState(3);
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onFocus);
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", onServiceWorkerMessage);
+    }
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onFocus);
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.removeEventListener("message", onServiceWorkerMessage);
+      }
+    };
+  }, []);
 
   // 4. Save preferences & checkout (State 1 triggers)
   const handleSavePreferences = async () => {
@@ -1684,7 +1757,7 @@ export default function DashboardPage() {
             receiver_id: receiverId,
             title: pushTitle,
             body: text,
-            url: "/dashboard",
+            url: "/dashboard?tab=chat",
             match_id: activeMatch.id,
           }),
         }).catch((err) => console.error("Push notify error:", err));

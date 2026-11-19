@@ -411,8 +411,9 @@ export async function GET(request: NextRequest) {
               const pushPayload = JSON.stringify({
                 title: "BlindSide Match! 💖",
                 body: "You have been matched! Open the app to say hello.",
-                url: "/dashboard",
-                tag: matchRecord.id
+                url: "/dashboard?tab=chat",
+                tag: matchRecord.id,
+                match_id: matchRecord.id,
               });
 
               const sendPromises = subs.map(async (sub) => {

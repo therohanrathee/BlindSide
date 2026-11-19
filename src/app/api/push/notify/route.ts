@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, message: "No active subscriptions found for user" });
     }
 
-    const pushPayload = JSON.stringify({ title, body, url, tag: match_id || "default" });
+    const pushPayload = JSON.stringify({ title, body, url, tag: match_id || "default", match_id });
 
     // Send notifications to all of the user's devices
     const sendPromises = subscriptions.map(async (sub) => {

@@ -7,6 +7,7 @@ self.addEventListener('push', function (event) {
     const body = data.body || 'You have a new notification!';
     const url = data.url || '/dashboard';
     const tag = data.tag || 'default';
+    const matchId = data.match_id || (tag !== 'default' ? tag : null);
 
     const options = {
       body,
@@ -14,7 +15,7 @@ self.addEventListener('push', function (event) {
       badge: '/icons/icon-192.png',
       vibrate: [200, 100, 200],
       tag,
-      data: { url },
+      data: { url, match_id: matchId },
     };
 
     // Smart Muting: Check if the app is already open and focused
@@ -26,6 +27,14 @@ self.addEventListener('push', function (event) {
           const client = windowClients[i];
           if (client.focused) {
             isFocused = true;
+            // Also notify the active client so it can immediately refresh messages
+            client.postMessage({
+              type: 'PUSH_RECEIVED',
+              title,
+              body,
+              url,
+              match_id: matchId,
+            });
             break;
           }
         }
@@ -48,28 +57,57 @@ self.addEventListener('push', function (event) {
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
 
-  const urlToOpen = event.notification.data.url || '/dashboard';
+  const rawUrl = (event.notification.data && event.notification.data.url) || '/dashboard';
+  const targetUrl = new URL(rawUrl, self.location.origin).href;
+  const isChat = rawUrl.includes('tab=chat') || rawUrl.includes('view=chat');
+  const matchId = event.notification.data && event.notification.data.match_id;
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      // Check if there is already a window/tab open with the target URL
+      // 1. Check if an existing dashboard window/tab is open
       for (let i = 0; i < windowClients.length; i++) {
         const client = windowClients[i];
-        // If the URL matches or the app is just generally open, focus it and navigate
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
+        const clientUrl = new URL(client.url, self.location.origin);
+
+        // Same origin and dashboard path
+        if (clientUrl.origin === self.location.origin && clientUrl.pathname.startsWith('/dashboard')) {
+          client.postMessage({
+            type: 'NOTIFICATION_CLICK',
+            url: rawUrl,
+            action: isChat ? 'OPEN_CHAT' : 'NAVIGATE',
+            match_id: matchId,
+          });
+
+          if ('focus' in client) {
+            client.focus();
+          }
+
+          if (client.url !== targetUrl && 'navigate' in client) {
+            client.navigate(targetUrl);
+          }
+          return;
         }
       }
-      
-      // If there is any app window open, focus it and navigate
+
+      // 2. If any other window for this app is open, navigate and focus
       if (windowClients.length > 0 && 'focus' in windowClients[0]) {
-        windowClients[0].navigate(urlToOpen);
-        return windowClients[0].focus();
+        const client = windowClients[0];
+        client.postMessage({
+          type: 'NOTIFICATION_CLICK',
+          url: rawUrl,
+          action: isChat ? 'OPEN_CHAT' : 'NAVIGATE',
+          match_id: matchId,
+        });
+
+        if ('navigate' in client) {
+          client.navigate(targetUrl);
+        }
+        return client.focus();
       }
 
-      // If no window is open, open a new one
+      // 3. If no window is open at all, open a new window
       if (self.clients.openWindow) {
-        return self.clients.openWindow(urlToOpen);
+        return self.clients.openWindow(targetUrl);
       }
     })
   );
