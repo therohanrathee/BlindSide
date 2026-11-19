@@ -96,6 +96,11 @@ export default function AdminDashboardPage() {
   const [deletingUser, setDeletingUser] = useState<any | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Credit Drop Modal State
+  const [droppingCreditUser, setDroppingCreditUser] = useState<any | null>(null);
+  const [dropAmount, setDropAmount] = useState<number>(69);
+  const [dropLoading, setDropLoading] = useState(false);
+
   // Match Chat Transcript Modal State
   const [viewingMatch, setViewingMatch] = useState<any | null>(null);
   const [transcriptMessages, setTranscriptMessages] = useState<any[]>([]);
@@ -321,7 +326,42 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // 10. Load Chat Transcript
+  // 10. Execute Credit Drop & Send Email Notification
+  const handleExecuteDropCredits = async () => {
+    if (!droppingCreditUser) return;
+    setDropLoading(true);
+
+    try {
+      const res = await fetch("/api/admin/drop-credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: droppingCreditUser.id,
+          amount: dropAmount || 69,
+        }),
+      });
+
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setToastMessage(
+          `🎁 Dropped ₹${json.amount} to ${droppingCreditUser.first_name || "user"}! ${
+            json.email_sent ? "Email sent from drops@blindside.in" : "Wallet updated."
+          }`
+        );
+        setTimeout(() => setToastMessage(null), 6000);
+        setDroppingCreditUser(null);
+        await fetchAdminData();
+      } else {
+        alert(json.error || "Failed to drop credits.");
+      }
+    } catch (err: any) {
+      alert("Error dropping credits: " + err.message);
+    } finally {
+      setDropLoading(false);
+    }
+  };
+
+  // 11. Load Chat Transcript
   const handleViewTranscript = async (match: any) => {
     setViewingMatch(match);
     setTranscriptLoading(true);
@@ -856,6 +896,17 @@ export default function AdminDashboardPage() {
                                 </button>
                                 <button
                                   className={s.smallActionBtn}
+                                  onClick={() => {
+                                    setDroppingCreditUser(user);
+                                    setDropAmount(69);
+                                  }}
+                                  title="Drop Free Credits (₹69) & Send Email from drops@blindside.in"
+                                  style={{ color: "#fbbf24", background: "rgba(251, 191, 36, 0.08)" }}
+                                >
+                                  🎁 Drop ₹69
+                                </button>
+                                <button
+                                  className={s.smallActionBtn}
                                   onClick={() => setViewingProfileUser(user)}
                                   title="View Full Profile Details"
                                 >
@@ -1263,18 +1314,32 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className={s.modalFooter} style={{ justifyContent: "space-between", alignItems: "center" }}>
-              <button
-                type="button"
-                className={s.smallActionBtn}
-                onClick={() => {
-                  const u = viewingProfileUser;
-                  setViewingProfileUser(null);
-                  setDeletingUser(u);
-                }}
-                style={{ color: "#ef4444", background: "rgba(239, 68, 68, 0.12)", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "0.55rem 1rem" }}
-              >
-                🗑️ Delete User Completely
-              </button>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button
+                  type="button"
+                  className={s.smallActionBtn}
+                  onClick={() => {
+                    const u = viewingProfileUser;
+                    setDroppingCreditUser(u);
+                    setDropAmount(69);
+                  }}
+                  style={{ color: "#fbbf24", background: "rgba(251, 191, 36, 0.12)", border: "1px solid rgba(251, 191, 36, 0.3)", padding: "0.55rem 1rem" }}
+                >
+                  🎁 Drop ₹69 Credits
+                </button>
+                <button
+                  type="button"
+                  className={s.smallActionBtn}
+                  onClick={() => {
+                    const u = viewingProfileUser;
+                    setViewingProfileUser(null);
+                    setDeletingUser(u);
+                  }}
+                  style={{ color: "#ef4444", background: "rgba(239, 68, 68, 0.12)", border: "1px solid rgba(239, 68, 68, 0.3)", padding: "0.55rem 1rem" }}
+                >
+                  🗑️ Delete User Completely
+                </button>
+              </div>
               <button type="button" className={s.iconBtn} onClick={() => setViewingProfileUser(null)}>
                 Close
               </button>
@@ -1344,6 +1409,98 @@ export default function AdminDashboardPage() {
                 disabled={deleteLoading}
               >
                 {deleteLoading ? "Deleting permanently..." : "Yes, Wipe & Delete User"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: DROP FREE CREDITS (₹69) CONFIRMATION & SENDER
+          ========================================================================= */}
+      {droppingCreditUser && (
+        <div className={s.modalBackdrop}>
+          <div className={s.modalBox} style={{ maxWidth: "520px", border: "1px solid rgba(251, 191, 36, 0.4)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "1.75rem" }}>🎁</div>
+              <div>
+                <h3 className={s.modalTitle} style={{ margin: 0, color: "#fbbf24" }}>
+                  Drop Free Credits to User
+                </h3>
+                <p className={s.modalSubtitle} style={{ margin: "0.25rem 0 0 0" }}>
+                  Instantly credit wallet & send a branded email from drops@blindside.in
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              background: "rgba(251, 191, 36, 0.08)",
+              border: "1px solid rgba(251, 191, 36, 0.2)",
+              borderRadius: "10px",
+              padding: "1rem",
+              margin: "1.25rem 0",
+              fontSize: "0.85rem",
+              lineHeight: "1.5",
+              color: "#fde68a"
+            }}>
+              Recipient: <strong>{droppingCreditUser.first_name || "User"}</strong> ({droppingCreditUser.email || "No email"})<br />
+              Current Balance: <strong>₹{parseFloat(droppingCreditUser.wallet_balance || 0).toFixed(2)}</strong>
+            </div>
+
+            <div style={{ marginBottom: "1.25rem" }}>
+              <label className={s.inputLabel}>Credit Amount (₹ INR)</label>
+              <input
+                type="number"
+                step="1"
+                min="1"
+                value={dropAmount}
+                onChange={(e) => setDropAmount(parseFloat(e.target.value) || 0)}
+                className={s.loginInput}
+                style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fbbf24" }}
+              />
+              <div style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: "0.35rem" }}>
+                Default is ₹69. This immediately updates their wallet and triggers the delivery email.
+              </div>
+            </div>
+
+            <div style={{
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: "10px",
+              padding: "0.75rem 1rem",
+              fontSize: "0.8rem",
+              color: "#9ca3af",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.35rem"
+            }}>
+              <div>📧 <strong>Sender:</strong> BlindSide Drops &lt;drops@blindside.in&gt;</div>
+              <div>🏷️ <strong>Transaction:</strong> Promotional Credit (promo_credit)</div>
+              <div>🌗 <strong>Template:</strong> Dual Dark & Light Mode HTML</div>
+            </div>
+
+            <div className={s.modalFooter}>
+              <button
+                type="button"
+                className={s.iconBtn}
+                onClick={() => setDroppingCreditUser(null)}
+                disabled={dropLoading}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={s.loginBtn}
+                style={{
+                  width: "auto",
+                  padding: "0.7rem 1.5rem",
+                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                  boxShadow: "0 4px 14px rgba(245, 158, 11, 0.35)"
+                }}
+                onClick={handleExecuteDropCredits}
+                disabled={dropLoading || dropAmount <= 0}
+              >
+                {dropLoading ? "Processing & Sending..." : `Send ₹${dropAmount} Drop`}
               </button>
             </div>
           </div>
