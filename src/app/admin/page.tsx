@@ -100,6 +100,7 @@ export default function AdminDashboardPage() {
   const [droppingCreditUser, setDroppingCreditUser] = useState<any | null>(null);
   const [dropAmount, setDropAmount] = useState<number>(69);
   const [dropLoading, setDropLoading] = useState(false);
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
 
   // Match Chat Transcript Modal State
   const [viewingMatch, setViewingMatch] = useState<any | null>(null);
@@ -1420,7 +1421,7 @@ export default function AdminDashboardPage() {
           ========================================================================= */}
       {droppingCreditUser && (
         <div className={s.modalBackdrop}>
-          <div className={s.modalBox} style={{ maxWidth: "520px", border: "1px solid rgba(251, 191, 36, 0.4)" }}>
+          <div className={s.modalBox} style={{ maxWidth: showEmailPreview ? "640px" : "520px", transition: "max-width 0.2s ease", border: "1px solid rgba(251, 191, 36, 0.4)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
               <div style={{ fontSize: "1.75rem" }}>🎁</div>
               <div>
@@ -1472,12 +1473,49 @@ export default function AdminDashboardPage() {
               color: "#9ca3af",
               display: "flex",
               flexDirection: "column",
-              gap: "0.35rem"
+              gap: "0.35rem",
+              marginBottom: "1rem"
             }}>
               <div>📧 <strong>Sender:</strong> BlindSide Drops &lt;drops@blindside.in&gt;</div>
               <div>🏷️ <strong>Transaction:</strong> Promotional Credit (promo_credit)</div>
               <div>🌗 <strong>Template:</strong> Dual Dark & Light Mode HTML</div>
             </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <button
+                type="button"
+                className={s.smallActionBtn}
+                onClick={() => setShowEmailPreview(!showEmailPreview)}
+                style={{ color: "#60a5fa", background: "rgba(96, 165, 250, 0.1)", border: "1px solid rgba(96, 165, 250, 0.25)" }}
+              >
+                {showEmailPreview ? "🙈 Hide Email Preview" : "👁️ Preview Email Template"}
+              </button>
+              <a
+                href={`/api/admin/preview-drop-email?name=${encodeURIComponent(droppingCreditUser.first_name || "there")}&amount=${dropAmount}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ fontSize: "0.75rem", color: "#60a5fa", textDecoration: "underline" }}
+              >
+                Open in new tab ↗
+              </a>
+            </div>
+
+            {showEmailPreview && (
+              <div style={{
+                borderRadius: "12px",
+                overflow: "hidden",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                marginBottom: "1.25rem",
+                height: "380px",
+                background: "#000"
+              }}>
+                <iframe
+                  title="Email Preview"
+                  src={`/api/admin/preview-drop-email?name=${encodeURIComponent(droppingCreditUser.first_name || "there")}&amount=${dropAmount}`}
+                  style={{ width: "100%", height: "100%", border: "none" }}
+                />
+              </div>
+            )}
 
             <div className={s.modalFooter}>
               <button
