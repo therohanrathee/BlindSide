@@ -56,7 +56,7 @@ export default function PrivacyPolicyPage() {
           <p>We only collect data strictly necessary to provide and secure our matchmaking, verification, and communication services:</p>
           <ul>
             <li>
-              <strong>Authentication &amp; Identity Data:</strong> Primary Login Email (e.g., personal Gmail or Outlook) used for account credentials and password resets; Institutional University Email (e.g., <code>@krmu.edu.in</code>) used exclusively to verify active university student affiliation; and cryptographically salted, hashed passwords (via bcrypt/Argon2). We never store or have access to raw passwords.
+              <strong>Authentication &amp; Identity Data:</strong> Primary Login Email (e.g., personal Gmail or Outlook) used for account credentials and password resets; Institutional University Email (e.g., <code>@krmu.edu.in</code>) used exclusively to verify active university student affiliation; and cryptographically salted, hashed passwords (via bcrypt). We never store or have access to raw passwords.
             </li>
             <li>
               <strong>Profile &amp; Lifestyle Information:</strong> First name, date of birth (used strictly for 18+ age verification), gender, height preferences, dietary choices, drinking/smoking habits, fitness level, hobbies, and relationship intent. Profile photographs are stored in private, restricted cloud storage and remain unrevealed to other users by default.

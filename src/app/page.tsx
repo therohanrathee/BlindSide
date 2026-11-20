@@ -465,7 +465,7 @@ export default function LandingPage() {
             <span className={s.sectionTag}>Engineered for Discretion</span>
             <h2 className={s.sectionTitle}>Privacy First. Zero Compromise.</h2>
             <p className={s.sectionSubtitle}>
-              Dating on campus shouldn’t mean broadcasting your face to strangers. BlindSide is designed so you retain absolute ownership over your identity, data, and conversations.
+              Dating on campus shouldn’t mean broadcasting your face to strangers. BlindSide is built with privacy and encryption by default, giving you total control over your identity, data, and conversations.
             </p>
           </div>
 
@@ -484,9 +484,9 @@ export default function LandingPage() {
               <div className={s.stepInfo}>
                 <span className={s.stepNumber}>01</span>
                 <h3 className={s.stepTitle}>Identity in Your Control</h3>
-                <span className={s.stepSubtitle}>Zero Face Broadcasting</span>
+                <span className={s.stepSubtitle}>Zero Public Photos or Profiles</span>
                 <p className={s.stepDesc}>
-                  No public galleries, no searchable directory, and no awkward campus directory. Your photos and full name are unrevealed by default. You choose if and when to reveal them through mutual consent.
+                  No public galleries, no searchable directory, and no awkward campus browsing. Your photos and name stay hidden by default. You choose if and when to reveal them — only with mutual consent.
                 </p>
               </div>
 
@@ -495,7 +495,7 @@ export default function LandingPage() {
                   <div className={s.privacyCardHeader}>
                     <div className={s.privacyCardTitleGroup}>
                       <ShieldIcon />
-                      <span>Discretion Engine</span>
+                      <span>Identity Control</span>
                     </div>
                     <span className={s.privacyCardBadge}>Hidden by Default</span>
                   </div>
@@ -522,7 +522,7 @@ export default function LandingPage() {
                       <span className={s.checkBadgeOff}>Blocked</span>
                     </div>
                     <div className={s.featureCheckRow}>
-                      <span>Public Face Broadcast</span>
+                      <span>Public Photo Broadcast</span>
                       <span className={s.checkBadgeOff}>Disabled</span>
                     </div>
                     <div className={s.featureCheckRow}>
@@ -532,7 +532,7 @@ export default function LandingPage() {
                   </div>
 
                   <div className={s.mutualConsentPill}>
-                    <span>Two-Way Agreement Required to Unveil Profile</span>
+                    <span>Mutual Consent Required to Reveal Profile</span>
                   </div>
                 </div>
               </div>
@@ -548,10 +548,10 @@ export default function LandingPage() {
               <div className={s.mobileNode} aria-hidden="true" />
               <div className={s.stepInfo}>
                 <span className={s.stepNumber}>02</span>
-                <h3 className={s.stepTitle}>Encrypted Architecture</h3>
-                <span className={s.stepSubtitle}>Cryptographic Security by Default</span>
+                <h3 className={s.stepTitle}>Encrypted by Default</h3>
+                <span className={s.stepSubtitle}>bcrypt Hashing &amp; TLS 1.3</span>
                 <p className={s.stepDesc}>
-                  All account credentials and passwords are encrypted using cryptographic hashing (bcrypt/Argon2). Communications are guarded by TLS 1.3 encryption, and data volumes are strictly encrypted at rest.
+                  All personal details, account data, and passwords are encrypted by default. Passwords are protected using one-way bcrypt cryptographic hashing — we never store or see your plaintext password. All web traffic is secured with modern TLS 1.3 encryption.
                 </p>
               </div>
 
@@ -560,9 +560,9 @@ export default function LandingPage() {
                   <div className={s.privacyCardHeader}>
                     <div className={s.privacyCardTitleGroup}>
                       <LockIcon />
-                      <span>Cryptographic Vault</span>
+                      <span>Data Encryption</span>
                     </div>
-                    <span className={s.privacyCardBadgeGreen}>TLS 1.3 • AES-256</span>
+                    <span className={s.privacyCardBadgeGreen}>bcrypt • TLS 1.3</span>
                   </div>
 
                   <div className={s.cryptoPipeline}>
@@ -573,12 +573,12 @@ export default function LandingPage() {
 
                     <div className={s.pipelineArrowRow}>
                       <span className={s.pipelineArrowIcon}>↓</span>
-                      <span>One-Way Cryptographic Salt Engine</span>
+                      <span>One-Way bcrypt Hashing</span>
                     </div>
 
                     <div className={s.pipelineStage}>
-                      <span className={s.pipelineStageLabel}>Argon2id Hash</span>
-                      <span className={s.pipelineStageVal}>$argon2id$v=19$m=65536...</span>
+                      <span className={s.pipelineStageLabel}>bcrypt Hash</span>
+                      <span className={s.pipelineStageVal}>$2b$10$e8K9q...</span>
                     </div>
                   </div>
 
@@ -588,12 +588,12 @@ export default function LandingPage() {
                       <span className={s.checkBadgeOff}>Never Stored</span>
                     </div>
                     <div className={s.featureCheckRow}>
-                      <span>Row-Level Security (RLS)</span>
-                      <span className={s.checkBadgeOn}>Enforced</span>
+                      <span>Personal Details</span>
+                      <span className={s.checkBadgeOn}>Encrypted by Default</span>
                     </div>
                     <div className={s.featureCheckRow}>
-                      <span>At-Rest Volume Encryption</span>
-                      <span className={s.checkBadgeOn}>Active</span>
+                      <span>Database Security</span>
+                      <span className={s.checkBadgeOn}>Row-Level Security</span>
                     </div>
                   </div>
                 </div>
@@ -611,9 +611,9 @@ export default function LandingPage() {
               <div className={s.stepInfo}>
                 <span className={s.stepNumber}>03</span>
                 <h3 className={s.stepTitle}>Private 48-Hour Conversations</h3>
-                <span className={s.stepSubtitle}>Ephemeral &amp; Self-Destructing</span>
+                <span className={s.stepSubtitle}>Automatically Deleted After 48 Hours</span>
                 <p className={s.stepDesc}>
-                  Your 48-hour blind conversations are strictly private between you and your match. Auto-expiring countdown window, zero commercial trackers, and zero automated ad profiling.
+                  Your blind conversations are strictly private between you and your match. Every conversation has an automatic 48-hour window — once time runs out, the chat auto-deletes completely. Zero ad trackers and zero message profiling.
                 </p>
               </div>
 
@@ -622,18 +622,18 @@ export default function LandingPage() {
                   <div className={s.privacyCardHeader}>
                     <div className={s.privacyCardTitleGroup}>
                       <MessageSquareIcon />
-                      <span>Ephemeral Blind Dialogue</span>
+                      <span>Private 48-Hour Chat</span>
                     </div>
-                    <span className={s.privacyCardBadge}>48h Auto-Expire</span>
+                    <span className={s.privacyCardBadge}>48h Auto-Delete</span>
                   </div>
 
                   <div className={s.ephemeralChatBox}>
-                    <span className={s.ephemeralWatermark}>Confidential • 48H Chat</span>
+                    <span className={s.ephemeralWatermark}>Private • 48H Chat</span>
                     <div className={s.ephemeralBubbleRec}>
                       It&apos;s refreshing to talk without someone judging your photos first.
                     </div>
                     <div className={s.ephemeralBubbleSent}>
-                      Exactly. And when the countdown hits zero, it auto-shreds completely.
+                      Exactly. And when the 48 hours are up, everything is automatically deleted.
                     </div>
                   </div>
 
@@ -643,12 +643,12 @@ export default function LandingPage() {
                       <span className={s.checkBadgeOn}>Zero</span>
                     </div>
                     <div className={s.featureCheckRow}>
-                      <span>AI Training on Messages</span>
+                      <span>AI Reading Messages</span>
                       <span className={s.checkBadgeOff}>Prohibited</span>
                     </div>
                     <div className={s.featureCheckRow}>
-                      <span>Ephemeral Lifecycle</span>
-                      <span className={s.checkBadgeOn}>Auto-Purge</span>
+                      <span>Chat Lifetime</span>
+                      <span className={s.checkBadgeOn}>Auto-Deletes in 48h</span>
                     </div>
                   </div>
                 </div>
@@ -666,9 +666,9 @@ export default function LandingPage() {
               <div className={s.stepInfo}>
                 <span className={s.stepNumber}>04</span>
                 <h3 className={s.stepTitle}>Instant Full Data Deletion</h3>
-                <span className={s.stepSubtitle}>The Right to be Forgotten</span>
+                <span className={s.stepSubtitle}>You Control Your Data</span>
                 <p className={s.stepDesc}>
-                  You own your digital footprint. Request deletion anytime with a single tap, and our systems permanently wipe your profile, photos, chat history, and wallet records forever. Zero residual data.
+                  You own your digital footprint. Request deletion anytime with a single tap, and our systems permanently delete your profile, photos, chat history, and wallet records forever. Zero residual data.
                 </p>
               </div>
 
@@ -677,9 +677,9 @@ export default function LandingPage() {
                   <div className={s.privacyCardHeader}>
                     <div className={s.privacyCardTitleGroup}>
                       <TrashIcon />
-                      <span>Cascade Purge Protocol</span>
+                      <span>Full Data Deletion</span>
                     </div>
-                    <span className={s.privacyCardBadgeGreen}>DPDP 2023 Compliant</span>
+                    <span className={s.privacyCardBadgeGreen}>1-Tap Erasure</span>
                   </div>
 
                   <div className={s.purgeChecklist}>
@@ -687,17 +687,17 @@ export default function LandingPage() {
                       <div className={s.purgeItemTarget}>
                         <span>Profile &amp; Photos</span>
                       </div>
-                      <span className={s.purgeStatusWiped}>Wiped</span>
+                      <span className={s.purgeStatusWiped}>Deleted</span>
                     </div>
                     <div className={s.purgeItem}>
                       <div className={s.purgeItemTarget}>
                         <span>Chat History</span>
                       </div>
-                      <span className={s.purgeStatusWiped}>Shredded</span>
+                      <span className={s.purgeStatusWiped}>Deleted</span>
                     </div>
                     <div className={s.purgeItem}>
                       <div className={s.purgeItemTarget}>
-                        <span>Location Data</span>
+                        <span>Location Coordinates</span>
                       </div>
                       <span className={s.purgeStatusWiped}>Purged</span>
                     </div>
@@ -705,13 +705,13 @@ export default function LandingPage() {
                       <div className={s.purgeItemTarget}>
                         <span>Credentials &amp; Wallet</span>
                       </div>
-                      <span className={s.purgeStatusWiped}>Zeroed</span>
+                      <span className={s.purgeStatusWiped}>Erased</span>
                     </div>
                   </div>
 
                   <div className={s.purgeFooterBar}>
                     <span className={s.purgeStat}>Residual Data: 0 bytes</span>
-                    <span className={s.purgeGuarantee}>Complete Erasure</span>
+                    <span className={s.purgeGuarantee}>Permanently Erased</span>
                   </div>
                 </div>
               </div>
@@ -721,18 +721,18 @@ export default function LandingPage() {
           {/* Trust Highlights */}
           <div className={s.privacyTrustBar}>
             <div className={s.trustBarItem}>
-              <span className={s.trustBarIcon}>🎓</span>
-              <span>Verified Campus Inboxes</span>
+              <span className={s.trustBarIcon}>🔐</span>
+              <span>All Details &amp; Passwords Encrypted by Default</span>
             </div>
             <div className={s.trustBarDivider} />
             <div className={s.trustBarItem}>
-              <span className={s.trustBarIcon}>📍</span>
-              <span>Exact Coordinates Never Disclosed</span>
+              <span className={s.trustBarIcon}>⏱️</span>
+              <span>Chats Automatically Deleted in 48 Hours</span>
             </div>
             <div className={s.trustBarDivider} />
             <div className={s.trustBarItem}>
-              <span className={s.trustBarIcon}>🛡️</span>
-              <span>Human Moderation &amp; Incident Reporting</span>
+              <span className={s.trustBarIcon}>🗑️</span>
+              <span>Permanent 1-Tap Account &amp; Data Erasure</span>
             </div>
           </div>
         </div>

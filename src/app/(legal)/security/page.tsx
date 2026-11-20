@@ -73,7 +73,7 @@ export default function SecurityGuidelinesPage() {
           <p>We deploy rigorous technical safeguards across our backend and frontend infrastructure:</p>
           <ul>
             <li>
-              <strong>Zero Plaintext Passwords:</strong> Passwords are cryptographically salted and hashed using modern algorithms (bcrypt/Argon2). We never store or transmit plaintext passwords.
+              <strong>Zero Plaintext Passwords:</strong> Passwords are cryptographically salted and hashed using industry-standard bcrypt. We never store or transmit plaintext passwords.
             </li>
             <li>
               <strong>Database Row Level Security (RLS):</strong> Direct database access is locked down. Strict RLS policies prevent unauthorized queries, ensuring no user can view private metadata or unrevealed photos of other students.
