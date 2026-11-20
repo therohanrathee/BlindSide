@@ -229,9 +229,9 @@
 }
 
 .authLegalText {
-  margin-top: 1.5rem;
-  font-size: 0.75rem;
-  line-height: 1.5;
+  margin-top: 1.25rem;
+  font-size: 0.6875rem;
+  line-height: 1.45;
   text-align: center;
   color: var(--text-muted);
 }
@@ -247,6 +247,16 @@
 
 .authLegalText a:hover {
   color: var(--accent-primary);
+}
+
+@media (max-width: 480px) {
+  .authCard {
+    padding: 2.25rem 1.5rem;
+  }
+  .authLegalText {
+    font-size: 0.65rem;
+    line-height: 1.4;
+  }
 }
 
 .forgotPasswordBtn {
