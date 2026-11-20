@@ -955,6 +955,9 @@ export default function DashboardPage() {
 
         setUserId(session.user.id);
         
+        // Touch updated_at for active presence tracking
+        supabase.from("users").update({ updated_at: new Date().toISOString() }).eq("id", session.user.id).then(() => {});
+        
         // Load User info
         const { data: userRecord, error: userError } = await supabase
           .from("users")

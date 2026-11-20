@@ -50,6 +50,40 @@ function calculateAge(dobString?: string): number {
   return age;
 }
 
+function formatLastActive(dateStr?: string | null): { text: string; isRecent: boolean; title: string } {
+  if (!dateStr) return { text: "Never", isRecent: false, title: "No recorded activity" };
+
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return { text: "Never", isRecent: false, title: "Invalid date" };
+
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+
+  const fullDate = date.toLocaleString();
+
+  if (diffSec < 60 && diffSec >= 0) {
+    return { text: "Just now", isRecent: true, title: fullDate };
+  }
+  if (diffMin < 60 && diffMin >= 0) {
+    return { text: `${diffMin}m ago`, isRecent: diffMin <= 15, title: fullDate };
+  }
+  if (diffHour < 24 && diffHour >= 0) {
+    return { text: `${diffHour}h ago`, isRecent: false, title: fullDate };
+  }
+  if (diffDay === 1) {
+    return { text: "Yesterday", isRecent: false, title: fullDate };
+  }
+  if (diffDay < 7 && diffDay > 1) {
+    return { text: `${diffDay}d ago`, isRecent: false, title: fullDate };
+  }
+
+  return { text: date.toLocaleDateString(), isRecent: false, title: fullDate };
+}
+
 export default function AdminDashboardPage() {
   // Authentication State
   const [authStatus, setAuthStatus] = useState<"checking" | "unauthenticated" | "authenticated">("checking");
@@ -819,7 +853,7 @@ export default function AdminDashboardPage() {
                       <th>University</th>
                       <th>Wallet Balance</th>
                       <th>Status</th>
-                      <th>Created</th>
+                      <th>Last Active</th>
                       <th style={{ textAlign: "right" }}>Actions</th>
                     </tr>
                   </thead>
@@ -879,21 +913,33 @@ export default function AdminDashboardPage() {
                                 <span style={{ color: "#f59e0b", fontWeight: 600, fontSize: "0.75rem" }}>⏳ Incomplete</span>
                               )}
                             </td>
-                            <td style={{ fontSize: "0.75rem", color: "#9ca3af" }}>
-                              {new Date(user.created_at).toLocaleDateString()}
-                            </td>
+                            {(() => {
+                              const activeInfo = formatLastActive(user.last_active_at || user.updated_at || user.created_at);
+                              return (
+                                <td style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }} title={activeInfo.title}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                                    {activeInfo.isRecent && (
+                                      <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981", display: "inline-block", boxShadow: "0 0 6px #10b981" }} />
+                                    )}
+                                    <span style={{ color: activeInfo.isRecent ? "#34d399" : "#9ca3af", fontWeight: activeInfo.isRecent ? 600 : 400 }}>
+                                      {activeInfo.text}
+                                    </span>
+                                  </div>
+                                </td>
+                              );
+                            })()}
                             <td style={{ textAlign: "right" }}>
-                              <div className={s.actionBtnGroup} style={{ justifyContent: "flex-end" }}>
+                              <div className={s.actionBtnGroup} style={{ justifyContent: "flex-end", gap: "0.3rem" }}>
                                 <button
                                   className={s.smallActionBtn}
                                   onClick={() => {
                                     setEditingWalletUser(user);
                                     setNewWalletBalance(user.wallet_balance || 0);
                                   }}
-                                  title="Edit Wallet Balance"
-                                  style={{ color: "#34d399" }}
+                                  title="Edit Wallet Balance (₹)"
+                                  style={{ padding: "0.35rem 0.55rem", fontSize: "0.95rem", lineHeight: 1 }}
                                 >
-                                  💳 Edit Wallet
+                                  💳
                                 </button>
                                 <button
                                   className={s.smallActionBtn}
@@ -901,32 +947,39 @@ export default function AdminDashboardPage() {
                                     setDroppingCreditUser(user);
                                     setDropAmount(69);
                                   }}
-                                  title="Drop Free Credits (₹69) & Send Email from drops@blindside.in"
-                                  style={{ color: "#fbbf24", background: "rgba(251, 191, 36, 0.08)" }}
+                                  title="Drop Free Credits (₹69)"
+                                  style={{ padding: "0.35rem 0.55rem", fontSize: "0.95rem", lineHeight: 1, background: "rgba(251, 191, 36, 0.08)" }}
                                 >
-                                  🎁 Drop ₹69
+                                  🎁
                                 </button>
                                 <button
                                   className={s.smallActionBtn}
                                   onClick={() => setViewingProfileUser(user)}
                                   title="View Full Profile Details"
+                                  style={{ padding: "0.35rem 0.55rem", fontSize: "0.95rem", lineHeight: 1 }}
                                 >
-                                  👁️ Profile
+                                  👁️
                                 </button>
                                 <button
                                   className={s.smallActionBtn}
                                   onClick={() => handleToggleSuspension(user)}
-                                  style={{ color: user.is_suspended ? "#10b981" : "#f87171" }}
+                                  title={user.is_suspended ? "Unsuspend User (Resume)" : "Suspend User (Pause)"}
+                                  style={{
+                                    padding: "0.35rem 0.55rem",
+                                    fontSize: "0.95rem",
+                                    lineHeight: 1,
+                                    background: user.is_suspended ? "rgba(16, 185, 129, 0.12)" : "rgba(248, 113, 113, 0.12)",
+                                  }}
                                 >
-                                  {user.is_suspended ? "Unsuspend" : "Suspend"}
+                                  {user.is_suspended ? "▶️" : "⏸️"}
                                 </button>
                                 <button
                                   className={s.smallActionBtn}
                                   onClick={() => setDeletingUser(user)}
                                   title="Permanently Delete User"
-                                  style={{ color: "#ef4444", background: "rgba(239, 68, 68, 0.08)" }}
+                                  style={{ padding: "0.35rem 0.55rem", fontSize: "0.95rem", lineHeight: 1, background: "rgba(239, 68, 68, 0.1)" }}
                                 >
-                                  🗑️ Delete
+                                  🗑️
                                 </button>
                               </div>
                             </td>

@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
         is_suspended,
         is_first_match_used,
         created_at,
+        updated_at,
         university_id,
         universities (
           id,
@@ -75,12 +76,76 @@ export async function GET(request: NextRequest) {
       await Promise.all(photoPromises);
     }
 
-    // Attach signedPhotoUrl to each user object
-    const enrichedUsers = (users || []).map((u) => ({
-      ...u,
-      wallet_balance: parseFloat((u.wallets as any)?.balance ?? 0),
-      signed_photo_url: signedPhotoMap[u.id] || "",
-    }));
+    // 2.1 Fetch Auth user sign-in times and recent activity timestamps
+    const authSignInMap: Record<string, string> = {};
+    try {
+      const { data: authList } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+      if (authList?.users) {
+        authList.users.forEach((au) => {
+          if (au.last_sign_in_at) {
+            authSignInMap[au.id] = au.last_sign_in_at;
+          }
+        });
+      }
+    } catch (authErr) {
+      console.warn("Could not fetch auth sign-in times:", authErr);
+    }
+
+    // Latest message timestamp per user
+    const latestMessageMap: Record<string, string> = {};
+    try {
+      const { data: latestMsgs } = await supabase
+        .from("messages")
+        .select("sender_id, created_at")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+      (latestMsgs || []).forEach((m) => {
+        if (m.sender_id && !latestMessageMap[m.sender_id]) {
+          latestMessageMap[m.sender_id] = m.created_at;
+        }
+      });
+    } catch {}
+
+    // Latest match request timestamp per user
+    const latestReqMap: Record<string, string> = {};
+    try {
+      const { data: latestReqs } = await supabase
+        .from("match_requests")
+        .select("user_id, created_at")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+      (latestReqs || []).forEach((r) => {
+        if (r.user_id && !latestReqMap[r.user_id]) {
+          latestReqMap[r.user_id] = r.created_at;
+        }
+      });
+    } catch {}
+
+    // Attach signedPhotoUrl, wallet_balance, and calculated last_active_at
+    const enrichedUsers = (users || []).map((u) => {
+      const timestamps = [
+        u.created_at,
+        u.updated_at,
+        authSignInMap[u.id],
+        latestMessageMap[u.id],
+        latestReqMap[u.id],
+      ].filter(Boolean) as string[];
+
+      let lastActiveAt = u.created_at;
+      if (timestamps.length > 0) {
+        const maxTime = Math.max(...timestamps.map((t) => new Date(t).getTime()));
+        if (!isNaN(maxTime) && maxTime > 0) {
+          lastActiveAt = new Date(maxTime).toISOString();
+        }
+      }
+
+      return {
+        ...u,
+        wallet_balance: parseFloat((u.wallets as any)?.balance ?? 0),
+        signed_photo_url: signedPhotoMap[u.id] || "",
+        last_active_at: lastActiveAt,
+      };
+    });
 
     // 3. Fetch Match Requests (Active and Historical)
     const { data: requests, error: reqsErr } = await supabase
