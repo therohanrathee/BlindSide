@@ -512,22 +512,22 @@ export default function LandingPage() {
                       </div>
                     </div>
                     <span className={s.frostedStatusText}>
-                      🔒 Identity Protected &amp; Frosted
+                      Identity Protected
                     </span>
                   </div>
 
                   <div className={s.featureChecksBox}>
                     <div className={s.featureCheckRow}>
                       <span>Campus Directory Search</span>
-                      <span className={s.checkBadgeOff}>Blocked 🚫</span>
+                      <span className={s.checkBadgeOff}>Blocked</span>
                     </div>
                     <div className={s.featureCheckRow}>
                       <span>Public Face Broadcast</span>
-                      <span className={s.checkBadgeOff}>Disabled ❌</span>
+                      <span className={s.checkBadgeOff}>Disabled</span>
                     </div>
                     <div className={s.featureCheckRow}>
                       <span>Mutual Consent Reveal</span>
-                      <span className={s.checkBadgeOn}>Required ✓</span>
+                      <span className={s.checkBadgeOn}>Required</span>
                     </div>
                   </div>
 
@@ -585,15 +585,15 @@ export default function LandingPage() {
                   <div className={s.featureChecksBox}>
                     <div className={s.featureCheckRow}>
                       <span>Plaintext Storage</span>
-                      <span className={s.checkBadgeOff}>Zero (Never Saved)</span>
+                      <span className={s.checkBadgeOff}>Never Stored</span>
                     </div>
                     <div className={s.featureCheckRow}>
                       <span>Row-Level Security (RLS)</span>
-                      <span className={s.checkBadgeOn}>Enforced ✓</span>
+                      <span className={s.checkBadgeOn}>Enforced</span>
                     </div>
                     <div className={s.featureCheckRow}>
                       <span>At-Rest Volume Encryption</span>
-                      <span className={s.checkBadgeOn}>AES-256 ✓</span>
+                      <span className={s.checkBadgeOn}>Active</span>
                     </div>
                   </div>
                 </div>
@@ -624,7 +624,7 @@ export default function LandingPage() {
                       <MessageSquareIcon />
                       <span>Ephemeral Blind Dialogue</span>
                     </div>
-                    <span className={s.privacyCardBadge}>⏱️ 47:59:12 Auto-Expire</span>
+                    <span className={s.privacyCardBadge}>48h Auto-Expire</span>
                   </div>
 
                   <div className={s.ephemeralChatBox}>
@@ -640,15 +640,15 @@ export default function LandingPage() {
                   <div className={s.featureChecksBox}>
                     <div className={s.featureCheckRow}>
                       <span>Commercial Ad Trackers</span>
-                      <span className={s.checkBadgeOn}>0 Found (Blocked)</span>
+                      <span className={s.checkBadgeOn}>Zero</span>
                     </div>
                     <div className={s.featureCheckRow}>
                       <span>AI Training on Messages</span>
-                      <span className={s.checkBadgeOff}>Prohibited 🚫</span>
+                      <span className={s.checkBadgeOff}>Prohibited</span>
                     </div>
                     <div className={s.featureCheckRow}>
                       <span>Ephemeral Lifecycle</span>
-                      <span className={s.checkBadgeOn}>Auto-Purge ✓</span>
+                      <span className={s.checkBadgeOn}>Auto-Purge</span>
                     </div>
                   </div>
                 </div>
@@ -685,33 +685,33 @@ export default function LandingPage() {
                   <div className={s.purgeChecklist}>
                     <div className={s.purgeItem}>
                       <div className={s.purgeItemTarget}>
-                        <span>👤 Profile &amp; Photos</span>
+                        <span>Profile &amp; Photos</span>
                       </div>
-                      <span className={s.purgeStatusWiped}>Wiped ✓</span>
+                      <span className={s.purgeStatusWiped}>Wiped</span>
                     </div>
                     <div className={s.purgeItem}>
                       <div className={s.purgeItemTarget}>
-                        <span>💬 Ephemeral Chat Logs</span>
+                        <span>Chat History</span>
                       </div>
-                      <span className={s.purgeStatusWiped}>Shredded ✓</span>
+                      <span className={s.purgeStatusWiped}>Shredded</span>
                     </div>
                     <div className={s.purgeItem}>
                       <div className={s.purgeItemTarget}>
-                        <span>📍 Location Coordinates</span>
+                        <span>Location Data</span>
                       </div>
-                      <span className={s.purgeStatusWiped}>Purged ✓</span>
+                      <span className={s.purgeStatusWiped}>Purged</span>
                     </div>
                     <div className={s.purgeItem}>
                       <div className={s.purgeItemTarget}>
-                        <span>💳 Wallet &amp; Auth Credentials</span>
+                        <span>Credentials &amp; Wallet</span>
                       </div>
-                      <span className={s.purgeStatusWiped}>Zeroed ✓</span>
+                      <span className={s.purgeStatusWiped}>Zeroed</span>
                     </div>
                   </div>
 
                   <div className={s.purgeFooterBar}>
-                    <span className={s.purgeStat}>Residual Data: 0.00 KB</span>
-                    <span className={s.purgeGuarantee}>100% Right to Forget</span>
+                    <span className={s.purgeStat}>Residual Data: 0 bytes</span>
+                    <span className={s.purgeGuarantee}>Complete Erasure</span>
                   </div>
                 </div>
               </div>
