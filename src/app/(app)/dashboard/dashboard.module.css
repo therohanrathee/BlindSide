@@ -1038,6 +1038,24 @@
   background: var(--bg-primary);
 }
 
+:global([data-theme="light"]) .reportWarningText {
+  color: #dc2626;
+}
+
+:global([data-theme="light"]) .reportVibeNoticeText {
+  color: #374151;
+}
+
+:global([data-theme="light"]) .reportVibeNoticeBox {
+  background: rgba(232, 58, 114, 0.05);
+  border-color: rgba(232, 58, 114, 0.2);
+}
+
+:global([data-theme="light"]) .reportWarningBox {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
 @media (prefers-color-scheme: light) {
   :global(:root:not([data-theme="dark"])) .stateCard,
   :global(:root:not([data-theme="dark"])) .searchingCard,
@@ -3203,20 +3221,77 @@
   color: var(--error);
 }
 
+.reportReasonBtn.selectedVibe {
+  background: rgba(232, 58, 114, 0.1);
+  border-color: var(--accent-primary, #e83a72);
+  color: var(--accent-primary, #e83a72);
+}
+
 .reportWarningBox {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.25rem;
   text-align: left;
 }
 
 .reportWarningText {
   color: #fca5a5;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.5;
   margin: 0;
+}
+
+.reportVibeNoticeBox {
+  background: rgba(232, 58, 114, 0.08);
+  border: 1px solid rgba(232, 58, 114, 0.25);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.reportVibeNoticeText {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.reportCommentsLabel {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.45rem;
+}
+
+.reportTextarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 75px;
+  max-height: 160px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.reportTextarea:focus {
+  outline: none;
+  border-color: var(--accent-primary, #e83a72);
+  box-shadow: 0 0 0 3px rgba(232, 58, 114, 0.15);
+}
+
+.reportTextarea::placeholder {
+  color: var(--text-muted);
 }
 
 /* Wallet Top-up Modal */

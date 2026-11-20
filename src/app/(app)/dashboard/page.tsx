@@ -509,6 +509,7 @@ export default function DashboardPage() {
   const [editPhotoLoading, setEditPhotoLoading] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState<string | null>(null);
+  const [reportComments, setReportComments] = useState("");
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [reportSuccess, setReportSuccess] = useState(false);
   const [showMobileInfoDrawer, setShowMobileInfoDrawer] = useState(false);
@@ -1832,25 +1833,44 @@ export default function DashboardPage() {
     if (!reportReason || !activeMatch || !partnerProfile || !userId) return;
     setReportSubmitting(true);
     
-    const payload = {
-      reporter_id: userId,
-      reported_id: partnerProfile.id,
-      match_id: activeMatch.id,
-      category: reportReason,
-      status: "pending"
-    };
-    
-    console.log("Submitting report payload:", payload);
+    const comments = reportComments.trim();
 
-    // 1. Insert report
-    const { error: reportError } = await supabase
-      .from("reports")
-      .insert(payload);
+    // 1. If safety infraction, submit to reports table for moderation
+    if (reportReason !== "vibe_not_matched") {
+      const payload: any = {
+        reporter_id: userId,
+        reported_id: partnerProfile.id,
+        match_id: activeMatch.id,
+        category: reportReason,
+        description: comments || null,
+        status: "pending"
+      };
+      
+      console.log("Submitting report payload:", payload);
 
-    if (reportError) {
-      console.error("Error submitting report:", JSON.stringify(reportError, null, 2), reportError.message, reportError.details);
-      setReportSubmitting(false);
-      return;
+      const { error: reportError } = await supabase
+        .from("reports")
+        .insert(payload);
+
+      if (reportError) {
+        console.error("Error submitting report:", JSON.stringify(reportError, null, 2), reportError.message, reportError.details);
+        setReportSubmitting(false);
+        return;
+      }
+    } else {
+      // For "Vibe not matched", record in feedback table as quality feedback without penalizing the partner
+      try {
+        await supabase.from("feedback").insert({
+          match_id: activeMatch.id,
+          user_id: userId,
+          attended: false,
+          vibe_rating: 1,
+          would_meet_again: "no",
+          free_text: comments ? `[Vibe Not Matched] ${comments}` : "Vibe not matched",
+        });
+      } catch (feedbackErr) {
+        console.warn("Feedback insert error on unmatch (non-fatal):", feedbackErr);
+      }
     }
 
     // 2. Permanently block this user to ensure they are never matched again
@@ -2637,6 +2657,7 @@ export default function DashboardPage() {
             style={{ width: "100%", color: "#ef4444", borderColor: "rgba(239,68,68,0.2)", padding: "0.8rem", fontSize: "0.95rem" }}
             onClick={() => {
               setReportReason(null);
+              setReportComments("");
               setReportSuccess(false);
               setShowReportModal(true);
             }}
@@ -4125,14 +4146,18 @@ export default function DashboardPage() {
           ================================================== */}
       {showReportModal && (
         <div className={s.editOverlayModal} style={{ zIndex: 9999 }}>
-          <div className={s.editModalContent} style={{ maxWidth: "450px", alignSelf: "center", justifySelf: "center", margin: "auto" }}>
+          <div className={s.editModalContent} style={{ maxWidth: "480px", alignSelf: "center", justifySelf: "center", margin: "auto", padding: "1.75rem" }}>
             
             {reportSuccess ? (
               <div style={{ textAlign: "center", padding: "2rem 1rem" }}>
                 <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>✅</div>
-                <h2 className={s.modalTitle} style={{ marginBottom: "1rem", color: "var(--success)" }}>Report Submitted</h2>
+                <h2 className={s.modalTitle} style={{ marginBottom: "1rem", color: "var(--success)" }}>
+                  {reportReason === "vibe_not_matched" ? "Unmatched Successfully" : "Report Submitted"}
+                </h2>
                 <p className={s.modalSubtitle} style={{ marginBottom: "2rem", lineHeight: 1.6 }}>
-                  We aim to create a safe platform for everyone. Thanks for helping out! You have been unmatched.
+                  {reportReason === "vibe_not_matched"
+                    ? "You have been unmatched and your match search has been released. You won't be matched with this person again."
+                    : "We aim to create a safe platform for everyone. Thanks for helping out! You have been unmatched."}
                 </p>
                 <button
                   type="button"
@@ -4150,39 +4175,76 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
-                <h2 className={s.modalTitle} style={{ marginBottom: "0.5rem" }}>Report & Unmatch</h2>
-                <p className={s.modalSubtitle} style={{ marginBottom: "1.5rem" }}>
-                  Please select a reason for reporting this user.
+                <h2 className={s.modalTitle} style={{ marginBottom: "0.5rem" }}>
+                  {reportReason === "vibe_not_matched" ? "Unmatch" : "Report & Unmatch"}
+                </h2>
+                <p className={s.modalSubtitle} style={{ marginBottom: "1.25rem" }}>
+                  Please select a reason to end this match.
                 </p>
 
-                <div style={{ marginBottom: "1.5rem" }}>
+                <div style={{ marginBottom: "1rem" }}>
                   {[
+                    { id: "vibe_not_matched", label: "Vibe not matched" },
                     { id: "harassment", label: "Harassment or bullying" },
+                    { id: "inappropriate_messages", label: "Inappropriate messages" },
                     { id: "fake_profile", label: "Fake profile / Catfishing" },
                     { id: "no_show", label: "No show on confirmed date" },
-                    { id: "inappropriate_messages", label: "Inappropriate messages" }
-                  ].map((reason) => (
-                    <button
-                      key={reason.id}
-                      type="button"
-                      className={`${s.reportReasonBtn} ${reportReason === reason.id ? s.selected : ""}`}
-                      onClick={() => setReportReason(reason.id)}
-                    >
-                      {reason.label}
-                      {reportReason === reason.id && <span>✓</span>}
-                    </button>
-                  ))}
+                  ].map((reason) => {
+                    const isSelected = reportReason === reason.id;
+                    const isVibe = reason.id === "vibe_not_matched";
+                    return (
+                      <button
+                        key={reason.id}
+                        type="button"
+                        className={`${s.reportReasonBtn} ${isSelected ? (isVibe ? s.selectedVibe : s.selected) : ""}`}
+                        onClick={() => setReportReason(reason.id)}
+                      >
+                        <span>{reason.label}</span>
+                        {isSelected && <span>✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Additional Comments (Optional) */}
+                <div style={{ marginBottom: "1.25rem" }}>
+                  <label className={s.reportCommentsLabel}>
+                    Additional Comments (Optional)
+                  </label>
+                  <textarea
+                    className={s.reportTextarea}
+                    placeholder={
+                      reportReason === "vibe_not_matched"
+                        ? "Share any feedback about why the vibe didn't match (optional)..."
+                        : "Provide any additional details or context for moderators (optional)..."
+                    }
+                    value={reportComments}
+                    onChange={(e) => setReportComments(e.target.value)}
+                    rows={3}
+                    maxLength={500}
+                  />
+                  <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
+                    {reportComments.length}/500
+                  </div>
                 </div>
 
                 {reportReason && (
-                  <div className={s.reportWarningBox}>
-                    <p className={s.reportWarningText}>
-                      <strong>Warning:</strong> You will be unmatched immediately. To run the matching algorithm again, you will need to pay the matching fee again.
-                    </p>
-                  </div>
+                  reportReason === "vibe_not_matched" ? (
+                    <div className={s.reportVibeNoticeBox}>
+                      <p className={s.reportVibeNoticeText}>
+                        💡 <strong>Unmatch Notice:</strong> You will be unmatched immediately. Neither of you will see each other in match searches again.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className={s.reportWarningBox}>
+                      <p className={s.reportWarningText}>
+                        ⚠️ <strong>Warning:</strong> You will be unmatched immediately. Our moderation team will review this report for safety violations.
+                      </p>
+                    </div>
+                  )
                 )}
 
-                <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
+                <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem" }}>
                   <button
                     type="button"
                     className="btn btn-ghost"
@@ -4190,6 +4252,7 @@ export default function DashboardPage() {
                     onClick={() => {
                       setShowReportModal(false);
                       setReportReason(null);
+                      setReportComments("");
                     }}
                     disabled={reportSubmitting}
                   >
@@ -4198,11 +4261,17 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    style={{ flex: 1, backgroundColor: "#ef4444", borderColor: "#ef4444" }}
+                    style={{
+                      flex: 1,
+                      backgroundColor: reportReason === "vibe_not_matched" ? "var(--accent-primary, #e83a72)" : "#ef4444",
+                      borderColor: reportReason === "vibe_not_matched" ? "var(--accent-primary, #e83a72)" : "#ef4444"
+                    }}
                     onClick={handleReportSubmit}
                     disabled={!reportReason || reportSubmitting}
                   >
-                    {reportSubmitting ? "Submitting..." : "Report & Unmatch"}
+                    {reportSubmitting 
+                      ? "Submitting..." 
+                      : (reportReason === "vibe_not_matched" ? "Unmatch" : "Report & Unmatch")}
                   </button>
                 </div>
               </>
