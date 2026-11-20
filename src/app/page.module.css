@@ -1292,6 +1292,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   font-size: 0.775rem;
   color: var(--text-secondary);
 }
@@ -1305,6 +1306,8 @@
   border-radius: 999px;
   border: 1px solid rgba(239, 68, 68, 0.18);
   letter-spacing: 0.02em;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .checkBadgeOn {
@@ -1316,6 +1319,8 @@
   border-radius: 999px;
   border: 1px solid rgba(16, 185, 129, 0.18);
   letter-spacing: 0.02em;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Mutual Consent Pill in Card 1 */
@@ -1492,6 +1497,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   padding: 0.6rem 0.85rem;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 10px;
@@ -1515,13 +1521,16 @@
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
   border: 1px solid rgba(16, 185, 129, 0.18);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .purgeFooterBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.65rem 0.9rem;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
   border-radius: 10px;
   background: hsla(0, 72%, 55%, 0.06);
   border: 1px solid hsla(0, 72%, 55%, 0.15);
@@ -1532,12 +1541,14 @@
   font-weight: 600;
   color: var(--error);
   font-family: var(--font-mono, monospace);
+  white-space: nowrap;
 }
 
 .purgeGuarantee {
   font-size: 0.725rem;
   color: var(--text-muted);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .privacyTrustBar {

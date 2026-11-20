@@ -711,7 +711,7 @@ export default function LandingPage() {
 
                   <div className={s.purgeFooterBar}>
                     <span className={s.purgeStat}>Residual Data: 0 bytes</span>
-                    <span className={s.purgeGuarantee}>Permanently Erased</span>
+                    <span className={s.purgeGuarantee}>100% Erased</span>
                   </div>
                 </div>
               </div>
