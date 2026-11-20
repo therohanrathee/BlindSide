@@ -8,6 +8,7 @@ import SplashLoader from "@/components/SplashLoader";
 import s from "./page.module.css";
 import EyeLogo from "@/components/EyeLogo";
 import JourneyPath from "@/components/JourneyPath";
+import PrivacyPath from "@/components/PrivacyPath";
 import AnonymousNodes from "@/components/AnonymousNodes";
 
 /* ============================================
@@ -134,6 +135,8 @@ export default function LandingPage() {
 
   const journeyFlowRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const privacyFlowRef = useRef<HTMLDivElement>(null);
+  const privacyStepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Monitor scroll for navbar transitions
   useEffect(() => {
@@ -165,6 +168,21 @@ export default function LandingPage() {
           }
         },
         { threshold: 0.15 } // Trigger slightly earlier on mobile
+      );
+      observer.observe(step);
+      observers.push(observer);
+    });
+
+    privacyStepRefs.current.forEach((step) => {
+      if (!step) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            step.classList.add(s.stepVisible);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.15 }
       );
       observer.observe(step);
       observers.push(observer);
@@ -451,60 +469,251 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className={s.privacyGrid}>
-            {/* 1. Identity in Your Control */}
-            <div className={s.privacyCard}>
-              <div className={s.privacyIconWrapper}>
-                <UserCheckIcon />
+          <div className={s.privacyFlow} ref={privacyFlowRef}>
+            {/* SVG path drawn on scroll: starts coming out of the right side of the screen */}
+            <PrivacyPath containerRef={privacyFlowRef} stepRefs={privacyStepRefs} />
+
+            {/* Step 1: Identity in Your Control (stepLeft: info left, preview right) */}
+            <div
+              ref={(el) => {
+                privacyStepRefs.current[0] = el;
+              }}
+              className={`${s.privacyStep} ${s.privacyStepLeft}`}
+            >
+              <div className={s.mobileNode} aria-hidden="true" />
+              <div className={s.stepInfo}>
+                <span className={s.stepNumber}>01</span>
+                <h3 className={s.stepTitle}>Identity in Your Control</h3>
+                <span className={s.stepSubtitle}>Zero Face Broadcasting</span>
+                <p className={s.stepDesc}>
+                  No public galleries, no searchable directory, and no awkward campus directory. Your photos and full name are unrevealed by default. You choose if and when to reveal them through mutual consent.
+                </p>
               </div>
-              <h3 className={s.privacyCardTitle}>Identity in Your Control</h3>
-              <p className={s.privacyCardDesc}>
-                No public profiles, no searchable galleries, and no awkward campus directory. Your photos and full name are unrevealed by default. You choose if and when to reveal them through mutual consent.
-              </p>
-              <div className={s.privacyBadge}>
-                <span>✓ Hidden by Default</span>
+
+              <div className={s.stepPreview}>
+                <div className={s.previewCardIdentity}>
+                  <div className={s.privacyCardHeader}>
+                    <div className={s.privacyCardTitleGroup}>
+                      <ShieldIcon />
+                      <span>Discretion Engine</span>
+                    </div>
+                    <span className={s.privacyCardBadge}>Hidden by Default</span>
+                  </div>
+
+                  <div className={s.frostedAvatarContainer}>
+                    <div className={s.frostedAvatarFrame}>
+                      <div className={s.frostedSilhouette}>
+                        <UserCheckIcon />
+                      </div>
+                      <div className={s.frostedVeil}>
+                        <div className={s.frostedLockBadge}>
+                          <LockIcon />
+                        </div>
+                      </div>
+                    </div>
+                    <span className={s.frostedStatusText}>
+                      🔒 Identity Protected &amp; Frosted
+                    </span>
+                  </div>
+
+                  <div className={s.featureChecksBox}>
+                    <div className={s.featureCheckRow}>
+                      <span>Campus Directory Search</span>
+                      <span className={s.checkBadgeOff}>Blocked 🚫</span>
+                    </div>
+                    <div className={s.featureCheckRow}>
+                      <span>Public Face Broadcast</span>
+                      <span className={s.checkBadgeOff}>Disabled ❌</span>
+                    </div>
+                    <div className={s.featureCheckRow}>
+                      <span>Mutual Consent Reveal</span>
+                      <span className={s.checkBadgeOn}>Required ✓</span>
+                    </div>
+                  </div>
+
+                  <div className={s.mutualConsentPill}>
+                    <span>Two-Way Agreement Required to Unveil Profile</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* 2. End-to-End Encryption */}
-            <div className={s.privacyCard}>
-              <div className={s.privacyIconWrapper}>
-                <LockIcon />
+            {/* Step 2: Encrypted Architecture (stepRight: preview left, info right) */}
+            <div
+              ref={(el) => {
+                privacyStepRefs.current[1] = el;
+              }}
+              className={`${s.privacyStep} ${s.privacyStepRight}`}
+            >
+              <div className={s.mobileNode} aria-hidden="true" />
+              <div className={s.stepInfo}>
+                <span className={s.stepNumber}>02</span>
+                <h3 className={s.stepTitle}>Encrypted Architecture</h3>
+                <span className={s.stepSubtitle}>Cryptographic Security by Default</span>
+                <p className={s.stepDesc}>
+                  All account credentials and passwords are encrypted using cryptographic hashing (bcrypt/Argon2). Communications are guarded by TLS 1.3 encryption, and data volumes are strictly encrypted at rest.
+                </p>
               </div>
-              <h3 className={s.privacyCardTitle}>Encrypted Architecture</h3>
-              <p className={s.privacyCardDesc}>
-                All account credentials and passwords are encrypted using cryptographic hashing (bcrypt/Argon2). Communications are guarded by TLS 1.3 encryption, and data volumes are strictly encrypted at rest.
-              </p>
-              <div className={s.privacyBadge}>
-                <span>🔒 Cryptographically Secured</span>
+
+              <div className={s.stepPreview}>
+                <div className={s.previewCardEncryption}>
+                  <div className={s.privacyCardHeader}>
+                    <div className={s.privacyCardTitleGroup}>
+                      <LockIcon />
+                      <span>Cryptographic Vault</span>
+                    </div>
+                    <span className={s.privacyCardBadgeGreen}>TLS 1.3 • AES-256</span>
+                  </div>
+
+                  <div className={s.cryptoPipeline}>
+                    <div className={s.pipelineStage}>
+                      <span className={s.pipelineStageLabel}>User Password</span>
+                      <span className={s.pipelineStageVal}>••••••••••••</span>
+                    </div>
+
+                    <div className={s.pipelineArrowRow}>
+                      <span className={s.pipelineArrowIcon}>↓</span>
+                      <span>One-Way Cryptographic Salt Engine</span>
+                    </div>
+
+                    <div className={s.pipelineStage}>
+                      <span className={s.pipelineStageLabel}>Argon2id Hash</span>
+                      <span className={s.pipelineStageVal}>$argon2id$v=19$m=65536...</span>
+                    </div>
+                  </div>
+
+                  <div className={s.featureChecksBox}>
+                    <div className={s.featureCheckRow}>
+                      <span>Plaintext Storage</span>
+                      <span className={s.checkBadgeOff}>Zero (Never Saved)</span>
+                    </div>
+                    <div className={s.featureCheckRow}>
+                      <span>Row-Level Security (RLS)</span>
+                      <span className={s.checkBadgeOn}>Enforced ✓</span>
+                    </div>
+                    <div className={s.featureCheckRow}>
+                      <span>At-Rest Volume Encryption</span>
+                      <span className={s.checkBadgeOn}>AES-256 ✓</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* 3. Private Conversations */}
-            <div className={s.privacyCard}>
-              <div className={s.privacyIconWrapper}>
-                <MessageSquareIcon />
+            {/* Step 3: Private Conversations (stepLeft: info left, preview right) */}
+            <div
+              ref={(el) => {
+                privacyStepRefs.current[2] = el;
+              }}
+              className={`${s.privacyStep} ${s.privacyStepLeft}`}
+            >
+              <div className={s.mobileNode} aria-hidden="true" />
+              <div className={s.stepInfo}>
+                <span className={s.stepNumber}>03</span>
+                <h3 className={s.stepTitle}>Private 48-Hour Conversations</h3>
+                <span className={s.stepSubtitle}>Ephemeral &amp; Self-Destructing</span>
+                <p className={s.stepDesc}>
+                  Your 48-hour blind conversations are strictly private between you and your match. Auto-expiring countdown window, zero commercial trackers, and zero automated ad profiling.
+                </p>
               </div>
-              <h3 className={s.privacyCardTitle}>Private-by-Default Chats</h3>
-              <p className={s.privacyCardDesc}>
-                Your 48-hour blind conversations are strictly private between you and your match. We never sell your personal data, run ad trackers, or perform automated profiling on your private messages.
-              </p>
-              <div className={s.privacyBadge}>
-                <span>🛡️ Zero Ad Tracking</span>
+
+              <div className={s.stepPreview}>
+                <div className={s.previewCardEphemeral}>
+                  <div className={s.privacyCardHeader}>
+                    <div className={s.privacyCardTitleGroup}>
+                      <MessageSquareIcon />
+                      <span>Ephemeral Blind Dialogue</span>
+                    </div>
+                    <span className={s.privacyCardBadge}>⏱️ 47:59:12 Auto-Expire</span>
+                  </div>
+
+                  <div className={s.ephemeralChatBox}>
+                    <span className={s.ephemeralWatermark}>Confidential • 48H Chat</span>
+                    <div className={s.ephemeralBubbleRec}>
+                      It&apos;s refreshing to talk without someone judging your photos first.
+                    </div>
+                    <div className={s.ephemeralBubbleSent}>
+                      Exactly. And when the countdown hits zero, it auto-shreds completely.
+                    </div>
+                  </div>
+
+                  <div className={s.featureChecksBox}>
+                    <div className={s.featureCheckRow}>
+                      <span>Commercial Ad Trackers</span>
+                      <span className={s.checkBadgeOn}>0 Found (Blocked)</span>
+                    </div>
+                    <div className={s.featureCheckRow}>
+                      <span>AI Training on Messages</span>
+                      <span className={s.checkBadgeOff}>Prohibited 🚫</span>
+                    </div>
+                    <div className={s.featureCheckRow}>
+                      <span>Ephemeral Lifecycle</span>
+                      <span className={s.checkBadgeOn}>Auto-Purge ✓</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* 4. Complete Right to be Forgotten */}
-            <div className={s.privacyCard}>
-              <div className={s.privacyIconWrapper}>
-                <TrashIcon />
+            {/* Step 4: Instant Full Data Deletion (stepRight: preview left, info right) */}
+            <div
+              ref={(el) => {
+                privacyStepRefs.current[3] = el;
+              }}
+              className={`${s.privacyStep} ${s.privacyStepRight}`}
+            >
+              <div className={s.mobileNode} aria-hidden="true" />
+              <div className={s.stepInfo}>
+                <span className={s.stepNumber}>04</span>
+                <h3 className={s.stepTitle}>Instant Full Data Deletion</h3>
+                <span className={s.stepSubtitle}>The Right to be Forgotten</span>
+                <p className={s.stepDesc}>
+                  You own your digital footprint. Request deletion anytime with a single tap, and our systems permanently wipe your profile, photos, chat history, and wallet records forever. Zero residual data.
+                </p>
               </div>
-              <h3 className={s.privacyCardTitle}>Instant Full Data Deletion</h3>
-              <p className={s.privacyCardDesc}>
-                You own your digital footprint. Request deletion anytime with a single tap, and our systems permanently wipe your profile, photos, chat history, and wallet records forever. Zero residual data.
-              </p>
-              <div className={s.privacyBadge}>
-                <span>⚡ 100% Right to Forget</span>
+
+              <div className={s.stepPreview}>
+                <div className={s.previewCardDeletion}>
+                  <div className={s.privacyCardHeader}>
+                    <div className={s.privacyCardTitleGroup}>
+                      <TrashIcon />
+                      <span>Cascade Purge Protocol</span>
+                    </div>
+                    <span className={s.privacyCardBadgeGreen}>DPDP 2023 Compliant</span>
+                  </div>
+
+                  <div className={s.purgeChecklist}>
+                    <div className={s.purgeItem}>
+                      <div className={s.purgeItemTarget}>
+                        <span>👤 Profile &amp; Photos</span>
+                      </div>
+                      <span className={s.purgeStatusWiped}>Wiped ✓</span>
+                    </div>
+                    <div className={s.purgeItem}>
+                      <div className={s.purgeItemTarget}>
+                        <span>💬 Ephemeral Chat Logs</span>
+                      </div>
+                      <span className={s.purgeStatusWiped}>Shredded ✓</span>
+                    </div>
+                    <div className={s.purgeItem}>
+                      <div className={s.purgeItemTarget}>
+                        <span>📍 Location Coordinates</span>
+                      </div>
+                      <span className={s.purgeStatusWiped}>Purged ✓</span>
+                    </div>
+                    <div className={s.purgeItem}>
+                      <div className={s.purgeItemTarget}>
+                        <span>💳 Wallet &amp; Auth Credentials</span>
+                      </div>
+                      <span className={s.purgeStatusWiped}>Zeroed ✓</span>
+                    </div>
+                  </div>
+
+                  <div className={s.purgeFooterBar}>
+                    <span className={s.purgeStat}>Residual Data: 0.00 KB</span>
+                    <span className={s.purgeGuarantee}>100% Right to Forget</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -523,7 +732,7 @@ export default function LandingPage() {
             <div className={s.trustBarDivider} />
             <div className={s.trustBarItem}>
               <span className={s.trustBarIcon}>🛡️</span>
-              <span>Human Moderation & Incident Reporting</span>
+              <span>Human Moderation &amp; Incident Reporting</span>
             </div>
           </div>
         </div>

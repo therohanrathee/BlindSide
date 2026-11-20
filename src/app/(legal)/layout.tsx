@@ -39,7 +39,6 @@ export default function LegalLayout({
           <Link href="/" className={styles.legalBrandLink} id="legal-home-link">
             <EyeLogo width={22} height={22} animated={false} />
             <span>BlindSide</span>
-            <span className={styles.brandBadge}>Legal & Safety</span>
           </Link>
 
           <div className={styles.legalNavActions}>

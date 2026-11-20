@@ -1039,10 +1039,10 @@
 }
 
 /* ============================================
-   PRIVACY SECTION
+   PRIVACY SECTION (Engineered for Discretion)
    ============================================ */
 .privacySection {
-  padding: 80px 0 60px;
+  padding: 100px 0 60px;
   position: relative;
   z-index: 1;
 }
@@ -1053,96 +1053,443 @@
   padding: 0 var(--space-lg);
 }
 
-.privacyGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+.privacyFlow {
+  position: relative;
+  padding: 2rem 0;
 }
 
-.privacyCard {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  padding: 2.25rem 2rem;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+/* Individual Privacy Step (Alternating Layout) */
+.privacyStep {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3.5rem;
+  align-items: center;
+  padding: 5rem var(--space-lg);
+  min-height: 75vh;
+  position: relative;
+}
+
+.privacyStep:last-child {
+  min-height: auto;
+  padding-bottom: 2rem;
+}
+
+/* Alternating Alignment */
+.privacyStepLeft .stepInfo {
+  grid-column: 1;
+  grid-row: 1;
+}
+.privacyStepLeft .stepPreview {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+}
+
+.privacyStepRight .stepInfo {
+  grid-column: 2;
+  grid-row: 1;
+}
+.privacyStepRight .stepPreview {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+}
+
+/* Base Glassmorphic Container for Privacy Preview Cards */
+.previewCardIdentity,
+.previewCardEncryption,
+.previewCardEphemeral,
+.previewCardDeletion {
+  width: 100%;
+  max-width: 440px;
+  background: hsla(230, 20%, 14%, 0.4);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid hsla(230, 15%, 35%, 0.35);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: inset 0 1px 1px 0 hsla(0, 0%, 100%, 0.12),
+              0 16px 40px -10px hsla(0, 0%, 0%, 0.5);
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(12px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.privacyCard::before {
+.previewCardIdentity:hover,
+.previewCardEncryption:hover,
+.previewCardEphemeral:hover,
+.previewCardDeletion:hover {
+  transform: translateY(-4px);
+  border-color: hsla(340, 82%, 55%, 0.5);
+  box-shadow: inset 0 1px 1px 0 hsla(0, 0%, 100%, 0.15),
+              0 24px 48px -12px hsla(0, 0%, 0%, 0.6),
+              0 0 30px hsla(340, 82%, 55%, 0.18);
+}
+
+/* Subtle top gradient bar for cards */
+.previewCardIdentity::before,
+.previewCardEncryption::before,
+.previewCardEphemeral::before,
+.previewCardDeletion::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(232, 58, 114, 0.4), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  opacity: 0.6;
 }
 
-.privacyCard:hover {
-  transform: translateY(-4px);
-  border-color: rgba(232, 58, 114, 0.35);
-  background: rgba(232, 58, 114, 0.03);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 20px rgba(232, 58, 114, 0.1);
+/* Card Header */
+.privacyCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
 }
 
-.privacyCard:hover::before {
-  opacity: 1;
+.privacyCardTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.privacyIconWrapper {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: rgba(232, 58, 114, 0.1);
-  border: 1px solid rgba(232, 58, 114, 0.25);
+.privacyCardBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  background: hsla(340, 82%, 55%, 0.15);
+  color: var(--accent-primary);
+  border: 1px solid hsla(340, 82%, 55%, 0.3);
+}
+
+.privacyCardBadgeGreen {
+  background: hsla(150, 60%, 45%, 0.12);
+  color: var(--success);
+  border-color: hsla(150, 60%, 45%, 0.3);
+}
+
+/* Card 1: Identity Frosted Avatar Illustration */
+.frostedAvatarContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  margin-bottom: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  position: relative;
+}
+
+.frostedAvatarFrame {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent-primary);
-  margin-bottom: 1.25rem;
-  transition: transform 0.3s ease;
+  background: radial-gradient(circle, hsla(340, 82%, 55%, 0.2) 0%, hsla(255, 65%, 60%, 0.1) 70%, transparent 100%);
+  border: 2px solid hsla(340, 82%, 55%, 0.3);
+  margin-bottom: 0.85rem;
+  overflow: hidden;
 }
 
-.privacyCard:hover .privacyIconWrapper {
-  transform: scale(1.08);
-}
-
-.privacyCardTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.01em;
-}
-
-.privacyCardDesc {
-  font-size: 0.925rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
-}
-
-.privacyBadge {
-  display: inline-flex;
+.frostedSilhouette {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: hsla(0, 0%, 100%, 0.15);
+  display: flex;
   align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.frostedVeil {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  background: hsla(230, 25%, 10%, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.frostedLockBadge {
+  background: var(--accent-gradient);
+  color: #ffffff;
+  padding: 0.35rem;
+  border-radius: 50%;
+  display: flex;
+  box-shadow: 0 0 12px hsla(340, 82%, 55%, 0.5);
+}
+
+.frostedStatusText {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Feature checklist box */
+.featureChecksBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.featureCheckRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.checkBadgeOff {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.checkBadgeOn {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+/* Mutual Consent Pill in Card 1 */
+.mutualConsentPill {
+  margin-top: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem;
+  border-radius: 8px;
+  background: hsla(340, 82%, 55%, 0.08);
+  border: 1px solid hsla(340, 82%, 55%, 0.2);
   font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  text-align: center;
+}
+
+/* Card 2: Cryptographic Pipeline Infographic */
+.cryptoPipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.pipelineStage {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pipelineStageLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.pipelineStageVal {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--accent-secondary);
+}
+
+.pipelineArrowRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pipelineArrowIcon {
+  color: var(--accent-primary);
+  animation: bounceDown 1.8s infinite ease-in-out;
+}
+
+@keyframes bounceDown {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+
+.cryptoTagsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.cryptoTagItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.cryptoTagItem strong {
+  color: var(--text-primary);
+}
+
+/* Card 3: Ephemeral Chat Visual */
+.ephemeralChatBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.ephemeralWatermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: hsla(0, 0%, 100%, 0.04);
+  pointer-events: none;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ephemeralBubbleRec {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px 12px 12px 2px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  max-width: 85%;
+  align-self: flex-start;
+  line-height: 1.45;
+}
+
+.ephemeralBubbleSent {
+  background: hsla(340, 82%, 55%, 0.2);
+  border: 1px solid hsla(340, 82%, 55%, 0.35);
+  border-radius: 12px 12px 2px 12px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.8rem;
+  color: #ffffff;
+  max-width: 85%;
+  align-self: flex-end;
+  line-height: 1.45;
+}
+
+.ephemeralMetricsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: hsla(255, 65%, 60%, 0.08);
+  border: 1px solid hsla(255, 65%, 60%, 0.2);
+  border-radius: 10px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Card 4: Cascade Deletion Checklist */
+.purgeChecklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.purgeItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.85rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.78rem;
+}
+
+.purgeItemTarget {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.purgeStatusWiped {
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
   color: #34d399;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  padding: 0.35rem 0.85rem;
-  border-radius: 9999px;
-  align-self: flex-start;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.purgeFooterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: hsla(0, 72%, 55%, 0.08);
+  border: 1px solid hsla(0, 72%, 55%, 0.22);
+}
+
+.purgeStat {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--error);
+}
+
+.purgeGuarantee {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .privacyTrustBar {
@@ -1155,6 +1502,7 @@
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 1.5rem;
+  margin-top: 3rem;
 }
 
 .trustBarItem {
@@ -1679,21 +2027,24 @@
     margin-bottom: 3rem;
   }
 
-  /* Journey mobile: centered single column, SVG path weaves through */
-  .journeyFlow {
+  /* Journey & Privacy mobile: centered single column, SVG path weaves through */
+  .journeyFlow,
+  .privacyFlow {
     padding-left: 0;
     padding-right: 0;
   }
 
-  .journeyStep {
+  .journeyStep,
+  .privacyStep {
     grid-template-columns: 1fr;
     min-height: auto;
     gap: 1.25rem;
-    padding: 2rem var(--space-md);
+    padding: 2.5rem var(--space-md);
     text-align: center;
   }
 
-  .journeyStep:last-child {
+  .journeyStep:last-child,
+  .privacyStep:last-child {
     padding-bottom: 1.5rem;
   }
 
@@ -1701,7 +2052,11 @@
   .stepLeft .stepInfo,
   .stepRight .stepInfo,
   .stepLeft .stepPreview,
-  .stepRight .stepPreview {
+  .stepRight .stepPreview,
+  .privacyStepLeft .stepInfo,
+  .privacyStepRight .stepInfo,
+  .privacyStepLeft .stepPreview,
+  .privacyStepRight .stepPreview {
     grid-column: 1;
     grid-row: auto;
     justify-self: center;
@@ -2108,4 +2463,76 @@
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
   }
+
+  /* Light Theme Privacy Cards Overrides */
+  :global(:root:not([data-theme="dark"])) .previewCardIdentity,
+  :global(:root:not([data-theme="dark"])) .previewCardEncryption,
+  :global(:root:not([data-theme="dark"])) .previewCardEphemeral,
+  :global(:root:not([data-theme="dark"])) .previewCardDeletion {
+    background: hsla(0, 0%, 100%, 0.75);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-color: hsla(0, 0%, 100%, 0.9);
+    box-shadow: inset 0 1px 2px 0 rgba(255, 255, 255, 0.9),
+                0 12px 36px -8px rgba(0, 0, 0, 0.08);
+  }
+  :global(:root:not([data-theme="dark"])) .frostedAvatarContainer,
+  :global(:root:not([data-theme="dark"])) .featureChecksBox,
+  :global(:root:not([data-theme="dark"])) .pipelineStage,
+  :global(:root:not([data-theme="dark"])) .ephemeralChatBox,
+  :global(:root:not([data-theme="dark"])) .purgeItem {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+  :global(:root:not([data-theme="dark"])) .ephemeralBubbleRec {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: var(--text-primary);
+  }
+  :global(:root:not([data-theme="dark"])) .ephemeralBubbleSent {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #ffffff;
+  }
+  :global(:root:not([data-theme="dark"])) .privacyTrustBar {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.07);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  }
+}
+
+/* Explicit data-theme=light Privacy Overrides */
+:global([data-theme="light"]) .previewCardIdentity,
+:global([data-theme="light"]) .previewCardEncryption,
+:global([data-theme="light"]) .previewCardEphemeral,
+:global([data-theme="light"]) .previewCardDeletion {
+  background: hsla(0, 0%, 100%, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-color: hsla(0, 0%, 100%, 0.9);
+  box-shadow: inset 0 1px 2px 0 rgba(255, 255, 255, 0.9),
+              0 12px 36px -8px rgba(0, 0, 0, 0.08);
+}
+:global([data-theme="light"]) .frostedAvatarContainer,
+:global([data-theme="light"]) .featureChecksBox,
+:global([data-theme="light"]) .pipelineStage,
+:global([data-theme="light"]) .ephemeralChatBox,
+:global([data-theme="light"]) .purgeItem {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+:global([data-theme="light"]) .ephemeralBubbleRec {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--text-primary);
+}
+:global([data-theme="light"]) .ephemeralBubbleSent {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #ffffff;
+}
+:global([data-theme="light"]) .privacyTrustBar {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }

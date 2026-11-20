@@ -23,6 +23,18 @@
   z-index: 0;
 }
 
+:global([data-theme="light"]) .legalAmbient {
+  opacity: 0.15;
+  filter: blur(120px);
+}
+
+@media (prefers-color-scheme: light) {
+  :global(:root:not([data-theme="dark"])) .legalAmbient {
+    opacity: 0.15;
+    filter: blur(120px);
+  }
+}
+
 /* Navbar */
 .legalNavHeader {
   position: sticky;
@@ -36,7 +48,17 @@
 }
 
 :global([data-theme="light"]) .legalNavHeader {
-  background: hsla(220, 20%, 97%, 0.85);
+  background: hsla(0, 0%, 100%, 0.92);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.03);
+}
+
+@media (prefers-color-scheme: light) {
+  :global(:root:not([data-theme="dark"])) .legalNavHeader {
+    background: hsla(0, 0%, 100%, 0.92);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.03);
+  }
 }
 
 .legalNavInner {
@@ -572,5 +594,58 @@
   }
   .legalFooterLinks {
     justify-content: center;
+  }
+}
+
+/* ============================================
+   Light Mode General Overrides for Legal Pages
+   ============================================ */
+:global([data-theme="light"]) .tabNav,
+:global([data-theme="light"]) .docSection,
+:global([data-theme="light"]) .docMetaBar {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+:global([data-theme="light"]) .ruleCard,
+:global([data-theme="light"]) .partnerCard {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="light"]) .legalFooter {
+  background: #ffffff;
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .footerSupportBadge {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: light) {
+  :global(:root:not([data-theme="dark"])) .tabNav,
+  :global(:root:not([data-theme="dark"])) .docSection,
+  :global(:root:not([data-theme="dark"])) .docMetaBar {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  }
+
+  :global(:root:not([data-theme="dark"])) .ruleCard,
+  :global(:root:not([data-theme="dark"])) .partnerCard {
+    background: #f8fafc;
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+
+  :global(:root:not([data-theme="dark"])) .legalFooter {
+    background: #ffffff;
+    border-top-color: rgba(0, 0, 0, 0.08);
+  }
+
+  :global(:root:not([data-theme="dark"])) .footerSupportBadge {
+    background: #f8fafc;
+    border-color: rgba(0, 0, 0, 0.1);
   }
 }
