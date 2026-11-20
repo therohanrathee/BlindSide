@@ -399,7 +399,7 @@ export default function LandingPage() {
                       </div>
                       <div className={s.chatHeaderInfo}>
                         <span className={s.chatTargetName}>Mystery Match</span>
-                        <span className={s.chatTargetSub}>JNU • Shared Interests: Reading, Vinyl</span>
+                        <span className={s.chatTargetSub}>KRMU • Shared Interests: Reading, Vinyl</span>
                       </div>
                       <div className={s.chatTimer}>47:59:12</div>
                     </div>
