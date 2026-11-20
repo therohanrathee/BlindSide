@@ -1551,47 +1551,97 @@
   white-space: nowrap;
 }
 
-.privacyTrustBar {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 1.25rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 1.5rem;
+/* Security Assurance Grid (Replaces old Trust Bar) */
+.privacyAssuranceGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
   margin-top: 3.5rem;
 }
 
-.trustBarItem {
+.assuranceCard {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-secondary);
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  background: hsla(230, 24%, 11%, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.3);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.trustBarIcon {
-  font-size: 1.1rem;
+.assuranceCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.4);
 }
 
-.trustBarDivider {
-  width: 1px;
+.assuranceIconBox {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.assuranceIconBox svg {
+  width: 20px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.08);
+}
+
+.assuranceIconRose {
+  background: hsla(340, 82%, 55%, 0.1);
+  border: 1px solid hsla(340, 82%, 55%, 0.2);
+  color: var(--accent-primary);
+}
+
+.assuranceIconPurple {
+  background: hsla(255, 65%, 60%, 0.1);
+  border: 1px solid hsla(255, 65%, 60%, 0.2);
+  color: var(--accent-secondary);
+}
+
+.assuranceIconEmerald {
+  background: hsla(150, 60%, 45%, 0.1);
+  border: 1px solid hsla(150, 60%, 45%, 0.2);
+  color: var(--success);
+}
+
+.assuranceText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.assuranceTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.assuranceDesc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
 }
 
 @media (max-width: 768px) {
-  .privacyTrustBar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.25rem;
+  .privacyAssuranceGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-top: 2rem;
   }
-  .trustBarDivider {
-    display: none;
+  .assuranceCard {
+    padding: 1rem 1.15rem;
   }
 }
 
@@ -1994,6 +2044,7 @@
   color: var(--text-muted);
   text-decoration: none;
   transition: color 0.3s;
+  white-space: nowrap;
 }
 
 .footerLinks a:hover {
@@ -2593,10 +2644,10 @@
   :global(:root:not([data-theme="dark"])) .frostedSilhouette {
     background: rgba(0, 0, 0, 0.04);
   }
-  :global(:root:not([data-theme="dark"])) .privacyTrustBar {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.07);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  :global(:root:not([data-theme="dark"])) .assuranceCard {
+    background: hsla(0, 0%, 100%, 0.75);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   }
 }
 
@@ -2674,8 +2725,8 @@
 :global([data-theme="light"]) .frostedSilhouette {
   background: rgba(0, 0, 0, 0.04);
 }
-:global([data-theme="light"]) .privacyTrustBar {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.07);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+:global([data-theme="light"]) .assuranceCard {
+  background: hsla(0, 0%, 100%, 0.75);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }

@@ -173,11 +173,11 @@ export default function AuthPage() {
             <p className={styles.authLegalText}>
               By continuing, you agree to BlindSide&apos;s{" "}
               <Link href="/terms" target="_blank" rel="noopener noreferrer">
-                Terms of Service
+                Terms&nbsp;of&nbsp;Service
               </Link>{" "}
               and consent to our{" "}
               <Link href="/privacy" target="_blank" rel="noopener noreferrer">
-                Privacy Policy
+                Privacy&nbsp;Policy
               </Link>.
             </p>
           </>
@@ -245,11 +245,11 @@ export default function AuthPage() {
             <p className={styles.authLegalText}>
               By logging in, you agree to BlindSide&apos;s{" "}
               <Link href="/terms" target="_blank" rel="noopener noreferrer">
-                Terms of Service
+                Terms&nbsp;of&nbsp;Service
               </Link>{" "}
               and acknowledge our{" "}
               <Link href="/privacy" target="_blank" rel="noopener noreferrer">
-                Privacy Policy
+                Privacy&nbsp;Policy
               </Link>.
             </p>
           </>

@@ -86,6 +86,15 @@ function TrashIcon() {
   );
 }
 
+function ClockIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
 function MailIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -718,21 +727,36 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Trust Highlights */}
-          <div className={s.privacyTrustBar}>
-            <div className={s.trustBarItem}>
-              <span className={s.trustBarIcon}>🔐</span>
-              <span>All Details &amp; Passwords Encrypted by Default</span>
+          {/* Trust Highlights — 3 Sleek Security Assurance Cards */}
+          <div className={s.privacyAssuranceGrid}>
+            <div className={s.assuranceCard}>
+              <div className={`${s.assuranceIconBox} ${s.assuranceIconRose}`}>
+                <LockIcon />
+              </div>
+              <div className={s.assuranceText}>
+                <h4 className={s.assuranceTitle}>Encrypted by Default</h4>
+                <p className={s.assuranceDesc}>Passwords &amp; personal details hashed with bcrypt</p>
+              </div>
             </div>
-            <div className={s.trustBarDivider} />
-            <div className={s.trustBarItem}>
-              <span className={s.trustBarIcon}>⏱️</span>
-              <span>Chats Automatically Deleted in 48 Hours</span>
+
+            <div className={s.assuranceCard}>
+              <div className={`${s.assuranceIconBox} ${s.assuranceIconPurple}`}>
+                <ClockIcon />
+              </div>
+              <div className={s.assuranceText}>
+                <h4 className={s.assuranceTitle}>48-Hour Auto-Delete</h4>
+                <p className={s.assuranceDesc}>Blind chats automatically shredded upon expiry</p>
+              </div>
             </div>
-            <div className={s.trustBarDivider} />
-            <div className={s.trustBarItem}>
-              <span className={s.trustBarIcon}>🗑️</span>
-              <span>Permanent 1-Tap Account &amp; Data Erasure</span>
+
+            <div className={s.assuranceCard}>
+              <div className={`${s.assuranceIconBox} ${s.assuranceIconEmerald}`}>
+                <TrashIcon />
+              </div>
+              <div className={s.assuranceText}>
+                <h4 className={s.assuranceTitle}>1-Tap Total Erasure</h4>
+                <p className={s.assuranceDesc}>Permanently wipe your account and all data anytime</p>
+              </div>
             </div>
           </div>
         </div>

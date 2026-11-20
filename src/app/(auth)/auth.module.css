@@ -242,6 +242,7 @@
   text-underline-offset: 3px;
   font-weight: 500;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
 .authLegalText a:hover {
