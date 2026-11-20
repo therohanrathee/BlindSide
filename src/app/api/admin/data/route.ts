@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminRequest } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase/server";
+import Razorpay from "razorpay";
 
 export async function GET(request: NextRequest) {
   const isAuth = await verifyAdminRequest(request);
@@ -272,6 +273,51 @@ export async function GET(request: NextRequest) {
       0
     );
 
+    // 7.1 Real Money Collected via Razorpay
+    let totalRazorpayRevenue = 0;
+    let razorpaySuccessCount = 0;
+    let fetchedFromRazorpayApi = false;
+
+    // Fetch DB payments with status = 'paid'
+    let dbPaidRevenue = 0;
+    let dbPaidCount = 0;
+    try {
+      const { data: dbPayments } = await supabase
+        .from("payments")
+        .select("amount, status");
+      const paidList = (dbPayments || []).filter((p: any) => p.status === "paid");
+      dbPaidCount = paidList.length;
+      dbPaidRevenue = paidList.reduce((acc: number, p: any) => acc + (parseFloat(p.amount) || 0), 0);
+    } catch (dbErr) {
+      console.warn("Could not fetch DB payments:", dbErr);
+    }
+
+    // Try fetching from Razorpay API directly to reconcile gateway settlements
+    const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (razorpayKeyId && razorpayKeySecret) {
+      try {
+        const razorpay = new Razorpay({
+          key_id: razorpayKeyId,
+          key_secret: razorpayKeySecret,
+        });
+        const rzpResponse = await razorpay.payments.all({ count: 100 });
+        const captured = (rzpResponse?.items || []).filter((p: any) => p.status === "captured");
+        const rzpCapturedRevenue = captured.reduce((acc: number, p: any) => acc + (p.amount / 100), 0);
+        totalRazorpayRevenue = Math.max(rzpCapturedRevenue, dbPaidRevenue);
+        razorpaySuccessCount = Math.max(captured.length, dbPaidCount);
+        fetchedFromRazorpayApi = true;
+      } catch (rzpErr) {
+        console.warn("Could not fetch directly from Razorpay API, falling back to DB payments table:", rzpErr);
+      }
+    }
+
+    if (!fetchedFromRazorpayApi) {
+      totalRazorpayRevenue = dbPaidRevenue;
+      razorpaySuccessCount = dbPaidCount;
+    }
+
     const totalRequests = enrichedRequests.length;
     const totalActiveRequests = activeRequests.length;
     const totalMatchedRequests = enrichedRequests.filter((r) => r.status === "matched").length;
@@ -291,6 +337,8 @@ export async function GET(request: NextRequest) {
       otherUsers,
       totalWalletBalance: Math.round(totalWalletBalance * 100) / 100,
       totalMatchFeesPaid: Math.round(totalMatchFeesPaid * 100) / 100,
+      totalRazorpayRevenue: Math.round(totalRazorpayRevenue * 100) / 100,
+      razorpaySuccessCount,
       totalRequests,
       activeRequestsCount: totalActiveRequests,
       matchedRequestsCount: totalMatchedRequests,

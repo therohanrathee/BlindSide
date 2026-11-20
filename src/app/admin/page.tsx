@@ -735,10 +735,14 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className={s.statCard}>
-                  <div className={s.statIcon}>💰</div>
-                  <div className={s.statLabel}>Total Wallets Float</div>
-                  <div className={s.statValue} style={{ color: "#10b981" }}>₹{stats.totalWalletBalance}</div>
-                  <div className={s.statSubtext}>₹{stats.totalMatchFeesPaid} lifetime match search fees collected</div>
+                  <div className={s.statIcon}>💳</div>
+                  <div className={s.statLabel}>Total Razorpay Collected</div>
+                  <div className={s.statValue} style={{ color: "#10b981" }}>
+                    ₹{stats.totalRazorpayRevenue ?? 0}
+                  </div>
+                  <div className={s.statSubtext}>
+                    {stats.razorpaySuccessCount ?? 0} successful payments | ₹{stats.totalWalletBalance} wallet float
+                  </div>
                 </div>
               </div>
 
