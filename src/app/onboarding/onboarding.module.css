@@ -542,26 +542,63 @@
 
 .locationBtn {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.85rem 1rem;
   font-weight: 600;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   border: 1px solid var(--accent-primary);
-  background: transparent;
-  color: var(--accent-primary);
+  background: var(--accent-primary);
+  color: #ffffff;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px hsla(340, 82%, 55%, 0.25);
 }
 
-.locationBtn:hover {
-  background: var(--accent-primary);
-  color: white;
+.locationBtn:hover:not(:disabled) {
+  background: var(--accent-primary-hover);
+  box-shadow: 0 6px 18px hsla(340, 82%, 55%, 0.35);
+  transform: translateY(-1px);
 }
 
 .locationGranted {
   border-color: var(--success) !important;
-  color: var(--success) !important;
-  background: hsla(150, 60%, 45%, 0.05) !important;
+  color: #ffffff !important;
+  background: var(--success) !important;
+  box-shadow: 0 4px 12px hsla(150, 60%, 45%, 0.25) !important;
+  cursor: not-allowed;
+}
+
+.locationFallbackBtn {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  letter-spacing: 0.01em;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: hsla(230, 20%, 18%, 0.85);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.locationFallbackBtn:hover:not(:disabled) {
+  background: hsla(230, 20%, 25%, 1);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.locationFallbackBtn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -623,6 +660,16 @@
 :global([data-theme="light"]) .heightToggle {
   background: var(--bg-primary);
 }
+:global([data-theme="light"]) .locationFallbackBtn {
+  background: #ffffff;
+  border-color: var(--border);
+  color: var(--text-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+:global([data-theme="light"]) .locationFallbackBtn:hover:not(:disabled) {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-hover);
+}
 
 @media (prefers-color-scheme: light) {
   :global(:root:not([data-theme="dark"])) .stepCard {
@@ -635,6 +682,16 @@
   :global(:root:not([data-theme="dark"])) .segmentContainer,
   :global(:root:not([data-theme="dark"])) .heightToggle {
     background: var(--bg-primary);
+  }
+  :global(:root:not([data-theme="dark"])) .locationFallbackBtn {
+    background: #ffffff;
+    border-color: var(--border);
+    color: var(--text-primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  :global(:root:not([data-theme="dark"])) .locationFallbackBtn:hover:not(:disabled) {
+    background: var(--bg-surface-hover);
+    border-color: var(--border-hover);
   }
 }
 

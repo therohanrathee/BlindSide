@@ -528,12 +528,14 @@ function OnboardingContent() {
         setLocationStatus("granted");
         setLocationError("Using estimated location. Your matches may be less accurate.");
       } else {
-        setLocationStatus("denied");
-        setLocationError("Could not determine approximate location. Please enable GPS.");
+        setLat(28.6139);
+        setLon(77.2090);
+        setLocationStatus("granted");
       }
     } catch (e) {
-      setLocationStatus("denied");
-      setLocationError("Network error while determining approximate location.");
+      setLat(28.6139);
+      setLon(77.2090);
+      setLocationStatus("granted");
     } finally {
       setIsFetchingFallback(false);
     }
@@ -1099,7 +1101,7 @@ function OnboardingContent() {
                     onClick={requestApproximateLocation}
                     disabled={isFetchingFallback}
                   >
-                    {isFetchingFallback ? "Estimating..." : "Skip / Use Approximate Location"}
+                    {isFetchingFallback ? "Skipping..." : "Skip"}
                   </button>
                 )}
 
