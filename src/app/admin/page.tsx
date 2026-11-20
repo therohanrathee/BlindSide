@@ -1550,11 +1550,28 @@ export default function AdminDashboardPage() {
           ========================================================================= */}
       {viewingMatch && (
         <div className={s.modalBackdrop}>
-          <div className={s.modalBox} style={{ maxWidth: "600px" }}>
+          <div className={s.modalBox} style={{ maxWidth: "620px" }}>
             <h3 className={s.modalTitle}>Chat Transcript</h3>
-            <p className={s.modalSubtitle}>
-              Conversation between <strong>{viewingMatch.user_a?.first_name}</strong> and <strong>{viewingMatch.user_b?.first_name}</strong>.
-            </p>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.25rem" }}>
+              <p className={s.modalSubtitle} style={{ margin: 0 }}>
+                Between{" "}
+                <strong style={{ color: viewingMatch.user_a?.gender?.toLowerCase() === "female" ? "#f472b6" : "#60a5fa" }}>
+                  {viewingMatch.user_a?.first_name || "User A"} {viewingMatch.user_a?.gender?.toLowerCase() === "female" ? "♀" : "♂"}
+                </strong>{" "}
+                and{" "}
+                <strong style={{ color: viewingMatch.user_b?.gender?.toLowerCase() === "female" ? "#f472b6" : "#60a5fa" }}>
+                  {viewingMatch.user_b?.first_name || "User B"} {viewingMatch.user_b?.gender?.toLowerCase() === "female" ? "♀" : "♂"}
+                </strong>
+              </p>
+              <div style={{ display: "flex", gap: "0.4rem", fontSize: "0.75rem" }}>
+                <span style={{ color: "#60a5fa", background: "rgba(59, 130, 246, 0.12)", padding: "0.2rem 0.55rem", borderRadius: "9999px", border: "1px solid rgba(59, 130, 246, 0.3)" }}>
+                  ♂ Male (Blue)
+                </span>
+                <span style={{ color: "#f472b6", background: "rgba(236, 72, 153, 0.12)", padding: "0.2rem 0.55rem", borderRadius: "9999px", border: "1px solid rgba(236, 72, 153, 0.3)" }}>
+                  ♀ Female (Pink)
+                </span>
+              </div>
+            </div>
 
             <div className={s.transcriptBox}>
               {transcriptLoading ? (
@@ -1578,20 +1595,49 @@ export default function AdminDashboardPage() {
                     );
                   }
 
+                  const senderGender = (
+                    m.sender?.gender ||
+                    (isUserA ? viewingMatch.user_a?.gender : viewingMatch.user_b?.gender) ||
+                    ""
+                  ).toLowerCase();
+
+                  const isFemale = senderGender === "female";
+                  const isMale = senderGender === "male";
+
+                  const bubbleBg = isFemale
+                    ? "rgba(236, 72, 153, 0.16)"
+                    : isMale
+                    ? "rgba(59, 130, 246, 0.16)"
+                    : isUserA
+                    ? "rgba(59, 130, 246, 0.16)"
+                    : "rgba(236, 72, 153, 0.16)";
+
+                  const bubbleBorder = isFemale
+                    ? "1px solid rgba(236, 72, 153, 0.35)"
+                    : isMale
+                    ? "1px solid rgba(59, 130, 246, 0.35)"
+                    : isUserA
+                    ? "1px solid rgba(59, 130, 246, 0.35)"
+                    : "1px solid rgba(236, 72, 153, 0.35)";
+
+                  const senderColor = isFemale ? "#f472b6" : isMale ? "#60a5fa" : isUserA ? "#60a5fa" : "#f472b6";
+                  const genderBadge = isFemale ? " ♀" : isMale ? " ♂" : "";
+                  const displayName = m.sender?.first_name || (isUserA ? viewingMatch.user_a?.first_name || "User A" : viewingMatch.user_b?.first_name || "User B");
+
                   return (
                     <div
                       key={m.id}
                       className={s.transcriptMsg}
                       style={{
                         alignSelf: isUserA ? "flex-start" : "flex-end",
-                        background: isUserA ? "rgba(59, 130, 246, 0.15)" : "rgba(236, 72, 153, 0.15)",
-                        border: `1px solid ${isUserA ? "rgba(59, 130, 246, 0.3)" : "rgba(236, 72, 153, 0.3)"}`,
+                        background: bubbleBg,
+                        border: bubbleBorder,
                       }}
                     >
-                      <div className={s.transcriptMsgSender} style={{ color: isUserA ? "#60a5fa" : "#f472b6" }}>
-                        {m.sender?.first_name || (isUserA ? "User A" : "User B")}
+                      <div className={s.transcriptMsgSender} style={{ color: senderColor }}>
+                        {displayName}{genderBadge}
                       </div>
-                      <div>{m.content}</div>
+                      <div style={{ color: "#ffffff", wordBreak: "break-word" }}>{m.content}</div>
                       <div style={{ fontSize: "0.65rem", color: "#9ca3af", marginTop: "0.3rem", textAlign: "right" }}>
                         {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </div>
