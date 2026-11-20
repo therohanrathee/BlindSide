@@ -47,6 +47,53 @@ function KeyIcon() {
   );
 }
 
+function LockIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+
+function UserCheckIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="8.5" cy="7" r="4" />
+      <polyline points="17 11 19 13 23 9" />
+    </svg>
+  );
+}
+
+function MessageSquareIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  );
+}
+
+function MailIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  );
+}
+
 export default function LandingPage() {
   const router = useRouter();
   const [isPageLoading, setIsPageLoading] = useState(true);
@@ -393,6 +440,95 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ---- Dedicated Privacy & Discretion Section ---- */}
+      <section className={s.privacySection} id="privacy-first">
+        <div className={s.privacyContainer}>
+          <div className={s.sectionHeader}>
+            <span className={s.sectionTag}>Engineered for Discretion</span>
+            <h2 className={s.sectionTitle}>Privacy First. Zero Compromise.</h2>
+            <p className={s.sectionSubtitle}>
+              Dating on campus shouldn’t mean broadcasting your face to strangers. BlindSide is designed so you retain absolute ownership over your identity, data, and conversations.
+            </p>
+          </div>
+
+          <div className={s.privacyGrid}>
+            {/* 1. Identity in Your Control */}
+            <div className={s.privacyCard}>
+              <div className={s.privacyIconWrapper}>
+                <UserCheckIcon />
+              </div>
+              <h3 className={s.privacyCardTitle}>Identity in Your Control</h3>
+              <p className={s.privacyCardDesc}>
+                No public profiles, no searchable galleries, and no awkward campus directory. Your photos and full name are unrevealed by default. You choose if and when to reveal them through mutual consent.
+              </p>
+              <div className={s.privacyBadge}>
+                <span>✓ Hidden by Default</span>
+              </div>
+            </div>
+
+            {/* 2. End-to-End Encryption */}
+            <div className={s.privacyCard}>
+              <div className={s.privacyIconWrapper}>
+                <LockIcon />
+              </div>
+              <h3 className={s.privacyCardTitle}>Encrypted Architecture</h3>
+              <p className={s.privacyCardDesc}>
+                All account credentials and passwords are encrypted using cryptographic hashing (bcrypt/Argon2). Communications are guarded by TLS 1.3 encryption, and data volumes are strictly encrypted at rest.
+              </p>
+              <div className={s.privacyBadge}>
+                <span>🔒 Cryptographically Secured</span>
+              </div>
+            </div>
+
+            {/* 3. Private Conversations */}
+            <div className={s.privacyCard}>
+              <div className={s.privacyIconWrapper}>
+                <MessageSquareIcon />
+              </div>
+              <h3 className={s.privacyCardTitle}>Private-by-Default Chats</h3>
+              <p className={s.privacyCardDesc}>
+                Your 48-hour blind conversations are strictly private between you and your match. We never sell your personal data, run ad trackers, or perform automated profiling on your private messages.
+              </p>
+              <div className={s.privacyBadge}>
+                <span>🛡️ Zero Ad Tracking</span>
+              </div>
+            </div>
+
+            {/* 4. Complete Right to be Forgotten */}
+            <div className={s.privacyCard}>
+              <div className={s.privacyIconWrapper}>
+                <TrashIcon />
+              </div>
+              <h3 className={s.privacyCardTitle}>Instant Full Data Deletion</h3>
+              <p className={s.privacyCardDesc}>
+                You own your digital footprint. Request deletion anytime with a single tap, and our systems permanently wipe your profile, photos, chat history, and wallet records forever. Zero residual data.
+              </p>
+              <div className={s.privacyBadge}>
+                <span>⚡ 100% Right to Forget</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust Highlights */}
+          <div className={s.privacyTrustBar}>
+            <div className={s.trustBarItem}>
+              <span className={s.trustBarIcon}>🎓</span>
+              <span>Verified Campus Inboxes</span>
+            </div>
+            <div className={s.trustBarDivider} />
+            <div className={s.trustBarItem}>
+              <span className={s.trustBarIcon}>📍</span>
+              <span>Exact Coordinates Never Disclosed</span>
+            </div>
+            <div className={s.trustBarDivider} />
+            <div className={s.trustBarItem}>
+              <span className={s.trustBarIcon}>🛡️</span>
+              <span>Human Moderation & Incident Reporting</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ---- Values / Philosophy ---- */}
       <section className={s.philosophySection}>
         <div className={s.philosophyInner}>
@@ -442,9 +578,12 @@ export default function LandingPage() {
           <span className={s.footerLogo}>BlindSide</span>
           <p className={s.footerCopy}>&copy; {new Date().getFullYear()} BlindSide. All rights reserved.</p>
           <div className={s.footerLinks}>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Security Guidelines</a>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Service</Link>
+            <Link href="/security">Security Guidelines</Link>
+            <a href="mailto:support@blindside.in" className={s.footerSupportBtn} id="home-footer-support-btn">
+              <MailIcon /> Contact Support
+            </a>
           </div>
         </div>
       </footer>

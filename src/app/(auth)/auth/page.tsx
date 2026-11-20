@@ -169,6 +169,17 @@ export default function AuthPage() {
                 {loading ? "Checking..." : "Continue →"}
               </button>
             </form>
+
+            <p className={styles.authLegalText}>
+              By continuing, you agree to BlindSide&apos;s{" "}
+              <Link href="/terms" target="_blank" rel="noopener noreferrer">
+                Terms of Service
+              </Link>{" "}
+              and consent to our{" "}
+              <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+                Privacy Policy
+              </Link>.
+            </p>
           </>
         ) : step === "password" ? (
           <>
@@ -230,6 +241,17 @@ export default function AuthPage() {
                 ← Back
               </button>
             </form>
+
+            <p className={styles.authLegalText}>
+              By logging in, you agree to BlindSide&apos;s{" "}
+              <Link href="/terms" target="_blank" rel="noopener noreferrer">
+                Terms of Service
+              </Link>{" "}
+              and acknowledge our{" "}
+              <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+                Privacy Policy
+              </Link>.
+            </p>
           </>
         ) : step === "link_sent" ? (
           <>

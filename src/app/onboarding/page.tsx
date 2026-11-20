@@ -899,6 +899,17 @@ function OnboardingContent() {
                 >
                   {submitting ? "Registering..." : "Create Account →"}
                 </button>
+
+                <p className={s.authLegalText}>
+                  By creating an account, you agree to BlindSide&apos;s{" "}
+                  <Link href="/terms" target="_blank" rel="noopener noreferrer">
+                    Terms of Service
+                  </Link>{" "}
+                  and consent to our{" "}
+                  <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+                    Privacy Policy
+                  </Link>.
+                </p>
               </form>
             </div>
           )}
